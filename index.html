@@ -233,6 +233,9 @@ const fmtDate = (d, o) => new Date(d).toLocaleDateString('pt-BR', o || { day: '2
 const fmtTime = d => new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 const initials = n => (n || '?').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 const STATUS = { upcoming: 'Upcoming', live: 'Live', finished: 'Finished' };
+const SESS = { race: 'Corrida', sprint: 'Sprint', practice: 'Treino livre', preseason: 'Pré-temporada' };
+const sessOf = r => SESS[r.kind] ? r.kind : 'race';
+const roundLbl = r => sessOf(r) === 'race' ? 'Rodada ' + (r.round ?? '-') : SESS[sessOf(r)];
 const ROLES = { admin: 'Administrador', staff: 'Staff', team_principal: 'Chefe de equipe', driver: 'Piloto', visitor: 'Visitante' };
 const ACCT = { pending: 'Pendente', active: 'Ativa', suspended: 'Suspensa' };
 const KINDS = { anuncio: 'Anúncio', comunicado: 'Comunicado oficial', noticia: 'Notícia', resultado: 'Resultado' };
@@ -296,7 +299,7 @@ function makeLocal() {
     db.audit_log.unshift({ id: Date.now() + Math.random(), user_id: sess(), action: op, table_name: t, row_id: String(t === 'settings' ? r.key : r.id), old_data: slim(o), new_data: slim(n), created_at: iso() });
     if (db.audit_log.length > 300) db.audit_log.length = 300;
   };
-  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming' }, results: { status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
+  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming', kind: 'race' }, results: { status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
   const calcRow = r => {
     if (!r.team_id) r.team_id = db.drivers.find(d => d.id === r.driver_id)?.team_id || null;
     const race = db.races.find(x => x.id === r.race_id), ch = race && db.championships.find(c => c.id === race.championship_id);
@@ -441,7 +444,7 @@ const isLocal = !configured;
 /* ---------- estado ---------- */
 let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
 let me = { user: null, profile: null };
-const S = { champ: null, calMonth: new Date(), calChamp: 'all', calFilter: 'all', adminTab: null, resRace: null, admCat: 'all' };
+const S = { champ: null, calMonth: new Date(), calChamp: 'all', calFilter: 'all', calKind: 'all', adminTab: null, resRace: null, admCat: 'all' };
 
 const isAdmin = () => me.profile?.role === 'admin' && me.profile?.status === 'active';
 const isStaff = () => ['admin', 'staff'].includes(me.profile?.role) && me.profile?.status === 'active';
@@ -508,7 +511,7 @@ function applySettings() {
 
 /* ---------- classificações (calculadas a partir dos resultados publicados) ---------- */
 function standings(cid) {
-  const raceIds = new Set(D.races.filter(r => r.championship_id === cid).map(r => r.id));
+  const raceIds = new Set(D.races.filter(r => r.championship_id === cid && !['practice', 'preseason'].includes(sessOf(r))).map(r => r.id));
   const res = D.results.filter(r => raceIds.has(r.race_id));
   const inCat = x => !x.championship_id || x.championship_id === cid;
   const agg = rs => ({
@@ -533,7 +536,7 @@ const teamLogo = (t, h = 22) => safeUrl(t?.logo_url) ? `<img class="tlogo" src="
 function raceCard(r) {
   const d = new Date(r.race_date);
   return `<a href="#/race/${r.id}" class="card hover race-card"><div class="date"><b>${d.getDate()}</b><small>${d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</small></div>
-  <div style="flex:1;min-width:0"><div class="muted" style="font-size:12px">Rodada ${r.round ?? '-'}</div><h3 style="font-size:17px">${flag(r.country_code)} ${esc(r.name)}</h3>
+  <div style="flex:1;min-width:0"><div class="muted" style="font-size:12px">${roundLbl(r)}</div><h3 style="font-size:17px">${flag(r.country_code)} ${esc(r.name)}</h3>
   <div class="muted" style="font-size:13px">${esc(r.circuit || '')} · ${fmtTime(r.race_date)}</div></div><span class="tag ${r.status}">${STATUS[r.status]}</span></a>`;
 }
 function raceCardAdm(r) {
@@ -607,22 +610,23 @@ PAGES.home = () => {
 PAGES.calendar = () => {
   const m = S.calMonth, y = m.getFullYear(), mo = m.getMonth();
   const first = new Date(y, mo, 1), startOff = (first.getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
-  const base = D.races.filter(r => S.calChamp === 'all' || r.championship_id === S.calChamp);
+  const base = D.races.filter(r => (S.calChamp === 'all' || r.championship_id === S.calChamp) && (S.calKind === 'all' || sessOf(r) === S.calKind));
   const cells = [];
   for (let i = 0; i < startOff; i++) cells.push('<div></div>');
   for (let d = 1; d <= days; d++) {
-    const rc = base.find(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; });
+    const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0];
     const today = new Date(); const isT = today.getFullYear() === y && today.getMonth() === mo && today.getDate() === d;
-    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rc ? `<span>${flag(rc.country_code)} ${esc(rc.name.replace('Grande Prêmio ', 'GP '))}</span>` : ''}</div>`);
+    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}</div>`);
   }
   const f = S.calFilter;
   const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
-  return `${pageHead('Calendário da temporada', 'Todas as etapas, horários e circuitos.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Adicionar GP</button>' : ''))}
+  return `${pageHead('Calendário da temporada', 'Todas as etapas, horários e circuitos.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Adicionar sessão</button>' : ''))}
   <div class="cols"><div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px">
     <button class="btn sm" data-act="calPrev">←</button><h3>${m.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3><button class="btn sm" data-act="calNext">→</button></div>
     <div class="cal">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(x => `<div class="h">${x}</div>`).join('')}${cells.join('')}</div></div>
-    <div><div class="chips" style="margin-bottom:12px">${['all', 'upcoming', 'live', 'finished'].map(s => `<button class="chip ${f === s ? 'on' : ''}" data-act="calFilter" data-v="${s}">${s === 'all' ? 'Todas' : STATUS[s]}</button>`).join('')}</div>
+    <div><div class="chips" style="margin-bottom:8px">${['all', ...Object.keys(SESS)].map(k => `<button class="chip ${S.calKind === k ? 'on' : ''}" data-act="calKind" data-v="${k}">${k === 'all' ? 'Todos os tipos' : SESS[k]}</button>`).join('')}</div>
+    <div class="chips" style="margin-bottom:12px">${['all', 'upcoming', 'live', 'finished'].map(s => `<button class="chip ${f === s ? 'on' : ''}" data-act="calFilter" data-v="${s}">${s === 'all' ? 'Todas' : STATUS[s]}</button>`).join('')}</div>
     <div style="display:grid;gap:12px">${list.map(raceCardAdm).join('') || '<div class="card empty">Sem corridas.</div>'}</div></div></div>`;
 };
 
@@ -631,7 +635,7 @@ PAGES.race = id => {
   if (!r) return '<div class="card empty">Corrida não encontrada.</div>';
   const ch = champOf(r.championship_id), bg = safeUrl(r.image_url) || safeUrl(cfg('track_image'));
   return `<a href="#/calendar" class="muted">← Calendário</a>
-  <section class="hero sm" style="margin-top:12px;background-image:url('${bg}');background-position:center"><div class="inner"><div class="eyebrow">${esc(ch?.name || cfg('site_name'))} · Rodada ${r.round ?? '-'}</div>
+  <section class="hero sm" style="margin-top:12px;background-image:url('${bg}');background-position:center"><div class="inner"><div class="eyebrow">${esc(ch?.name || cfg('site_name'))} · ${roundLbl(r)}</div>
   <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>Corrida: ${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
   ${r.qualifying_date ? `<br>Classificação: ${fmtDate(r.qualifying_date, { weekday: 'short', day: '2-digit', month: 'long' })} às ${fmtTime(r.qualifying_date)}` : ''}${r.laps ? `<br>${r.laps} voltas` : ''}</p>
   <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Adicionar ao meu calendário</button></p></div></section>
@@ -738,7 +742,7 @@ const ENT = {
     { k: 'points_scale', l: 'Sistema de pontos (1º,2º,3º…)', t: 'text', help: 'Separe por vírgula. Ex.: 25,18,15,12,10,8,6,4,2,1 — só pontuam as posições listadas.' },
     { k: 'fl_bonus', l: 'Pontos da volta mais rápida', t: 'number', help: 'Use 0 para desativar. Se mudar o sistema, todos os resultados são recalculados.' }] },
   races: { label: 'Calendário', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
-    { k: 'name', l: 'Nome do Grand Prix', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
+    { k: 'kind', l: 'Tipo de sessão', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Nome (Grand Prix, treino, teste…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
     { k: 'circuit', l: 'Circuito', t: 'text' }, { k: 'country', k2: 'country_code', l: 'País (bandeira)', t: 'country' },
     { k: 'race_date', l: 'Data e hora da corrida', t: 'datetime', req: 1 }, { k: 'qualifying_date', l: 'Data e hora da classificação (opcional)', t: 'datetime' },
     { k: 'laps', l: 'Número de voltas', t: 'number' }, { k: 'status', l: 'Estado', t: 'select', o: () => Object.entries(STATUS), req: 1 },
@@ -985,6 +989,7 @@ const ACT = {
   calPrev: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() - 1, 1); route(); },
   calNext: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() + 1, 1); route(); },
   calFilter: el => { S.calFilter = el.dataset.v; route(); },
+  calKind: el => { S.calKind = el.dataset.v; route(); },
   adminTab: el => { S.adminTab = el.dataset.v; route(); },
   openSite: () => goAdmin('site'),
   entNew: el => openEnt(el.dataset.v),
@@ -1012,7 +1017,7 @@ const ACT = {
   },
   renumber: async () => {
     const groups = {};
-    D.races.forEach(r => (groups[r.championship_id] ||= []).push(r));
+    D.races.filter(r => sessOf(r) === 'race').forEach(r => (groups[r.championship_id] ||= []).push(r));
     const ups = [];
     Object.values(groups).forEach(rs => rs.sort((a, b) => new Date(a.race_date) - new Date(b.race_date)).forEach((r, i) => { if (r.round !== i + 1) ups.push(sb.from('races').update({ round: i + 1 }).eq('id', r.id)); }));
     const res = await Promise.all(ups); const e = res.find(x => x.error);
