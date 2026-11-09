@@ -265,11 +265,23 @@ function buildDemo() {
 function makeLocal() {
   const KEY = 'rfm_local_v4', SK = 'rfm_local_session', listeners = [];
   const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => localStorage.setItem(k, v), del: k => { try { localStorage.removeItem(k); } catch {} } };
-  let db = null; try { db = JSON.parse(ls.get(KEY)); } catch {}
+  let db = null;
+  /* Armazenamento em IndexedDB (centenas de MB) em vez de localStorage (~5 MB). */
+  const idb = () => new Promise((res, rej) => { const q = indexedDB.open('rfm_liga', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const idbGet = async k => { const d = await idb(); return new Promise((res, rej) => { const r = d.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); };
+  const idbSet = async (k, v) => { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); };
+  const init = async () => {
+    try { db = await idbGet(KEY); } catch {}
+    if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }   // migra dados antigos do localStorage
+    if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
+    try { await idbSet(KEY, db); ls.del(KEY); } catch {}
+    try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
+  };
   const iso = () => new Date().toISOString();
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Math.random().toString(36).slice(2) + Date.now().toString(36));
-  if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
-  const save = () => { try { ls.set(KEY, JSON.stringify(db)); } catch (e) { throw new Error('Armazenamento local cheio. Use imagens menores ou links.'); } };
+  let pending = Promise.resolve();
+  const save = () => { pending = pending.then(() => idbSet(KEY, db)).catch(() => { try { toast('Não foi possível salvar no navegador (armazenamento cheio ou bloqueado).', true); } catch {} }); };
+  window.addEventListener('pagehide', () => { try { idbSet(KEY, db); } catch {} });
   const sha = async s => { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); } catch { let h = 5381; for (const c of s) h = (h * 33) ^ c.charCodeAt(0); return 'w' + (h >>> 0).toString(16); } };
   const sess = () => ls.get(SK);
   const P = () => db.profiles.find(p => p.id === sess());
@@ -385,7 +397,7 @@ function makeLocal() {
   });
   const setPw = async (u, pw) => { u.salt = uid(); u.hash = await sha(u.salt + pw); };
   return {
-    local: true,
+    local: true, init,
     from: t => ({ select: () => new Q(t, 'select'), insert: p => new Q(t, 'insert', p), update: p => new Q(t, 'update', p), delete: () => new Q(t, 'delete'), upsert: (p, o) => new Q(t, 'upsert', p, o) }),
     auth: {
       async getSession() { const u = db.users.find(x => x.id === sess()); return { data: { session: u ? { user: { id: u.id, email: u.email } } : null } }; },
@@ -1188,6 +1200,7 @@ document.addEventListener('submit', async e => {
 window.addEventListener('hashchange', () => { window.scrollTo(0, 0); route(); });
 (async () => {
   sb.auth.onAuthStateChange(async ev => { if (ev === 'SIGNED_OUT') { me = { user: null, profile: null }; renderNav(); } });
+  if (sb.init) await sb.init();
   await loadMe();
   await loadData();
   await route();
