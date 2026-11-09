@@ -93,6 +93,7 @@ create table if not exists races (
 alter table races add column if not exists qualifying_date timestamptz;
 alter table races add column if not exists laps int;
 alter table races add column if not exists description text;
+alter table races add column if not exists kind text not null default 'race';
 
 create table if not exists results (
   id uuid primary key default gen_random_uuid(),
