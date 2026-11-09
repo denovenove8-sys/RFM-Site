@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RFM — Real Formula Motorsports</title>
+<title>Minha Liga</title>
 <meta name="description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.">
 <link rel="icon" id="favicon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -205,21 +205,20 @@ footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-under
    Sem essas chaves o site roda em MODO LOCAL (tudo funciona, mas os
    dados ficam salvos só neste navegador) — ótimo para testar.
    ===================================================================== */
-const SUPABASE_URL = "";        // ex.: "https://pfisbhwxldkgjreqiery.supabase.co"
-const SUPABASE_ANON_KEY = "";   // ex.: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaXNiaHd4bGRrZ2pyZXFpZXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzA3NDAsImV4cCI6MjEwOTc0Njc0MH0.XFD32llqr6vNCKwE94wppi0ArCI9KnU4tk1PRbT_csc"
+const SUPABASE_URL = "";        // ex.: "https://abcd1234.supabase.co"
+const SUPABASE_ANON_KEY = "";   // ex.: "eyJhbGciOi..."
 
 const OWNER_NAME = 'haraguchi9020';   // conta principal (vira administradora ao se cadastrar)
 
 /* Imagens padrão do site (podem ser trocadas no painel: Personalizar site) */
-const IMG = { logo: "__IMG_LOGO__", hero: "__IMG_HERO__", track: "__IMG_TRACK__", banner: "__IMG_BANNER__", rfa: "__IMG_RFA__" };
 const FONTS = ['Oswald', 'Rajdhani', 'Orbitron', 'Teko', 'Barlow Condensed'];
 const DEFS = {
-  site_name: 'RFM', site_subtitle: 'Real Formula Motorsports', accent: '#b5322c',
+  site_name: 'Minha Liga', site_subtitle: '', accent: '#b5322c',
   color_bg: '#0e0f10', color_panel: '#16181a', color_text: '#e9e6e0', font_display: 'Oswald',
-  logo_url: IMG.logo, hero_image: IMG.hero, track_image: IMG.track,
-  partner_banner: IMG.banner, partner_logo: IMG.rfa, partner_name: 'Racing Federation Automotive',
-  welcome_title: 'Real Formula Motorsports', welcome_text: 'Plataforma oficial da liga.',
-  footer_text: 'Liga de simulação independente.', discord_url: '', instagram_url: '', youtube_url: '',
+  logo_url: '', hero_image: '', track_image: '',
+  partner_banner: '', partner_logo: '', partner_name: '',
+  welcome_title: '', welcome_text: '',
+  footer_text: '', discord_url: '', instagram_url: '', youtube_url: '',
   nav_home: 'Início', nav_calendar: 'Calendário', nav_standings: 'Classificações', nav_drivers: 'Pilotos', nav_news: 'Anúncios',
   show_banner: '1', show_last: '1', show_next: '1', show_drivers: '1', show_teams: '1', show_news: '1', custom_css: ''
 };
@@ -246,7 +245,7 @@ function toast(msg, err) {
   clearTimeout(toast.t); toast.t = setTimeout(() => t.className = 'toast', 4200);
 }
 
-/* ---------- dados demo (usados para popular o modo local) ---------- */
+/* ---------- pontuação ---------- */
 function calcPoints(r, c) {
   const scale = String(c?.points_scale || '25,18,15,12,10,8,6,4,2,1').split(',').map(Number);
   const bonus = c?.fl_bonus ?? 1;
@@ -255,30 +254,8 @@ function calcPoints(r, c) {
   return Math.max(0, b - (r.penalty_points || 0));
 }
 function buildDemo() {
-  const id = p => p + Math.random().toString(36).slice(2, 8);
-  const teams = [['Aurora Racing', '#b5322c'], ['Nordic Works', '#5d7f9a'], ['Iberia GP', '#c79a3b'], ['Atlas Motorsport', '#5f8f66'], ['Vanguard Team', '#8b6f9e'], ['Kestrel Speed', '#c8c4bb']]
-    .map(([name, color], i) => ({ id: 't' + i, name, short_name: name.split(' ')[0].slice(0, 3).toUpperCase(), color, logo_url: null, championship_id: 'c1' }));
-  const names = [['Tiago Marques', 'PT'], ['Lukas Berg', 'SE'], ['Mateo Ruiz', 'ES'], ['Ethan Cole', 'GB'], ['Hugo Lambert', 'FR'], ['Rafael Duarte', 'BR'], ['Niklas Vogel', 'DE'], ['Luca Ferri', 'IT'], ['Sven Aalto', 'FI'], ['Diogo Pires', 'PT'], ['Kenji Mori', 'JP'], ['Oscar Ward', 'AU']];
-  const drivers = names.map(([name, cc], i) => ({ id: 'd' + i, name, country_code: cc, nationality: countryName(cc), number: [7, 11, 14, 21, 23, 33, 44, 55, 63, 77, 88, 99][i], team_id: 't' + (i % 6), championship_id: 'c1', titles: i === 0 ? 1 : 0, active: true, photo_url: null }));
-  const seasons = [{ id: 's1', name: 'Temporada 2026', year: 2026, is_active: true }];
-  const championships = [{ id: 'c1', season_id: 's1', name: 'RFM Championship — Pro', category: 'Pro', description: 'Categoria principal da liga, com os melhores pilotos da temporada.', points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }];
-  const day = 864e5, now = Date.now();
-  const circ = [['Grande Prêmio de Portugal', 'Portugal', 'PT', 'Autódromo do Algarve'], ['Grande Prêmio da Espanha', 'Espanha', 'ES', 'Circuit de Barcelona-Catalunya'], ['Grande Prêmio da Itália', 'Itália', 'IT', 'Autodromo di Monza'], ['Grande Prêmio da Bélgica', 'Bélgica', 'BE', 'Circuit de Spa-Francorchamps'], ['Grande Prêmio da Grã-Bretanha', 'Reino Unido', 'GB', 'Silverstone Circuit'], ['Grande Prêmio do Japão', 'Japão', 'JP', 'Suzuka Circuit'], ['Grande Prêmio do Brasil', 'Brasil', 'BR', 'Autódromo de Interlagos']];
-  const offs = [-42, -28, -14, 6, 20, 34, 48];
-  const races = circ.map(([name, country, cc, circuit], i) => ({ id: 'r' + i, championship_id: 'c1', round: i + 1, name, country, country_code: cc, circuit, laps: 50 + i, description: '',
-    race_date: new Date(now + offs[i] * day + (20 * 36e5 - (now % day))).toISOString(), status: offs[i] < 0 ? 'finished' : 'upcoming', image_url: null }));
-  const results = [];
-  for (let r = 0; r < 3; r++) {
-    const order = [...drivers].sort((a, b) => ((a.number * (r + 3)) % 17) - ((b.number * (r + 3)) % 17));
-    order.forEach((d, i) => { const x = { id: id('x'), race_id: 'r' + r, driver_id: d.id, team_id: d.team_id, grid: ((i + r) % 12) + 1, position: i + 1, status: i === 11 ? 'DNF' : 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: i === 2, pole: i === 0 };
-      if (x.status === 'DNF') x.position = null; x.points = calcPoints(x, championships[0]); results.push(x); });
-  }
-  const news = [
-    { id: 'n1', kind: 'anuncio', pinned: true, title: 'Arranca a nova temporada da RFM', body: 'A liga apresenta o calendário com 7 Grandes Prêmios, novas equipes e um regulamento desportivo atualizado.', created_at: new Date(now - 20 * day).toISOString(), published: true },
-    { id: 'n2', kind: 'comunicado', pinned: false, title: 'Comunicado oficial: critérios de penalizações', body: 'A direção de prova publica os novos critérios de aplicação de penalizações em segundos e em pontos.', created_at: new Date(now - 9 * day).toISOString(), published: true },
-    { id: 'n3', kind: 'noticia', pinned: false, title: 'Abertas as inscrições para pilotos reserva', body: 'Os interessados devem criar conta e aguardar a aprovação da equipe de staff.', created_at: new Date(now - 3 * day).toISOString(), published: true }
-  ];
-  return { teams, drivers, seasons, championships, races, results, news, profiles: [], settings: {} };
+  // Sem dados de exemplo: o site começa vazio.
+  return { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
 }
 
 /* =====================================================================
@@ -286,7 +263,7 @@ function buildDemo() {
    Usado automaticamente quando SUPABASE_URL/KEY estão vazios.
    ===================================================================== */
 function makeLocal() {
-  const KEY = 'rfm_local_v3', SK = 'rfm_local_session', listeners = [];
+  const KEY = 'rfm_local_v4', SK = 'rfm_local_session', listeners = [];
   const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => localStorage.setItem(k, v), del: k => { try { localStorage.removeItem(k); } catch {} } };
   let db = null; try { db = JSON.parse(ls.get(KEY)); } catch {}
   const iso = () => new Date().toISOString();
@@ -506,14 +483,15 @@ function applySettings() {
   const lg = safeUrl(cfg('logo_url'));
   $('#logo').innerHTML = `${lg ? `<img src="${lg}" alt="">` : ''}<b>${esc(cfg('site_name'))}<small>${esc(cfg('site_subtitle'))}</small></b>`;
   $('#favicon').href = lg || '';
-  document.title = `${cfg('site_name')} — ${cfg('site_subtitle')}`;
+  document.title = cfg('site_subtitle') ? `${cfg('site_name')} — ${cfg('site_subtitle')}` : cfg('site_name');
+  { const u = safeUrl(cfg('logo_url')); let l = document.querySelector('link[rel=icon]'); if (u) { if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); } l.href = u.replace(/&amp;/g, '&'); } }
   const links = [['discord_url', 'Discord'], ['instagram_url', 'Instagram'], ['youtube_url', 'YouTube']].filter(([k]) => /^https?:\/\//.test(cfg(k)))
     .map(([k, l]) => `<a href="${esc(cfg(k))}" target="_blank" rel="noopener">${l}</a>`).join('');
   const pl = safeUrl(cfg('partner_logo'));
-  $('#foot').innerHTML = `<div class="row" style="gap:14px">${pl ? `<img src="${pl}" alt="">` : ''}<div><b class="display" style="color:var(--text);font-size:13px">Official League Partner</b><br>${esc(cfg('partner_name'))}</div></div>
+  $('#foot').innerHTML = `${(pl || cfg('partner_name')) ? `<div class="row" style="gap:14px">${pl ? `<img src="${pl}" alt="">` : ''}<div><b class="display" style="color:var(--text);font-size:13px">Official League Partner</b><br>${esc(cfg('partner_name'))}</div></div>` : '<div></div>'}
     <div>© ${new Date().getFullYear()} ${esc(cfg('site_name'))} — ${esc(cfg('site_subtitle'))}. ${esc(cfg('footer_text'))}</div><div>${links}</div>`;
   const bar = $('#demoBar');
-  if (isLocal) { bar.hidden = false; bar.textContent = (SUPABASE_URL && !window.supabase) ? 'Não foi possível carregar a biblioteca do Supabase — rodando em modo local.' : 'Modo local — tudo funciona, mas os dados ficam salvos só neste navegador. Para o banco de dados real, preencha as chaves do Supabase no início do script.'; }
+  if (isLocal && SUPABASE_URL && !window.supabase) { bar.hidden = false; bar.textContent = 'Não foi possível carregar a biblioteca do Supabase — rodando em modo local.'; }
 }
 
 /* ---------- classificações (calculadas a partir dos resultados publicados) ---------- */
@@ -644,7 +622,7 @@ PAGES.race = id => {
   <section class="hero sm" style="margin-top:12px;background-image:url('${bg}');background-position:center"><div class="inner"><div class="eyebrow">${esc(ch?.name || cfg('site_name'))} · Rodada ${r.round ?? '-'}</div>
   <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>Corrida: ${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
   ${r.qualifying_date ? `<br>Classificação: ${fmtDate(r.qualifying_date, { weekday: 'short', day: '2-digit', month: 'long' })} às ${fmtTime(r.qualifying_date)}` : ''}${r.laps ? `<br>${r.laps} voltas` : ''}</p>
-  <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span></p></div></section>
+  <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Adicionar ao meu calendário</button></p></div></section>
   ${r.description ? `<section class="sec"><div class="card" style="white-space:pre-line">${esc(r.description)}</div></section>` : ''}
   ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar corrida</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Lançar resultados</button></div>` : ''}
   <section class="sec"><h2>Resultados</h2><div class="card">${resultTable(r.id)}</div></section>`;
@@ -652,7 +630,7 @@ PAGES.race = id => {
 
 PAGES.standings = () => {
   const st = standings(S.champ), ch = champOf(S.champ);
-  return `${pageHead(esc(ch?.name || 'Classificações'), esc(ch?.description || 'Campeonato de pilotos e de construtores.'), champSel() + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ Nova categoria</button>' : ''), ch?.image_url, ch?.color)}
+  return `${pageHead(esc(ch?.name || 'Classificações'), esc(ch?.description || 'Campeonato de pilotos e de construtores.'), champSel() + '<button class="btn" data-act="csv">Exportar CSV</button>' + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ Nova categoria</button>' : ''), ch?.image_url, ch?.color)}
   <section class="sec" style="margin-top:0"><h2>Campeonato de pilotos</h2><div class="card">${driverTable(st.drivers)}</div></section>
   <section class="sec"><h2>Campeonato de construtores</h2><div class="card">${teamTable(st.teams)}</div></section>
   <section class="sec"><h2>Classificação por equipes</h2><div class="cols3">${st.teams.map(x => {
@@ -663,7 +641,8 @@ PAGES.standings = () => {
 PAGES.drivers = () => {
   const st = standings(S.champ);
   return `${pageHead('Pilotos', 'Grid oficial da categoria.', champSel() + (isAdmin() ? '<button class="btn red" data-act="entNew" data-v="drivers">+ Adicionar piloto</button>' : ''))}
-  <div class="cols3">${st.drivers.map(x => { const t = teamOf(x.d.team_id); return `<a href="#/driver/${x.d.id}" class="card hover drv-card" style="border-top:3px solid ${safeColor(t?.color)}">
+  ${st.drivers.length > 6 ? '<input type="search" id="drvSearch" placeholder="Buscar piloto ou equipe…" aria-label="Buscar piloto" style="margin:0 0 14px;max-width:340px">' : ''}
+  <div class="cols3" id="drvGrid">${st.drivers.map(x => { const t = teamOf(x.d.team_id); return `<a href="#/driver/${x.d.id}" data-q="${esc((x.d.name + ' ' + (t?.name || '') + ' ' + (x.d.number ?? '')).toLowerCase())}" class="card hover drv-card" style="border-top:3px solid ${safeColor(t?.color)}">
   ${avatarHTML(x.d, 'avatar')}<h3>${esc(x.d.name)}</h3><p class="muted">${flag(x.d.country_code)} #${x.d.number ?? '—'}</p><p class="muted">${teamLogo(t, 20)}${esc(t?.name || 'Sem equipe')}</p><p class="display" style="font-size:22px;margin-top:6px">${x.pts} pts</p></a>`; }).join('') || '<div class="card empty">Sem pilotos.</div>'}</div>`;
 };
 
@@ -693,7 +672,7 @@ PAGES.news = () => `${pageHead('Anúncios e comunicados', 'Avisos oficiais da di
   <div class="cols3">${sortedNews().map(n => newsCard(n, true)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div>`;
 
 /* ---------- autenticação (só nome de usuário + senha) ---------- */
-const localNote = () => isLocal ? `<p class="hint" style="margin:10px 0">Modo local: cadastre-se como <b>Haraguchi9020</b> para virar administrador.</p>` : '';
+const localNote = () => '';
 PAGES.login = () => `<div class="card auth"><h2>Entrar</h2>${localNote()}<form data-form="login">
   <label>Nome de usuário</label><input name="username" required autocomplete="username"><label>Senha</label><input type="password" name="password" required autocomplete="current-password">
   <div class="row" style="margin-top:18px"><button class="btn red">Entrar</button></div></form>
@@ -973,8 +952,23 @@ async function refresh() { const y = window.scrollY; await loadData(); await rou
 const goAdmin = tab => { S.adminTab = tab; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; };
 
 /* ---------- ações ---------- */
+const download = (name, text, type) => { const u = URL.createObjectURL(new Blob([text], { type })); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); };
 const ACT = {
   closeDlg: () => $('#dlg').close(),
+  csv: () => {
+    const st = standings(S.champ), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const rows = [['Pos', 'Piloto', 'Equipe', 'Pontos', 'Vitórias', 'Pódios']].concat(st.drivers.map((x, i) => [i + 1, x.d.name, teamOf(x.d.team_id)?.name || '', x.pts, x.wins, x.pod]));
+    rows.push([], ['Pos', 'Equipe', 'Pontos', 'Vitórias', 'Pódios']);
+    st.teams.forEach((x, i) => rows.push([i + 1, x.t.name, x.pts, x.wins, x.pod]));
+    download('classificacao.csv', '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n'), 'text/csv;charset=utf-8');
+  },
+  ics: a => {
+    const r = D.races.find(x => x.id === a.dataset.v); if (!r) return;
+    const f = d => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, ''), t0 = new Date(r.race_date).getTime();
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Liga//PT', 'BEGIN:VEVENT', 'UID:' + r.id + '@liga', 'DTSTAMP:' + f(Date.now()), 'DTSTART:' + f(t0), 'DTEND:' + f(t0 + 2 * 36e5),
+      'SUMMARY:' + (cfg('site_name') + ' — ' + r.name).replace(/[,;]/g, ' '), 'LOCATION:' + [r.circuit, r.country].filter(Boolean).join(' ').replace(/[,;]/g, ' '), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    download('corrida.ics', ics, 'text/calendar;charset=utf-8');
+  },
   logout: async () => { await sb.auth.signOut(); me = { user: null, profile: null }; location.hash = '#/'; await refresh(); },
   calPrev: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() - 1, 1); route(); },
   calNext: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() + 1, 1); route(); },
@@ -1025,6 +1019,11 @@ document.addEventListener('click', e => {
   if (a && ACT[a.dataset.act]) { e.preventDefault(); ACT[a.dataset.act](a); return; }
   const g = e.target.closest('[data-go]');
   if (g) location.hash = g.dataset.go;
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'drvSearch') return;
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#drvGrid [data-q]').forEach(c => c.hidden = !!q && !c.dataset.q.includes(q));
 });
 document.addEventListener('change', async e => {
   const el = e.target.closest('[data-change]'); if (!el) return;
