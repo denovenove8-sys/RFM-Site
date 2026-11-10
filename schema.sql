@@ -94,6 +94,8 @@ alter table races add column if not exists qualifying_date timestamptz;
 alter table races add column if not exists laps int;
 alter table races add column if not exists description text;
 alter table races add column if not exists kind text not null default 'race';
+alter table races add column if not exists format text;
+alter table races add column if not exists sessions jsonb;
 
 create table if not exists results (
   id uuid primary key default gen_random_uuid(),
@@ -241,7 +243,10 @@ begin
     from races r join championships c on c.id = r.championship_id where r.id = new.race_id;
   scale := string_to_array(coalesce(nullif(sc, ''), '25,18,15,12,10,8,6,4,2,1'), ',')::int[];
   n := coalesce(array_length(scale, 1), 0);
-  if new.status = 'FIN' and new.position between 1 and n then
+  if new.session = 'RACE SPRINT' then
+    scale := array[8,7,6,5,4,3,2,1]; n := 8; bonus := 0;
+  end if;
+  if new.session like 'RACE%' and new.status = 'FIN' and new.position between 1 and n then
     base := scale[new.position];
     if new.fastest_lap then base := base + bonus; end if;
   end if;
@@ -378,4 +383,11 @@ create policy "media_delete" on storage.objects for delete to authenticated
 -- Se você usou a versão anterior (login com e-mail), essas contas antigas
 -- não entram mais pelo nome de usuário: apague-as em Authentication → Users
 -- e cadastre de novo pelo site.
+-- =====================================================================
+
+-- Resultados por sessão (FP1, QUALI, RACE...)
+alter table results add column if not exists session text not null default 'RACE';
+alter table results drop constraint if exists results_race_id_driver_id_key;
+alter table results drop constraint if exists results_race_session_driver_key;
+alter table results add constraint results_race_session_driver_key unique (race_id, session, driver_id);
 -- =====================================================================
