@@ -237,9 +237,7 @@ const SESS = { race: 'Rodada (fim de semana)', preseason: 'Pré-temporada / test
 const WK = { f1: ['FP1', 'QUALI', 'RACE'], f2: ['FP1', 'FP2', 'QUALI', 'RACE'], f3: ['FP1', 'FP2', 'FP3', 'QUALI', 'RACE'],
   f4: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT'], f5: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'RACE FEATURE'],
   f6: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE FEATURE'] };
-const WK_ALL = ['FP1', 'FP2', 'FP3', 'QUALI', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE', 'RACE FEATURE'];
 const WK_OPTS = () => [['', 'Sem modelo (só a corrida)'], ...Object.entries(WK).map(([k, v]) => [k, v.join(' – ')])];
-const WK_CSS = '.wk-s{margin-top:8px}' + Object.keys(WK).map(k => `form:has(select[name=format] option[value="${k}"]:checked) .wk-s:not(.${k}){display:none}`).join('') + 'form:has(select[name=format] option[value=""]:checked) .wk-s{display:none}';
 const sessOf = r => SESS[r.kind] ? r.kind : 'race';
 const sessionsOf = r => WK[r.format] || ['RACE'];
 const mainSess = r => [...sessionsOf(r)].reverse().find(n => n.startsWith('RACE')) || 'RACE';
@@ -632,10 +630,10 @@ PAGES.calendar = () => {
   const cells = [];
   for (let i = 0; i < startOff; i++) cells.push('<div></div>');
   for (let d = 1; d <= days; d++) {
-    const sess = base.flatMap(r => Object.entries(r.sessions || {}).filter(([, dt]) => dt !== new Date(r.race_date).toISOString()).map(([n, dt]) => ({ r, n, dt }))).filter(x => { const q = new Date(x.dt); return q.getFullYear() === y && q.getMonth() === mo && q.getDate() === d; });
-    const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0] || (sess[0] && sess[0].r);
+    const dayT = new Date(y, mo, d).getTime(), sess = base.filter(r => { if (!r.start_date) return false; const a = new Date(r.start_date), b = new Date(r.race_date), a0 = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime(), b0 = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime(); return dayT >= a0 && dayT < b0; });
+    const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0] || sess[0];
     const today = new Date(); const isT = today.getFullYear() === y && today.getMonth() === mo && today.getDate() === d;
-    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.n)}</span>`).join('')}</div>`);
+    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}</div>`);
   }
   const f = S.calFilter;
   const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
@@ -655,10 +653,10 @@ PAGES.race = id => {
   const ch = champOf(r.championship_id), bg = safeUrl(r.image_url) || safeUrl(cfg('track_image'));
   return `<a href="#/calendar" class="muted">← Calendário</a>
   <section class="hero sm" style="margin-top:12px;background-image:url('${bg}');background-position:center"><div class="inner"><div class="eyebrow">${esc(ch?.name || cfg('site_name'))} · ${roundLbl(r)}</div>
-  <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>Corrida: ${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
-  ${r.qualifying_date ? `<br>Classificação: ${fmtDate(r.qualifying_date, { weekday: 'short', day: '2-digit', month: 'long' })} às ${fmtTime(r.qualifying_date)}` : ''}${r.laps ? `<br>${r.laps} voltas` : ''}</p>
+  <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>${r.start_date ? `Início: ${fmtDate(r.start_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.start_date)}<br>Final: ` : 'Corrida: '}${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
+  ${r.laps ? `<br>${r.laps} voltas` : ''}</p>
   <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Adicionar ao meu calendário</button></p></div></section>
-  ${r.sessions && Object.keys(r.sessions).length ? `<div class="card" style="margin-top:16px"><h3 style="margin-bottom:10px">Programação do fim de semana</h3><table class="tbl"><tbody>${Object.entries(r.sessions).sort((a, b) => new Date(a[1]) - new Date(b[1])).map(([n, d]) => `<tr><td><b>${esc(n)}</b></td><td>${fmtDate(d, { weekday: 'short', day: '2-digit', month: 'long' })}</td><td>${fmtTime(d)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+
   ${r.description ? `<section class="sec"><div class="card" style="white-space:pre-line">${esc(r.description)}</div></section>` : ''}
   ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar corrida</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Lançar resultados</button></div>` : ''}
   <section class="sec"><h2>Resultados</h2><div class="card">${resultTable(r.id)}</div></section>`;
@@ -764,8 +762,8 @@ const ENT = {
   races: { label: 'Calendário', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
     { k: 'kind', l: 'Tipo', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Nome (Grand Prix, teste…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
     { k: 'circuit', l: 'Circuito', t: 'text' }, { k: 'country', k2: 'country_code', l: 'País (bandeira)', t: 'country' },
-    { k: 'format', l: 'Modelo de fim de semana', t: 'select', o: WK_OPTS }, { k: 'sessions', l: '', t: 'sessions' },
-    { k: 'race_date', l: 'Data e hora da corrida principal', t: 'datetime', req: 1 }, { k: 'qualifying_date', l: 'Data e hora da classificação (opcional)', t: 'datetime' },
+    { k: 'format', l: 'Modelo de fim de semana (sessões dos resultados)', t: 'select', o: WK_OPTS },
+    { k: 'start_date', l: 'Início do fim de semana', t: 'datetime' }, { k: 'race_date', l: 'Final do fim de semana', t: 'datetime', req: 1 },
     { k: 'laps', l: 'Número de voltas', t: 'number' }, { k: 'status', l: 'Estado', t: 'select', o: () => Object.entries(STATUS), req: 1 },
     { k: 'description', l: 'Descrição / regras da etapa', t: 'textarea' }, { k: 'image_url', l: 'Imagem do circuito', t: 'image' }] },
   news: { label: 'Anúncios', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
@@ -866,10 +864,6 @@ function sitePanel() {
 
 /* campos de formulário reutilizáveis */
 function fieldHTML(f, v) {
-  if (f.t === 'sessions') {
-    const cur = v || {}, loc = x => { const d = new Date(x); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); };
-    return `<style>${WK_CSS}</style>` + WK_ALL.map(nm => `<div class="wk-s ${Object.keys(WK).filter(k => WK[k].includes(nm)).join(' ')}"><label>${nm}</label><input type="datetime-local" data-s="${nm}" value="${cur[nm] ? loc(cur[nm]) : ''}"></div>`).join('');
-  }
   const n = `name="${f.k}"${f.req ? ' required' : ''}`, help = f.help ? `<div class="hint">${esc(f.help)}</div>` : '';
   if (f.t === 'bool') return `<label class="chk"><input type="checkbox" name="${f.k}" ${v === undefined || v === null ? (f.def === false ? '' : 'checked') : (v ? 'checked' : '')}> ${f.l}</label>`;
   let inp;
@@ -1007,7 +1001,7 @@ const ACT = {
   ics: a => {
     const r = D.races.find(x => x.id === a.dataset.v); if (!r) return;
     const f = d => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, ''), t0 = new Date(r.race_date).getTime();
-    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Liga//PT', 'BEGIN:VEVENT', 'UID:' + r.id + '@liga', 'DTSTAMP:' + f(Date.now()), 'DTSTART:' + f(t0), 'DTEND:' + f(t0 + 2 * 36e5),
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Liga//PT', 'BEGIN:VEVENT', 'UID:' + r.id + '@liga', 'DTSTAMP:' + f(Date.now()), 'DTSTART:' + f(r.start_date ? new Date(r.start_date).getTime() : t0), 'DTEND:' + f(t0 + 2 * 36e5),
       'SUMMARY:' + (cfg('site_name') + ' — ' + r.name).replace(/[,;]/g, ' '), 'LOCATION:' + [r.circuit, r.country].filter(Boolean).join(' ').replace(/[,;]/g, ' '), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     download('corrida.ics', ics, 'text/calendar;charset=utf-8');
   },
@@ -1160,10 +1154,7 @@ document.addEventListener('submit', async e => {
         else if (fl.t === 'datetime') v = new Date(v).toISOString();
         row[fl.k] = v;
       }
-      if (key === 'races') {
-        const ss = {}; f.querySelectorAll('.wk-s').forEach(w => { const i = w.querySelector('input'); if (w.offsetParent && i.value) ss[i.dataset.s] = new Date(i.value).toISOString(); });
-        row.sessions = row.format && Object.keys(ss).length ? ss : null; row.format = row.format || null;
-      }
+      if (key === 'races') row.format = row.format || null;
       if (key === 'championships') {
         if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(row.points_scale || '')) throw new Error('Sistema de pontos inválido. Use números separados por vírgula, ex.: 25,18,15,12,10.');
         row.points_scale = row.points_scale.replace(/\s/g, ''); row.fl_bonus = row.fl_bonus ?? 0;
