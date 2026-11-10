@@ -205,8 +205,8 @@ footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-under
    Sem essas chaves o site roda em MODO LOCAL (tudo funciona, mas os
    dados ficam salvos só neste navegador) — ótimo para testar.
    ===================================================================== */
-const SUPABASE_URL = "";        // ex.: "https://abcd1234.supabase.co"
-const SUPABASE_ANON_KEY = "";   // ex.: "eyJhbGciOi..."
+const SUPABASE_URL = "https://pfisbhwxldkgjreqiery.supabase.co";        // ex.: "https://abcd1234.supabase.co"
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaXNiaHd4bGRrZ2pyZXFpZXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzA3NDAsImV4cCI6MjEwOTc0Njc0MH0.XFD32llqr6vNCKwE94wppi0ArCI9KnU4tk1PRbT_csc";   // ex.: "eyJhbGciOi..."
 
 const OWNER_NAME = 'haraguchi9020';   // conta principal (vira administradora ao se cadastrar)
 
@@ -273,25 +273,22 @@ function calcPoints(r, c) {
   return Math.max(0, b - (r.penalty_points || 0));
 }
 function buildDemo() {
-  // Sem dados de exemplo: o site começa vazio.
   return { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
 }
 
 /* =====================================================================
-   MODO LOCAL — um "mini Supabase" que guarda tudo no navegador.
-   Usado automaticamente quando SUPABASE_URL/KEY estão vazios.
+   MODO LOCAL — mini Supabase no navegador
    ===================================================================== */
 function makeLocal() {
   const KEY = 'rfm_local_v4', SK = 'rfm_local_session', listeners = [];
   const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => localStorage.setItem(k, v), del: k => { try { localStorage.removeItem(k); } catch {} } };
   let db = null;
-  /* Armazenamento em IndexedDB (centenas de MB) em vez de localStorage (~5 MB). */
   const idb = () => new Promise((res, rej) => { const q = indexedDB.open('rfm_liga', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
   const idbGet = async k => { const d = await idb(); return new Promise((res, rej) => { const r = d.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); };
   const idbSet = async (k, v) => { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); };
   const init = async () => {
     try { db = await idbGet(KEY); } catch {}
-    if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }   // migra dados antigos do localStorage
+    if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
     if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
     try { await idbSet(KEY, db); ls.del(KEY); } catch {}
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
@@ -527,7 +524,10 @@ function applySettings() {
 
 /* ---------- classificações (calculadas a partir dos resultados publicados) ---------- */
 function standings(cid) {
-  const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) !== 'preseason').map(r => r.id));
+  // Filtra apenas corridas oficiais da temporada (ignora pré-temporada)
+  const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) === 'race').map(r => r.id));
+  
+  // Considera apenas sessões de corrida (ignora treinos e qualificações)
   const res = D.results.filter(r => raceIds.has(r.race_id) && sx(r).startsWith('RACE'));
   const inCat = x => !x.championship_id || x.championship_id === cid;
   const agg = rs => ({
@@ -570,7 +570,7 @@ function driverTable(rows, limit) {
   if (!list.length) return '<div class="empty">Sem pilotos cadastrados.</div>';
   return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
   ${list.map((x, i) => { const t = teamOf(x.d.team_id); return `<tr class="click" data-go="#/driver/${x.d.id}"><td class="pos">${i + 1}</td>
-  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span>${flag(x.d.country_code)} <b>${esc(x.d.name)}</b><span class="num">${x.d.number ?? ''}</span></td>
+  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span>${avatarHTML(x.d, 'thumb')}${flag(x.d.country_code)} <b>${esc(x.d.name)}</b><span class="num">${x.d.number ?? ''}</span></td>
   <td class="muted" style="white-space:nowrap">${teamLogo(t)}${esc(t?.name || '—')}</td><td>${x.wins}</td><td>${x.pod}</td><td class="pts">${x.pts}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function teamTable(rows) {
@@ -684,8 +684,21 @@ PAGES.drivers = () => {
 PAGES.driver = id => {
   const d = driverOf(id);
   if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
-  const t = teamOf(d.team_id), rs = D.results.filter(r => r.driver_id === id), fin = rs.filter(r => r.status === 'FIN');
-  const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race && sx(x.r) === mainSess(x.race)).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
+  const t = teamOf(d.team_id);
+  
+  // Filtra apenas sessões oficiais de corrida (RACE) de eventos válidos (race)
+  const rs = D.results.filter(r => {
+    if (r.driver_id !== id) return false;
+    const race = D.races.find(x => x.id === r.race_id);
+    return race && sessOf(race) === 'race' && sx(r).startsWith('RACE');
+  });
+  
+  const fin = rs.filter(r => r.status === 'FIN');
+  const hist = D.results.filter(r => r.driver_id === id)
+    .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
+    .filter(x => x.race && sx(x.r) === mainSess(x.race))
+    .sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
+
   return `<a href="#/drivers" class="muted">← Pilotos</a>
   <section class="card" style="margin-top:12px;border-left:4px solid ${safeColor(t?.color)}"><div class="drv-head">
     ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
@@ -890,7 +903,6 @@ function openEnt(key, id) {
   $('#dlg').showModal();
 }
 
-/* ----- formulário de piloto: categoria, foto, nome, nacionalidade, equipe, cor e logo da equipe, número ----- */
 function teamOpts(cat, sel) {
   const ts = D.teams.filter(t => !cat || !t.championship_id || t.championship_id === cat);
   return `<option value="">— Sem equipe —</option>${ts.map(t => `<option value="${t.id}" ${t.id === sel ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}<option value="__new">➕ Criar nova equipe…</option>`;
@@ -1093,7 +1105,6 @@ document.addEventListener('change', async e => {
 });
 $('#burger').onclick = () => $('#links').classList.toggle('open');
 
-/* upload de imagem para o Storage (bucket "media") */
 async function uploadMedia(file, folder) {
   if (!file || !file.size) return null;
   if (file.size > 4e6) throw new Error('A imagem precisa ter menos de 4 MB.');
