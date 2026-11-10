@@ -823,7 +823,7 @@ function cellVal(k, v) {
   if (k === 'race_date') return fmtDate(v) + ' ' + fmtTime(v);
   if (k === 'created_at') return fmtDate(v);
   if (k === 'kind') return KINDS[v] || v;
-  if (k === 'color') return `<span class="bar" style="background:${safeColor(v)};height:14px"></span>${esc(v)}`;
+  if (k === 'color') return `<span class="bar" style="background:${safeColor(v)};height:14px"></span><b>${esc(v)}</b>`;
   if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
   if (k === 'status') return `<span class="tag ${v}">${STATUS[v] || v}</span>`;
   return esc(v);
