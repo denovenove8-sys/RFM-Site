@@ -391,3 +391,6 @@ alter table results add column if not exists session text not null default 'RACE
 alter table results drop constraint if exists results_race_id_driver_id_key;
 alter table results drop constraint if exists results_race_session_driver_key;
 alter table results add constraint results_race_session_driver_key unique (race_id, session, driver_id);
+
+-- Melhor tempo de volta (treinos livres e qualificações), ex.: 1:32.456
+alter table results add column if not exists lap_time text;
