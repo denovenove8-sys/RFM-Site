@@ -96,6 +96,7 @@ alter table races add column if not exists description text;
 alter table races add column if not exists kind text not null default 'race';
 alter table races add column if not exists format text;
 alter table races add column if not exists sessions jsonb;
+alter table races add column if not exists start_date timestamptz;
 
 create table if not exists results (
   id uuid primary key default gen_random_uuid(),
@@ -390,4 +391,3 @@ alter table results add column if not exists session text not null default 'RACE
 alter table results drop constraint if exists results_race_id_driver_id_key;
 alter table results drop constraint if exists results_race_session_driver_key;
 alter table results add constraint results_race_session_driver_key unique (race_id, session, driver_id);
--- =====================================================================
