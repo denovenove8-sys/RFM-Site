@@ -233,9 +233,23 @@ const fmtDate = (d, o) => new Date(d).toLocaleDateString('pt-BR', o || { day: '2
 const fmtTime = d => new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 const initials = n => (n || '?').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 const STATUS = { upcoming: 'Upcoming', live: 'Live', finished: 'Finished' };
-const SESS = { race: 'Corrida', sprint: 'Sprint', practice: 'Treino livre', preseason: 'Pré-temporada' };
+const SESS = { race: 'Rodada (fim de semana)', preseason: 'Pré-temporada / testes' };
+const WK = { f1: ['FP1', 'QUALI', 'RACE'], f2: ['FP1', 'FP2', 'QUALI', 'RACE'], f3: ['FP1', 'FP2', 'FP3', 'QUALI', 'RACE'],
+  f4: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT'], f5: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'RACE FEATURE'],
+  f6: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE FEATURE'] };
+const WK_ALL = ['FP1', 'FP2', 'FP3', 'QUALI', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE', 'RACE FEATURE'];
+const WK_OPTS = () => [['', 'Sem modelo (só a corrida)'], ...Object.entries(WK).map(([k, v]) => [k, v.join(' – ')])];
+const WK_CSS = '.wk-s{margin-top:8px}' + Object.keys(WK).map(k => `form:has(select[name=format] option[value="${k}"]:checked) .wk-s:not(.${k}){display:none}`).join('') + 'form:has(select[name=format] option[value=""]:checked) .wk-s{display:none}';
 const sessOf = r => SESS[r.kind] ? r.kind : 'race';
-const roundLbl = r => sessOf(r) === 'race' ? 'Rodada ' + (r.round ?? '-') : SESS[sessOf(r)];
+const sessionsOf = r => WK[r.format] || ['RACE'];
+const mainSess = r => [...sessionsOf(r)].reverse().find(n => n.startsWith('RACE')) || 'RACE';
+const curSess = r => { const c = S.sess[r.id]; return c && sessionsOf(r).includes(c) ? c : mainSess(r); };
+const sx = x => x.session || 'RACE';
+const mainRes = id => { const r = D.races.find(x => x.id === id); return D.results.filter(x => x.race_id === id && (!r || sx(x) === mainSess(r))); };
+const sessNav = r => { const ss = sessionsOf(r), c = curSess(r); return ss.length < 2 ? '' : `<div class="row" style="gap:8px;margin-bottom:14px;flex-wrap:wrap"><button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="-1" aria-label="Sessão anterior">←</button>
+  <div class="chips">${ss.map(n => `<button type="button" class="chip ${n === c ? 'on' : ''}" data-act="sessSet" data-id="${r.id}" data-v="${n}">${n}</button>`).join('')}</div>
+  <button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="1" aria-label="Próxima sessão">→</button></div>`; };
+const roundLbl = r => sessOf(r) === 'race' ? 'Rodada ' + (r.round ?? '-') : 'Pré-temporada';
 const ROLES = { admin: 'Administrador', staff: 'Staff', team_principal: 'Chefe de equipe', driver: 'Piloto', visitor: 'Visitante' };
 const ACCT = { pending: 'Pendente', active: 'Ativa', suspended: 'Suspensa' };
 const KINDS = { anuncio: 'Anúncio', comunicado: 'Comunicado oficial', noticia: 'Notícia', resultado: 'Resultado' };
@@ -251,7 +265,10 @@ function toast(msg, err) {
 /* ---------- pontuação ---------- */
 function calcPoints(r, c) {
   const scale = String(c?.points_scale || '25,18,15,12,10,8,6,4,2,1').split(',').map(Number);
-  const bonus = c?.fl_bonus ?? 1;
+  if (r.session && !r.session.startsWith('RACE')) return 0;
+  const sprint = r.session === 'RACE SPRINT';
+  if (sprint) scale.splice(0, scale.length, 8, 7, 6, 5, 4, 3, 2, 1);
+  const bonus = sprint ? 0 : (c?.fl_bonus ?? 1);
   let b = 0;
   if (r.status === 'FIN' && r.position >= 1 && r.position <= scale.length) { b = scale[r.position - 1]; if (r.fastest_lap) b += bonus; }
   return Math.max(0, b - (r.penalty_points || 0));
@@ -299,7 +316,7 @@ function makeLocal() {
     db.audit_log.unshift({ id: Date.now() + Math.random(), user_id: sess(), action: op, table_name: t, row_id: String(t === 'settings' ? r.key : r.id), old_data: slim(o), new_data: slim(n), created_at: iso() });
     if (db.audit_log.length > 300) db.audit_log.length = 300;
   };
-  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming', kind: 'race' }, results: { status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
+  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming', kind: 'race', format: 'f3' }, results: { session: 'RACE', status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
   const calcRow = r => {
     if (!r.team_id) r.team_id = db.drivers.find(d => d.id === r.driver_id)?.team_id || null;
     const race = db.races.find(x => x.id === r.race_id), ch = race && db.championships.find(c => c.id === race.championship_id);
@@ -357,12 +374,12 @@ function makeLocal() {
           const arr = Array.isArray(this.pay) ? this.pay : [this.pay], made = [];
           const keys = (this.opt.onConflict || 'id').split(',');
           for (const x of arr) {
-            const ex = this.op === 'upsert' ? rows.find(r => keys.every(k => r[k] === x[k])) : null;
+            const ex = this.op === 'upsert' ? rows.find(r => keys.every(k => (k === 'session' ? sx(r) : r[k]) === x[k])) : null;
             if (ex) { if (!allow(t, ex)) throw deny(); const old = { ...ex }; Object.assign(ex, x); if (t === 'results') calcRow(ex); aud('UPDATE', t, old, ex); made.push(ex); continue; }
             if (!allow(t, x)) throw deny();
             const r = { id: uid(), ...(LDEF[t] || {}), ...x };
             if (['news', 'teams', 'drivers', 'profiles'].includes(t) && !r.created_at) r.created_at = iso();
-            if (t === 'results') { calcRow(r); if (rows.some(q => q.race_id === r.race_id && q.driver_id === r.driver_id)) throw new Error('duplicate key value violates unique constraint'); }
+            if (t === 'results') { calcRow(r); if (rows.some(q => q.race_id === r.race_id && q.driver_id === r.driver_id && sx(q) === sx(r))) throw new Error('duplicate key value violates unique constraint'); }
             rows.push(r); aud('INSERT', t, null, r); made.push(r);
           }
           save(); return this.sel ? this.fin(made.map(r => ({ ...r }))) : { data: null, error: null };
@@ -444,7 +461,7 @@ const isLocal = !configured;
 /* ---------- estado ---------- */
 let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
 let me = { user: null, profile: null };
-const S = { champ: null, calMonth: new Date(), calChamp: 'all', calFilter: 'all', calKind: 'all', adminTab: null, resRace: null, admCat: 'all' };
+const S = { champ: null, calMonth: new Date(), calChamp: 'all', calFilter: 'all', calKind: 'all', sess: {}, adminTab: null, resRace: null, admCat: 'all' };
 
 const isAdmin = () => me.profile?.role === 'admin' && me.profile?.status === 'active';
 const isStaff = () => ['admin', 'staff'].includes(me.profile?.role) && me.profile?.status === 'active';
@@ -511,8 +528,8 @@ function applySettings() {
 
 /* ---------- classificações (calculadas a partir dos resultados publicados) ---------- */
 function standings(cid) {
-  const raceIds = new Set(D.races.filter(r => r.championship_id === cid && !['practice', 'preseason'].includes(sessOf(r))).map(r => r.id));
-  const res = D.results.filter(r => raceIds.has(r.race_id));
+  const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) !== 'preseason').map(r => r.id));
+  const res = D.results.filter(r => raceIds.has(r.race_id) && sx(r).startsWith('RACE'));
   const inCat = x => !x.championship_id || x.championship_id === cid;
   const agg = rs => ({
     pts: rs.reduce((a, r) => a + Number(r.points || 0), 0),
@@ -563,16 +580,17 @@ function teamTable(rows) {
   ${rows.map((x, i) => `<tr><td class="pos">${i + 1}</td><td style="white-space:nowrap"><span class="bar" style="background:${safeColor(x.t.color)}"></span>${teamLogo(x.t, 26)}<b>${esc(x.t.name)}</b></td><td>${x.wins}</td><td>${x.pod}</td><td class="pts">${x.pts}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function resultTable(raceId) {
-  const rs = D.results.filter(r => r.race_id === raceId).sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
-  if (!rs.length) return '<div class="empty">Resultados ainda não publicados.</div>';
-  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>Grid</th><th>Estado</th><th>Pen.</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+  const race = D.races.find(x => x.id === raceId), nav = race ? sessNav(race) : '', cs = race ? curSess(race) : 'RACE';
+  const rs = D.results.filter(r => r.race_id === raceId && sx(r) === cs).sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
+  if (!rs.length) return nav + '<div class="empty">Resultados ainda não publicados' + (nav ? ' para ' + cs : '') + '.</div>';
+  return nav + `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>Grid</th><th>Estado</th><th>Pen.</th><th style="text-align:right">Pts</th></tr></thead><tbody>
   ${rs.map(r => { const d = driverOf(r.driver_id), t = teamOf(r.team_id); return `<tr><td class="pos">${r.status === 'FIN' ? r.position : r.status}</td>
   <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(d?.name || '?')}</b>${r.pole ? ' <span class="tag">Pole</span>' : ''}${r.fastest_lap ? ' <span class="tag">VR</span>' : ''}</td>
   <td class="muted" style="white-space:nowrap">${teamLogo(t, 20)}${esc(t?.name || '—')}</td><td>${r.grid ?? '—'}</td><td>${r.status}</td>
   <td class="muted">${r.penalty_seconds ? '+' + r.penalty_seconds + 's ' : ''}${r.penalty_points ? '−' + r.penalty_points + 'pts' : ''}${!r.penalty_seconds && !r.penalty_points ? '—' : ''}</td><td class="pts">${r.points}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function resultTableTop(raceId, n) {
-  const rs = D.results.filter(r => r.race_id === raceId && r.status === 'FIN').sort((a, b) => a.position - b.position).slice(0, n);
+  const rs = mainRes(raceId).filter(r => r.status === 'FIN').sort((a, b) => a.position - b.position).slice(0, n);
   return `<table class="tbl"><tbody>${rs.map(r => { const d = driverOf(r.driver_id), t = teamOf(r.team_id); return `<tr><td class="pos">${r.position}</td><td><span class="bar" style="background:${safeColor(t?.color)}"></span>${esc(d?.name || '?')}</td><td class="muted" style="white-space:nowrap">${teamLogo(t, 18)}${esc(t?.short_name || t?.name || '')}</td><td class="pts">${r.points}</td></tr>`; }).join('')}</tbody></table>`;
 }
 
@@ -614,9 +632,10 @@ PAGES.calendar = () => {
   const cells = [];
   for (let i = 0; i < startOff; i++) cells.push('<div></div>');
   for (let d = 1; d <= days; d++) {
-    const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0];
+    const sess = base.flatMap(r => Object.entries(r.sessions || {}).filter(([, dt]) => dt !== new Date(r.race_date).toISOString()).map(([n, dt]) => ({ r, n, dt }))).filter(x => { const q = new Date(x.dt); return q.getFullYear() === y && q.getMonth() === mo && q.getDate() === d; });
+    const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0] || (sess[0] && sess[0].r);
     const today = new Date(); const isT = today.getFullYear() === y && today.getMonth() === mo && today.getDate() === d;
-    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}</div>`);
+    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.n)}</span>`).join('')}</div>`);
   }
   const f = S.calFilter;
   const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
@@ -639,6 +658,7 @@ PAGES.race = id => {
   <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>Corrida: ${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
   ${r.qualifying_date ? `<br>Classificação: ${fmtDate(r.qualifying_date, { weekday: 'short', day: '2-digit', month: 'long' })} às ${fmtTime(r.qualifying_date)}` : ''}${r.laps ? `<br>${r.laps} voltas` : ''}</p>
   <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Adicionar ao meu calendário</button></p></div></section>
+  ${r.sessions && Object.keys(r.sessions).length ? `<div class="card" style="margin-top:16px"><h3 style="margin-bottom:10px">Programação do fim de semana</h3><table class="tbl"><tbody>${Object.entries(r.sessions).sort((a, b) => new Date(a[1]) - new Date(b[1])).map(([n, d]) => `<tr><td><b>${esc(n)}</b></td><td>${fmtDate(d, { weekday: 'short', day: '2-digit', month: 'long' })}</td><td>${fmtTime(d)}</td></tr>`).join('')}</tbody></table></div>` : ''}
   ${r.description ? `<section class="sec"><div class="card" style="white-space:pre-line">${esc(r.description)}</div></section>` : ''}
   ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar corrida</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Lançar resultados</button></div>` : ''}
   <section class="sec"><h2>Resultados</h2><div class="card">${resultTable(r.id)}</div></section>`;
@@ -666,7 +686,7 @@ PAGES.driver = id => {
   const d = driverOf(id);
   if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
   const t = teamOf(d.team_id), rs = D.results.filter(r => r.driver_id === id), fin = rs.filter(r => r.status === 'FIN');
-  const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
+  const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race && sx(x.r) === mainSess(x.race)).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
   return `<a href="#/drivers" class="muted">← Pilotos</a>
   <section class="card" style="margin-top:12px;border-left:4px solid ${safeColor(t?.color)}"><div class="drv-head">
     ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
@@ -706,7 +726,7 @@ PAGES.profile = () => {
   if (!me.user) return '<div class="card empty">Entre para ver o seu perfil. <a href="#/login" style="color:var(--red2)">Entrar</a></div>';
   const p = me.profile || {}, d = D.drivers.find(x => x.profile_id === me.user.id), t = d && teamOf(d.team_id);
   const rs = d ? D.results.filter(r => r.driver_id === d.id) : [], fin = rs.filter(r => r.status === 'FIN');
-  const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
+  const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race && sx(x.r) === mainSess(x.race)).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
   const myTeam = D.teams.find(x => x.principal_id === me.user.id);
   return `${pageHead('Meu perfil', '')}
   <div class="cols"><div class="card"><div class="drv-head">${safeUrl(p.avatar_url) ? `<img class="avatar" src="${safeUrl(p.avatar_url)}" alt="">` : `<div class="avatar">${initials(p.username)}</div>`}
@@ -742,9 +762,10 @@ const ENT = {
     { k: 'points_scale', l: 'Sistema de pontos (1º,2º,3º…)', t: 'text', help: 'Separe por vírgula. Ex.: 25,18,15,12,10,8,6,4,2,1 — só pontuam as posições listadas.' },
     { k: 'fl_bonus', l: 'Pontos da volta mais rápida', t: 'number', help: 'Use 0 para desativar. Se mudar o sistema, todos os resultados são recalculados.' }] },
   races: { label: 'Calendário', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
-    { k: 'kind', l: 'Tipo de sessão', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Nome (Grand Prix, treino, teste…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
+    { k: 'kind', l: 'Tipo', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Nome (Grand Prix, teste…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
     { k: 'circuit', l: 'Circuito', t: 'text' }, { k: 'country', k2: 'country_code', l: 'País (bandeira)', t: 'country' },
-    { k: 'race_date', l: 'Data e hora da corrida', t: 'datetime', req: 1 }, { k: 'qualifying_date', l: 'Data e hora da classificação (opcional)', t: 'datetime' },
+    { k: 'format', l: 'Modelo de fim de semana', t: 'select', o: WK_OPTS }, { k: 'sessions', l: '', t: 'sessions' },
+    { k: 'race_date', l: 'Data e hora da corrida principal', t: 'datetime', req: 1 }, { k: 'qualifying_date', l: 'Data e hora da classificação (opcional)', t: 'datetime' },
     { k: 'laps', l: 'Número de voltas', t: 'number' }, { k: 'status', l: 'Estado', t: 'select', o: () => Object.entries(STATUS), req: 1 },
     { k: 'description', l: 'Descrição / regras da etapa', t: 'textarea' }, { k: 'image_url', l: 'Imagem do circuito', t: 'image' }] },
   news: { label: 'Anúncios', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
@@ -845,6 +866,10 @@ function sitePanel() {
 
 /* campos de formulário reutilizáveis */
 function fieldHTML(f, v) {
+  if (f.t === 'sessions') {
+    const cur = v || {}, loc = x => { const d = new Date(x); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); };
+    return `<style>${WK_CSS}</style>` + WK_ALL.map(nm => `<div class="wk-s ${Object.keys(WK).filter(k => WK[k].includes(nm)).join(' ')}"><label>${nm}</label><input type="datetime-local" data-s="${nm}" value="${cur[nm] ? loc(cur[nm]) : ''}"></div>`).join('');
+  }
   const n = `name="${f.k}"${f.req ? ' required' : ''}`, help = f.help ? `<div class="hint">${esc(f.help)}</div>` : '';
   if (f.t === 'bool') return `<label class="chk"><input type="checkbox" name="${f.k}" ${v === undefined || v === null ? (f.def === false ? '' : 'checked') : (v ? 'checked' : '')}> ${f.l}</label>`;
   let inp;
@@ -901,11 +926,12 @@ function resultsPanel() {
   if ((!S.resRace || !D.races.find(r => r.id === S.resRace)) && races.length) S.resRace = races[0].id;
   const race = D.races.find(r => r.id === S.resRace);
   const ds = race ? D.drivers.filter(d => d.active !== false && (!d.championship_id || d.championship_id === race.championship_id)).sort((a, b) => (a.number ?? 999) - (b.number ?? 999)) : [];
-  const ex = id => D.results.find(r => r.race_id === S.resRace && r.driver_id === id) || {};
+  const cs = race ? curSess(race) : 'RACE';
+  const ex = id => D.results.find(r => r.race_id === S.resRace && r.driver_id === id && sx(r) === cs) || {};
   const ch = race && champOf(race.championship_id);
   return `<h2 style="margin-bottom:12px">Publicar resultados</h2>
   <div class="card"><label style="margin-top:0">Grand Prix</label><select data-change="resRace">${races.map(r => `<option value="${r.id}" ${r.id === S.resRace ? 'selected' : ''}>${flag(r.country_code)} ${esc(r.name)} — ${fmtDate(r.race_date)}</option>`).join('')}</select>
-  ${race ? `<form data-form="results" style="margin-top:16px"><p class="muted" style="font-size:13px;margin-bottom:10px">Informe a posição final classificada (já com as penalizações em segundos aplicadas). Os pontos são calculados automaticamente com o sistema de pontos da categoria (${esc(ch?.points_scale || '25,18,15,12,10,8,6,4,2,1')}; volta mais rápida +${ch?.fl_bonus ?? 1}), menos a penalização em pontos.</p>
+  ${race ? `<div style="margin-top:16px">${sessNav(race)}</div><form data-form="results" style="margin-top:4px"><h3 style="margin-bottom:8px">Sessão: ${esc(cs)}</h3><p class="muted" style="font-size:13px;margin-bottom:10px">Informe a posição final classificada (já com as penalizações em segundos aplicadas). Os pontos são calculados automaticamente com o sistema de pontos da categoria (${esc(ch?.points_scale || '25,18,15,12,10,8,6,4,2,1')}; volta mais rápida +${ch?.fl_bonus ?? 1}), menos a penalização em pontos.</p>
   <div class="scroll"><table class="tbl"><thead><tr><th>Piloto</th><th>Grid</th><th>Pos</th><th>Estado</th><th>Pen. s</th><th>Pen. pts</th><th>Pole</th><th>VR</th><th>Pts</th></tr></thead><tbody>
   ${ds.map(d => { const e = ex(d.id); return `<tr data-d="${d.id}"><td style="white-space:nowrap">${esc(d.name)} <span class="num">${d.number ?? ''}</span></td>
   <td><input type="number" min="1" name="grid" value="${e.grid ?? ''}" style="width:64px"></td><td><input type="number" min="1" name="position" value="${e.position ?? ''}" style="width:64px"></td>
@@ -990,6 +1016,8 @@ const ACT = {
   calNext: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() + 1, 1); route(); },
   calFilter: el => { S.calFilter = el.dataset.v; route(); },
   calKind: el => { S.calKind = el.dataset.v; route(); },
+  sessSet: el => { S.sess[el.dataset.id] = el.dataset.v; route(); },
+  sessGo: el => { const r = D.races.find(x => x.id === el.dataset.id), l = sessionsOf(r); S.sess[r.id] = l[(l.indexOf(curSess(r)) + Number(el.dataset.v) + l.length) % l.length]; route(); },
   adminTab: el => { S.adminTab = el.dataset.v; route(); },
   openSite: () => goAdmin('site'),
   entNew: el => openEnt(el.dataset.v),
@@ -1132,6 +1160,10 @@ document.addEventListener('submit', async e => {
         else if (fl.t === 'datetime') v = new Date(v).toISOString();
         row[fl.k] = v;
       }
+      if (key === 'races') {
+        const ss = {}; f.querySelectorAll('.wk-s').forEach(w => { const i = w.querySelector('input'); if (w.offsetParent && i.value) ss[i.dataset.s] = new Date(i.value).toISOString(); });
+        row.sessions = row.format && Object.keys(ss).length ? ss : null; row.format = row.format || null;
+      }
       if (key === 'championships') {
         if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(row.points_scale || '')) throw new Error('Sistema de pontos inválido. Use números separados por vírgula, ex.: 25,18,15,12,10.');
         row.points_scale = row.points_scale.replace(/\s/g, ''); row.fl_bonus = row.fl_bonus ?? 0;
@@ -1186,14 +1218,14 @@ document.addEventListener('submit', async e => {
         const g = n => tr.querySelector(`[name=${n}]`), did = tr.dataset.d, d = driverOf(did);
         const pos = g('position').value, status = g('status').value;
         if (!pos && status === 'FIN') { del.push(did); return; }
-        rows.push({ race_id: S.resRace, driver_id: did, team_id: d?.team_id || null, grid: g('grid').value ? Number(g('grid').value) : null,
+        rows.push({ race_id: S.resRace, session: curSess(D.races.find(r => r.id === S.resRace)), driver_id: did, team_id: d?.team_id || null, grid: g('grid').value ? Number(g('grid').value) : null,
           position: pos ? Number(pos) : null, status, penalty_seconds: Number(g('ps').value || 0), penalty_points: Number(g('pp').value || 0),
           pole: g('pole').checked, fastest_lap: g('fl').checked });
       });
       const pos = rows.filter(r => r.status === 'FIN' && r.position).map(r => r.position);
       if (new Set(pos).size !== pos.length) throw new Error('Existem posições repetidas.');
-      if (rows.length) { const { error } = await sb.from('results').upsert(rows, { onConflict: 'race_id,driver_id' }); if (error) throw error; }
-      if (del.length) { const { error } = await sb.from('results').delete().eq('race_id', S.resRace).in('driver_id', del); if (error) throw error; }
+      if (rows.length) { const { error } = await sb.from('results').upsert(rows, { onConflict: 'race_id,session,driver_id' }); if (error) throw error; }
+      if (del.length) { const { error } = await sb.from('results').delete().eq('race_id', S.resRace).eq('session', curSess(D.races.find(r => r.id === S.resRace))).in('driver_id', del); if (error) throw error; }
       if (fd.get('finish')) { const { error } = await sb.from('races').update({ status: 'finished' }).eq('id', S.resRace); if (error) throw error; }
       toast('Resultados publicados. Classificações atualizadas.'); await refresh();
     }
