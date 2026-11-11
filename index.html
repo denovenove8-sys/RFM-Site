@@ -517,7 +517,7 @@ function applySettings() {
   if (isLocal && SUPABASE_URL && !window.supabase) { bar.hidden = false; bar.textContent = 'Não foi possível carregar a biblioteca do Supabase — rodando em modo local.'; }
 }
 
-/* ---------- classificações (calculadas a partir dos resultados publicados) ---------- */
+/* ---------- classificações ---------- */
 function standings(cid) {
   const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) === 'race').map(r => r.id));
   const allRes = D.results.filter(r => raceIds.has(r.race_id));
@@ -527,7 +527,6 @@ function standings(cid) {
     const rsRace = allRes.filter(r => r.driver_id === dId && sx(r).startsWith('RACE'));
     const driverRaceIds = [...new Set(allRes.filter(r => r.driver_id === dId).map(r => r.race_id))];
     
-    // Conta poles por corrida única para evitar duplicação entre sessões da mesma etapa
     let polesCount = 0;
     driverRaceIds.forEach(rId => {
       const rResults = allRes.filter(r => r.driver_id === dId && r.race_id === rId);
@@ -714,7 +713,6 @@ PAGES.driver = id => {
     return race && sessOf(race) === 'race' && sx(r).startsWith('RACE');
   });
   
-  // Todos os resultados do piloto em qualquer sessão
   const allDriverResults = D.results.filter(r => r.driver_id === id);
   const driverRaceIds = [...new Set(allDriverResults.map(r => r.race_id))];
 
@@ -727,39 +725,6 @@ PAGES.driver = id => {
 
   const fin = rs.filter(r => r.status === 'FIN');
   const flCount = allDriverResults.filter(r => r.fastest_lap).length;
-
-  const hist = D.results.filter(r => r.driver_id === id)
-    .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
-    .filter(x => x.race && sx(x.r) === mainSess(x.race))
-    .sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
-
-  return `<a href="#/drivers" class="muted">← Pilotos</a>
-  <section class="card" style="margin-top:12px;border-left:4px solid ${safeColor(t?.color)}"><div class="drv-head">
-    ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
-    <div class="big" style="color:${safeColor(t?.color)}">${d.number ?? ''}</div>
-    <div><h1 style="font-size:38px">${esc(d.name)}</h1><p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 24)}${esc(t?.name || 'Sem equipe')}</p>
-    ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar piloto</button></p>` : ''}</div></div></section>
-  <section class="sec"><div class="stats">
-    <div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Pontos</small></div>
-    <div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Vitórias</small></div>
-    <div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Pódios</small></div>
-    <div class="stat"><b>${polesCount}</b><small>Pole Positions</small></div>
-    <div class="stat"><b>${flCount}</b><small>Voltas Rápidas</small></div>
-    <div class="stat"><b>${d.titles || 0}</b><small>Campeonatos</small></div>
-    <div class="stat"><b>${rs.length}</b><small>Corridas</small></div></div></section>
-  <section class="sec"><h2>Histórico de resultados</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Grid</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.grid ?? '—'}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem resultados.</div>'}</div></section>`;
-};
-  
-  const allDriverResults = D.results.filter(r => {
-    if (r.driver_id !== id) return false;
-    const race = D.races.find(x => x.id === r.race_id);
-    return race && sessOf(race) === 'race';
-  });
-
-  const fin = rs.filter(r => r.status === 'FIN');
-  const polesCount = allDriverResults.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).length;
-  const flCount = rs.filter(r => r.fastest_lap).length;
 
   const hist = D.results.filter(r => r.driver_id === id)
     .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
@@ -916,7 +881,7 @@ PAGES.admin = async () => {
 const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
 
 function entPanel(key) {
-  const E = ENT[key]; let rows = D[key] || [];
+  const E = ENT[key], rows = D[key] || [];
   if (['teams', 'races'].includes(key) && S.admCat !== 'all') rows = rows.filter(r => r.championship_id === S.admCat);
   if (key === 'races') rows = [...rows].sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   if (key === 'news') rows = sortedNews();
