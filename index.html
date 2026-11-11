@@ -127,7 +127,7 @@ main{padding:28px 0 60px;animation:fade .45s ease both}
 .race-card .date b{display:block;font-size:26px}
 .race-card .date small{color:var(--red2);letter-spacing:.15em;text-transform:uppercase;font-size:11px}
 .news-card h3{font-size:18px;margin:8px 0}
-.news-card .img{height:150px;border-radius:8px;margin-bottom:12px;background:linear-gradient(135deg,#25282b,#15171a);background-size:cover;background-position:center}
+.news-card .img{width:100%;aspect-ratio:4/5;max-height:560px;border-radius:8px;margin-bottom:12px;background:linear-gradient(135deg,#25282b,#15171a);background-size:cover;background-position:center}
 .news-card p.body{white-space:pre-line}
 .avatar{width:84px;height:84px;border-radius:50%;object-fit:cover;background:var(--panel2);border:2px solid var(--line);display:grid;place-items:center;font-family:var(--fd);font-size:28px;color:var(--muted)}
 .drv-head{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
@@ -201,8 +201,8 @@ footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-under
 /* =====================================================================
    CONFIGURAÇÃO SUPABASE
    ===================================================================== */
-const SUPABASE_URL = "https://pfisbhwxldkgjreqiery.supabase.co";        // ex.: "https://abcd1234.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaXNiaHd4bGRrZ2pyZXFpZXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzA3NDAsImV4cCI6MjEwOTc0Njc0MH0.XFD32llqr6vNCKwE94wppi0ArCI9KnU4tk1PRbT_csc";   // ex.: "eyJhbGciOi..."
+const SUPABASE_URL = "https://pfisbhwxldkgjreqiery.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaXNiaHd4bGRrZ2pyZXFpZXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzA3NDAsImV4cCI6MjEwOTc0Njc0MH0.XFD32llqr6vNCKwE94wppi0ArCI9KnU4tk1PRbT_csc";
 
 const OWNER_NAME = 'haraguchi9020';
 
@@ -881,7 +881,7 @@ PAGES.admin = async () => {
 const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
 
 function entPanel(key) {
-  const E = ENT[key], rows = D[key] || [];
+  const E = ENT[key]; let rows = D[key] || [];
   if (['teams', 'races'].includes(key) && S.admCat !== 'all') rows = rows.filter(r => r.championship_id === S.admCat);
   if (key === 'races') rows = [...rows].sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   if (key === 'news') rows = sortedNews();
