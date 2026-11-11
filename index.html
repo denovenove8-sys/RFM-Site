@@ -685,7 +685,7 @@ PAGES.race = id => {
 
 PAGES.standings = () => {
   const st = standings(S.champ), ch = champOf(S.champ);
-  return `${pageHead(esc(ch?.name || 'Classificações'), esc(ch?.description || 'Campeonato de pilotos e de construtores.'), champSel() + '<button class="btn" data-act="csv">Exportar CSV</button>' + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ Nova categoria</button>' : ''), ch?.image_url, ch?.color)}
+  return `${pageHead(esc(ch?.name || 'Classificações'), esc(ch?.description || 'Campeonato de pilotos e de construtores.'), champSel() + '<button class="btn" data-act="csv">Exportar CSV</button>' + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ Nova categoria</button></i>' : ''), ch?.image_url, ch?.color)}
   <section class="sec" style="margin-top:0"><h2>Campeonato de pilotos</h2><div class="card">${driverTable(st.drivers)}</div></section>
   <section class="sec"><h2>Campeonato de construtores</h2><div class="card">${teamTable(st.teams)}</div></section>
   <section class="sec"><h2>Classificação por equipes</h2><div class="cols3">${st.teams.map(x => {
