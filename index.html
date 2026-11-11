@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Minha Liga</title>
-<meta name="description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.">
+<title>My League</title>
+<meta name="description" content="Official league platform: calendar, results, standings, drivers and teams.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Minha Liga">
-<meta property="og:description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.">
+<meta property="og:title" content="My League">
+<meta property="og:description" content="Official league platform: calendar, results, standings, drivers and teams.">
 <meta property="og:image" content="">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="">
@@ -305,6 +305,12 @@ label,.chip,details.card summary{font-family:'Inter',sans-serif}
  .gsearch input{width:100%}.gsearch{margin-left:0}
 }
 @media (max-width:1180px){.links{position:absolute;top:56px;margin:0}.links a.loginbtn{margin:6px 0 0;text-align:center}.gsearch{margin:6px 0}.gsearch input{width:100%}}
+
+.vod-th{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#34353c,#1f2024) center/cover;cursor:pointer;display:grid;place-items:center}
+.vod-play{width:54px;height:54px;border-radius:50%;background:rgba(90,93,240,.92);display:grid;place-items:center;font-size:20px;color:#fff;padding-left:4px;transition:.2s}
+.vod-th:hover .vod-play{transform:scale(1.1)}
+.vod-fr{position:relative;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden}.vod-fr iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+dialog:has(.vodp){width:min(960px,96vw)}
 </style>
 </head>
 <body>
@@ -312,7 +318,7 @@ label,.chip,details.card summary{font-family:'Inter',sans-serif}
 <div id="demoBar" class="demo-bar" hidden></div>
 <header class="nav">
   <div class="wrap">
-    <a href="#/" class="logo" id="logo" aria-label="Início"></a>
+    <a href="#/" class="logo" id="logo" aria-label="Home"></a>
     <button class="burger" id="burger" aria-label="Menu">☰</button>
     <nav class="links" id="links"></nav>
   </div>
@@ -320,7 +326,7 @@ label,.chip,details.card summary{font-family:'Inter',sans-serif}
 <div class="ticker" id="ticker"><button class="tk-a" data-tk="-1" aria-label="Anterior">‹</button><div class="tk-s" id="tkS"></div><button class="tk-a" data-tk="1" aria-label="Seguinte">›</button></div>
 <main class="wrap" id="app"><div class="skel"></div><div class="skel"></div></main>
 <footer><div class="wrap foot" id="foot"></div></footer>
-<button class="gear" id="gear" data-act="openSite" hidden>⚙ Personalizar site</button>
+<button class="gear" id="gear" data-act="openSite" hidden>⚙ Customize site</button>
 <dialog id="dlg"></dialog>
 <div class="toast" id="toast"></div>
 
@@ -335,13 +341,13 @@ const OWNER_NAME = 'haraguchi9020';
 
 const FONTS = ['Oswald', 'Rajdhani', 'Orbitron', 'Teko', 'Barlow Condensed'];
 const DEFS = {
-  site_name: 'Minha Liga', site_subtitle: '', site_description: 'Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.', accent: '#b5322c',
+  site_name: 'My League', site_subtitle: '', site_description: 'Official league platform: calendar, results, standings, drivers and teams.', accent: '#b5322c',
   color_bg: '#0e0f10', color_panel: '#16181a', color_text: '#e9e6e0', font_display: 'Oswald',
   logo_url: '', hero_image: '', track_image: '',
   partner_banner: '', partner_logo: '', partner_name: '',
   welcome_title: '', welcome_text: '',
   footer_text: '', discord_url: '', instagram_url: '', youtube_url: '',
-  nav_home: 'Início', nav_calendar: 'Calendário', nav_standings: 'Classificações', nav_drivers: 'Pilotos', nav_players: 'Players', nav_teams: 'Equipes', nav_transfers: 'Transferências', nav_records: 'Recordes', nav_news: 'Anúncios',
+  nav_home: 'Home', nav_calendar: 'Calendar', nav_standings: 'Standings', nav_players: 'Drivers', nav_teams: 'Teams', nav_transfers: 'Transfers', nav_records: 'Records', nav_vods: 'VODs', nav_news: 'Announcements',
   show_banner: '1', show_last: '1', show_next: '1', show_drivers: '1', show_teams: '1', show_news: '1', custom_css: ''
 };
 
@@ -351,15 +357,17 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 127397 + c.charCodeAt(0))) : '🏁';
 const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#5a5df0';
 const safeUrl = u => /^(https?:\/\/|data:image\/)/i.test(u || '') ? esc(u) : '';
-const fmtDate = (d, o) => new Date(d).toLocaleDateString('pt-BR', o || { day: '2-digit', month: 'short', year: 'numeric' });
-const fmtTime = d => new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const fmtDate = (d, o) => new Date(d).toLocaleDateString('en-GB', o || { day: '2-digit', month: 'short', year: 'numeric' });
+const fmtTime = d => new Date(d).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 const initials = n => (n || '?').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 const STATUS = { upcoming: 'Upcoming', live: 'Live', finished: 'Finished' };
-const SESS = { race: 'Rodada (fim de semana)', preseason: 'Pré-temporada / testes' };
+const SESS = { race: 'Round (race weekend)', preseason: 'Pre-season / testing' };
 const WK = { f1: ['FP1', 'QUALI', 'RACE'], f2: ['FP1', 'FP2', 'QUALI', 'RACE'], f3: ['FP1', 'FP2', 'FP3', 'QUALI', 'RACE'],
   f4: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT'], f5: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'RACE FEATURE'],
-  f6: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE FEATURE'] };
-const WK_OPTS = () => [['', 'Sem modelo (só a corrida)'], ...Object.entries(WK).map(([k, v]) => [k, v.join(' – ')])];
+  f6: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE FEATURE'],
+  qr: ['QUALI', 'RACE'], r: ['RACE'] };
+const WK_LBL = { qr: 'QUALI-RACE', r: 'RACE' };
+const WK_OPTS = () => [['', 'No template (race only)'], ...Object.entries(WK).map(([k, v]) => [k, WK_LBL[k] || v.join(' – ')])];
 const sessOf = r => SESS[r.kind] ? r.kind : 'race';
 const sessionsOf = r => WK[r.format] || ['RACE'];
 const mainSess = r => [...sessionsOf(r)].reverse().find(n => n.startsWith('RACE')) || 'RACE';
@@ -367,14 +375,14 @@ const curSess = r => { const c = S.sess[r.id]; return c && sessionsOf(r).include
 const sx = x => x.session || 'RACE';
 const isTimed = s => !String(s || 'RACE').startsWith('RACE');
 const mainRes = id => { const r = D.races.find(x => x.id === id); return D.results.filter(x => x.race_id === id && (!r || sx(x) === mainSess(r))); };
-const sessNav = r => { const ss = sessionsOf(r), c = curSess(r); return ss.length < 2 ? '' : `<div class="row" style="gap:8px;margin-bottom:14px;flex-wrap:wrap"><button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="-1" aria-label="Sessão anterior">←</button>
+const sessNav = r => { const ss = sessionsOf(r), c = curSess(r); return ss.length < 2 ? '' : `<div class="row" style="gap:8px;margin-bottom:14px;flex-wrap:wrap"><button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="-1" aria-label="Previous session">←</button>
   <div class="chips">${ss.map(n => `<button type="button" class="chip ${n === c ? 'on' : ''}" data-act="sessSet" data-id="${r.id}" data-v="${n}">${n}</button>`).join('')}</div>
-  <button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="1" aria-label="Próxima sessão">→</button></div>`; };
-const roundLbl = r => sessOf(r) === 'race' ? 'Rodada ' + (r.round ?? '-') : 'Pré-temporada';
-const ROLES = { admin: 'Administrador', staff: 'Staff', team_principal: 'Chefe de equipe', driver: 'Piloto', visitor: 'Visitante' };
-const ACCT = { pending: 'Pendente', active: 'Ativa', suspended: 'Suspensa' };
-const KINDS = { anuncio: 'Anúncio', comunicado: 'Comunicado oficial', noticia: 'Notícia', resultado: 'Resultado' };
-const COUNTRIES = [['BR','Brasil'],['PT','Portugal'],['ES','Espanha'],['FR','França'],['IT','Itália'],['DE','Alemanha'],['GB','Reino Unido'],['NL','Países Baixos'],['BE','Bélgica'],['CH','Suíça'],['AT','Áustria'],['SE','Suécia'],['NO','Noruega'],['FI','Finlândia'],['DK','Dinamarca'],['PL','Polônia'],['CZ','Tchéquia'],['HU','Hungria'],['RO','Romênia'],['GR','Grécia'],['TR','Turquia'],['RU','Rússia'],['UA','Ucrânia'],['IE','Irlanda'],['HR','Croácia'],['RS','Sérvia'],['SK','Eslováquia'],['SI','Eslovênea'],['BG','Bulgária'],['LU','Luxemburgo'],['MC','Mônaco'],['US','Estados Unidos'],['CA','Canadá'],['MX','México'],['AR','Argentina'],['CL','Chile'],['CO','Colômbia'],['PE','Peru'],['UY','Uruguai'],['VE','Venezuela'],['PY','Paraguai'],['JP','Japão'],['CN','China'],['KR','Coreia do Sul'],['IN','Índia'],['TH','Tailândia'],['SG','Singapura'],['MY','Malásia'],['ID','Indonésia'],['PH','Filipinas'],['VN','Vietnã'],['AE','Emirados Árabes Unidos'],['SA','Arábia Saudita'],['QA','Catar'],['BH','Bahrein'],['IL','Israel'],['AZ','Azerbaijão'],['AU','Austrália'],['NZ','Nova Zelândia'],['ZA','África do Sul'],['MA','Marrocos'],['EG','Egito'],['AO','Angola'],['MZ','Moçambique'],['CV','Cabo Verde']];
+  <button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="1" aria-label="Next session">→</button></div>`; };
+const roundLbl = r => sessOf(r) === 'race' ? 'Round ' + (r.round ?? '-') : 'Pre-season';
+const ROLES = { admin: 'Administrator', staff: 'Staff', team_principal: 'Team principal', driver: 'Driver', visitor: 'Visitor' };
+const ACCT = { pending: 'Pending', active: 'Active', suspended: 'Suspended' };
+const KINDS = { anuncio: 'Announcement', comunicado: 'Official notice', noticia: 'News', resultado: 'Result' };
+const COUNTRIES = [['BR','Brazil'],['PT','Portugal'],['ES','Spain'],['FR','France'],['IT','Italy'],['DE','Germany'],['GB','United Kingdom'],['NL','Netherlands'],['BE','Belgium'],['CH','Switzerland'],['AT','Austria'],['SE','Sweden'],['NO','Norway'],['FI','Finland'],['DK','Denmark'],['PL','Poland'],['CZ','Czechia'],['HU','Hungary'],['RO','Romania'],['GR','Greece'],['TR','Turkey'],['RU','Russia'],['UA','Ukraine'],['IE','Ireland'],['HR','Croatia'],['RS','Serbia'],['SK','Slovakia'],['SI','Slovenia'],['BG','Bulgaria'],['LU','Luxembourg'],['MC','Monaco'],['US','United States'],['CA','Canada'],['MX','Mexico'],['AR','Argentina'],['CL','Chile'],['CO','Colombia'],['PE','Peru'],['UY','Uruguay'],['VE','Venezuela'],['PY','Paraguay'],['JP','Japan'],['CN','China'],['KR','South Korea'],['IN','India'],['TH','Thailand'],['SG','Singapore'],['MY','Malaysia'],['ID','Indonesia'],['PH','Philippines'],['VN','Vietnam'],['AE','United Arab Emirates'],['SA','Saudi Arabia'],['QA','Qatar'],['BH','Bahrein'],['IL','Israel'],['AZ','Azerbaijan'],['AU','Australia'],['NZ','New Zealand'],['ZA','South Africa'],['MA','Morocco'],['EG','Egypt'],['AO','Angola'],['MZ','Mozambique'],['CV','Cape Verde']];
 const countryName = cc => (COUNTRIES.find(c => c[0] === (cc || '').toUpperCase()) || [])[1] || '';
 const toEmail = u => String(u).trim().toLowerCase() + '@rfm-liga.com';
 
@@ -412,14 +420,14 @@ function makeLocal() {
     try { db = await idbGet(KEY); } catch {}
     if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
     if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
-    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
+    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
     try { await idbSet(KEY, db); ls.del(KEY); } catch {}
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
   };
   const iso = () => new Date().toISOString();
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Math.random().toString(36).slice(2) + Date.now().toString(36));
   let pending = Promise.resolve();
-  const save = () => { pending = pending.then(() => idbSet(KEY, db)).catch(() => { try { toast('Não foi possível salvar no navegador.', true); } catch {} }); };
+  const save = () => { pending = pending.then(() => idbSet(KEY, db)).catch(() => { try { toast('Could not save in the browser.', true); } catch {} }); };
   window.addEventListener('pagehide', () => { try { idbSet(KEY, db); } catch {} });
   const sha = async s => { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); } catch { let h = 5381; for (const c of s) h = (h * 33) ^ c.charCodeAt(0); return 'w' + (h >>> 0).toString(16); } };
   const sess = () => ls.get(SK);
@@ -427,15 +435,15 @@ function makeLocal() {
   const adm = () => { const p = P(); return !!p && p.role === 'admin' && p.status === 'active'; };
   const stf = () => { const p = P(); return !!p && ['admin', 'staff'].includes(p.role) && p.status === 'active'; };
   const isOwnerL = () => adm() && P().username.toLowerCase() === OWNER_NAME;
-  const allow = (t, row) => adm() || (stf() && ['races', 'results', 'news'].includes(t)) || (t === 'teams' && !!sess() && row && row.principal_id === sess()) || (t === 'profiles' && row && row.id === sess());
-  const AUD = ['profiles', 'teams', 'drivers', 'seasons', 'championships', 'races', 'results', 'news', 'settings', 'entries', 'team_entries'];
+  const allow = (t, row) => adm() || (stf() && ['races', 'results', 'news', 'vods'].includes(t)) || (t === 'teams' && !!sess() && row && row.principal_id === sess()) || (t === 'profiles' && row && row.id === sess());
+  const AUD = ['profiles', 'teams', 'drivers', 'seasons', 'championships', 'races', 'results', 'news', 'vods', 'settings', 'entries', 'team_entries'];
   const slim = o => o && Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'string' && v.length > 200 ? '(imagem)' : v]));
   const aud = (op, t, o, n) => {
     if (!AUD.includes(t)) return; const r = n || o;
     db.audit_log.unshift({ id: Date.now() + Math.random(), user_id: sess(), action: op, table_name: t, row_id: String(t === 'settings' ? r.key : r.id), old_data: slim(o), new_data: slim(n), created_at: iso() });
     if (db.audit_log.length > 300) db.audit_log.length = 300;
   };
-  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming', kind: 'race', format: 'f3' }, results: { session: 'RACE', status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
+  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, vods: { published: true }, races: { status: 'upcoming', kind: 'race', format: 'f3' }, results: { session: 'RACE', status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
   const calcRow = r => {
     const race = db.races.find(x => x.id === r.race_id), ch = race && db.championships.find(c => c.id === race.championship_id);
     if (!r.team_id) r.team_id = db.entries.find(e => race && e.championship_id === race.championship_id && e.driver_id === r.driver_id)?.team_id || db.drivers.find(d => d.id === r.driver_id)?.team_id || null;
@@ -451,11 +459,11 @@ function makeLocal() {
   };
   const guardProfile = (old, nw) => {
     if (old.username.toLowerCase() === OWNER_NAME) {
-      if (nw.role !== 'admin' || nw.status !== 'active') throw new Error('A conta principal não pode perder o acesso.');
-      if (nw.username.toLowerCase() !== OWNER_NAME) throw new Error('O nome da conta principal não pode ser alterado.');
+      if (nw.role !== 'admin' || nw.status !== 'active') throw new Error('The main account cannot lose access.');
+      if (nw.username.toLowerCase() !== OWNER_NAME) throw new Error('The main account name cannot be changed.');
     }
-    if ((nw.role !== old.role || nw.status !== old.status) && !adm()) throw new Error('Sem permissão para alterar cargo ou estado.');
-    if (nw.role !== old.role && (nw.role === 'admin' || old.role === 'admin') && !isOwnerL()) throw new Error('Somente a conta principal pode dar ou tirar o cargo de administrador.');
+    if ((nw.role !== old.role || nw.status !== old.status) && !adm()) throw new Error('No permission to change role or status.');
+    if (nw.role !== old.role && (nw.role === 'admin' || old.role === 'admin') && !isOwnerL()) throw new Error('Only the main account can grant or remove the administrator role.');
     if (db.profiles.some(p => p.id !== old.id && p.username.toLowerCase() === nw.username.toLowerCase())) throw new Error('duplicate key value violates unique constraint "profiles_username_lower"');
   };
   class Q {
@@ -471,19 +479,19 @@ function makeLocal() {
     then(a, b) { return this.run().then(a, b); }
     fin(out) {
       if (!this.one) return { data: out, error: null };
-      if (!out.length) return this.one === 'maybe' ? { data: null, error: null } : { data: null, error: { message: 'Nenhum registro encontrado.' } };
+      if (!out.length) return this.one === 'maybe' ? { data: null, error: null } : { data: null, error: { message: 'No record found.' } };
       return { data: out[0], error: null };
     }
     async run() {
       try {
         const t = this.t, rows = db[t];
-        if (!rows) throw new Error('Tabela inexistente: ' + t);
+        if (!rows) throw new Error('Table does not exist: ' + t);
         const flt = r => this.f.every(fn => fn(r));
         const deny = () => new Error('new row violates row-level security policy for table "' + t + '"');
         if (this.op === 'select') {
           let out = rows.filter(flt);
           if (t === 'profiles' && !stf()) out = out.filter(r => r.id === sess());
-          if (t === 'news' && !stf()) out = out.filter(r => r.published);
+          if (['news', 'vods'].includes(t) && !stf()) out = out.filter(r => r.published);
           if (t === 'audit_log' && !adm()) out = [];
           if (this.ord) { const [c, asc] = this.ord; out = [...out].sort((a, b) => (a[c] > b[c] ? 1 : a[c] < b[c] ? -1 : 0) * (asc ? 1 : -1)); }
           if (this.lim) out = out.slice(0, this.lim);
@@ -497,7 +505,7 @@ function makeLocal() {
             if (ex) { if (!allow(t, ex)) throw deny(); const old = { ...ex }; Object.assign(ex, x); if (t === 'results') calcRow(ex); aud('UPDATE', t, old, ex); made.push(ex); continue; }
             if (!allow(t, x)) throw deny();
             const r = { id: uid(), ...(LDEF[t] || {}), ...x };
-            if (['news', 'teams', 'drivers', 'profiles'].includes(t) && !r.created_at) r.created_at = iso();
+            if (['news', 'vods', 'teams', 'drivers', 'profiles'].includes(t) && !r.created_at) r.created_at = iso();
             if (t === 'results') { calcRow(r); if (rows.some(q => q.race_id === r.race_id && q.driver_id === r.driver_id && sx(q) === sx(r))) throw new Error('duplicate key value violates unique constraint'); }
             rows.push(r); aud('INSERT', t, null, r); made.push(r);
           }
@@ -521,14 +529,14 @@ function makeLocal() {
           for (const r of hit) { aud('DELETE', t, r, null); casc(t, r.id); }
           db[t] = db[t].filter(r => !hit.includes(r)); save(); return { data: null, error: null };
         }
-        throw new Error('Operação não suportada.');
+        throw new Error('Unsupported operation.');
       } catch (e) { return { data: null, error: { message: e.message } }; }
     }
   }
   const shrink = file => new Promise((res, rej) => {
     const fr = new FileReader();
-    fr.onerror = () => rej(new Error('Não foi possível ler a imagem.'));
-    fr.onload = () => { const im = new Image(); im.onerror = () => rej(new Error('Arquivo de imagem inválido.'));
+    fr.onerror = () => rej(new Error('Could not read the image.'));
+    fr.onload = () => { const im = new Image(); im.onerror = () => rej(new Error('Invalid image file.'));
       im.onload = () => { const k = Math.min(1, 720 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
         c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', .82)); };
       im.src = fr.result; };
@@ -559,15 +567,15 @@ function makeLocal() {
       },
       async signOut() { ls.del(SK); listeners.forEach(f => f('SIGNED_OUT')); return { error: null }; },
       onAuthStateChange(cb) { listeners.push(cb); return { data: { subscription: { unsubscribe() {} } } }; },
-      async updateUser({ password }) { const u = db.users.find(x => x.id === sess()); if (!u) return { error: { message: 'Sem sessão.' } }; await setPw(u, password); save(); return { error: null }; }
+      async updateUser({ password }) { const u = db.users.find(x => x.id === sess()); if (!u) return { error: { message: 'No session.' } }; await setPw(u, password); save(); return { error: null }; }
     },
     async rpc(name, a) {
-      if (name !== 'admin_set_password') return { error: { message: 'Função desconhecida.' } };
-      if (!adm()) return { error: { message: 'Sem permissão.' } };
-      if ((a.new_password || '').length < 8) return { error: { message: 'A senha precisa ter ao menos 8 caracteres.' } };
+      if (name !== 'admin_set_password') return { error: { message: 'Unknown function.' } };
+      if (!adm()) return { error: { message: 'No permission.' } };
+      if ((a.new_password || '').length < 8) return { error: { message: 'The password must have at least 8 characters.' } };
       const pr = db.profiles.find(p => p.id === a.target), u = db.users.find(x => x.id === a.target);
-      if (!pr || !u) return { error: { message: 'Usuário não encontrado.' } };
-      if (pr.role === 'admin' && !isOwnerL() && a.target !== sess()) return { error: { message: 'Somente a conta principal pode redefinir a senha de um administrador.' } };
+      if (!pr || !u) return { error: { message: 'User not found.' } };
+      if (pr.role === 'admin' && !isOwnerL() && a.target !== sess()) return { error: { message: 'Only the main account can reset an administrator’s password.' } };
       await setPw(u, a.new_password); save(); return { error: null };
     }
   };
@@ -600,12 +608,15 @@ async function loadData() {
     q('races', r => r.order('race_date')), q('results'), q('news', r => r.order('created_at', { ascending: false })), q('settings')
   ]);
   const err = [teams, drivers, seasons, championships, races, results, news].find(x => x.error);
-  if (err) toast('Erro ao carregar dados: ' + err.error.message, true);
+  if (err) toast('Error loading data: ' + err.error.message, true);
   const [ents, tents] = await Promise.all([q('entries'), q('team_entries')]);
-  if (ents.error || tents.error) toast('Tabelas novas não encontradas: rode o schema.sql atualizado no Supabase. (' + (ents.error || tents.error).message + ')', true);
+  if (ents.error || tents.error) toast('New tables not found: run the updated schema.sql in Supabase. (' + (ents.error || tents.error).message + ')', true);
+  const vodsR = await q('vods', r => r.order('created_at', { ascending: false }));
+  if (vodsR.error) toast('VODs table not found: run the updated schema.sql in Supabase.', true);
   const set = {}; (settings.data || []).forEach(r => { if (r.value) set[r.key] = r.value; });
   D = { teams: teams.data || [], drivers: drivers.data || [], seasons: seasons.data || [], championships: championships.data || [],
         races: races.data || [], results: results.data || [], news: news.data || [], profiles: [], settings: set, entries: ents.data || [], team_entries: tents.data || [] };
+  D.vods = vodsR.data || [];
   if (isStaff()) { const p = await sb.from('profiles').select('*').order('created_at', { ascending: false }); D.profiles = p.data || []; }
   STC = {}; L = null; pickChamp(); applySettings();
 }
@@ -651,7 +662,7 @@ function applySettings() {
   $('#foot').innerHTML = `${(pl || cfg('partner_name')) ? `<div class="row" style="gap:14px">${pl ? `<img src="${pl}" alt="">` : ''}<div><b class="display" style="color:var(--text);font-size:13px">Official League Partner</b><br>${esc(cfg('partner_name'))}</div></div>` : '<div></div>'}
     <div>© ${new Date().getFullYear()} ${esc(cfg('site_name'))} — ${esc(cfg('site_subtitle'))}. ${esc(cfg('footer_text'))}</div><div>${links}</div>`;
   const bar = $('#demoBar');
-  if (isLocal && SUPABASE_URL && !window.supabase) { bar.hidden = false; bar.textContent = 'Modo local ativo (armazenamento interno do navegador).'; }
+  if (isLocal && SUPABASE_URL && !window.supabase) { bar.hidden = false; bar.textContent = 'Local mode active (browser storage).'; }
 }
 
 /* ---------- classificações ---------- */
@@ -702,7 +713,7 @@ function standingsCalc(cid) {
   
   return { drivers, teams };
 }
-const champSel = (key = 'champ') => D.championships.length > 1 ? `<select data-change="${key}" style="width:auto;min-width:220px" aria-label="Categoria">${D.championships.map(c => `<option value="${c.id}" ${c.id === S.champ ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
+const champSel = (key = 'champ') => D.championships.length > 1 ? `<select data-change="${key}" style="width:auto;min-width:220px" aria-label="Category">${D.championships.map(c => `<option value="${c.id}" ${c.id === S.champ ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
 const sortedNews = () => [...D.news].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.created_at) - new Date(a.created_at));
 
 /* ---------- componentes ---------- */
@@ -712,38 +723,38 @@ const teamLogo = (t, h = 22) => safeUrl(t?.logo_url) ? `<img class="tlogo" src="
 
 function raceCard(r) {
   const d = new Date(r.race_date);
-  return `<a href="#/race/${r.id}" class="card hover race-card"><div class="date"><b>${d.getDate()}</b><small>${d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</small></div>
+  return `<a href="#/race/${r.id}" class="card hover race-card"><div class="date"><b>${d.getDate()}</b><small>${d.toLocaleDateString('en-GB', { month: 'short' }).replace('.', '')}</small></div>
   <div style="flex:1;min-width:0"><div class="muted" style="font-size:12px">${roundLbl(r)}</div><h3 style="font-size:17px">${flag(r.country_code)} ${esc(r.name)}</h3>
   <div class="muted" style="font-size:13px">${esc(r.circuit || '')} · ${fmtTime(r.race_date)}</div></div><span class="tag ${r.status}">${STATUS[r.status]}</span></a>`;
 }
 function raceCardAdm(r) {
-  return `<div>${raceCard(r)}${isStaff() ? `<div class="row end" style="margin-top:6px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar</button><button class="btn sm danger" data-act="entDel" data-v="races" data-id="${r.id}">Excluir</button></div>` : ''}</div>`;
+  return `<div>${raceCard(r)}${isStaff() ? `<div class="row end" style="margin-top:6px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Edit</button><button class="btn sm danger" data-act="entDel" data-v="races" data-id="${r.id}">Delete</button></div>` : ''}</div>`;
 }
 function newsCard(n, full) {
   const body = n.body || '';
   return `<article class="card news-card hover ${n.pinned ? 'pinned' : ''}">${safeUrl(n.image_url) ? `<div class="img" style="background-image:url('${safeUrl(n.image_url)}')"></div>` : ''}
-  <div class="row" style="gap:6px"><span class="tag">${KINDS[n.kind] || 'Anúncio'}</span>${n.pinned ? '<span class="tag pin">📌 Fixado</span>' : ''}<span class="muted" style="font-size:12px">${fmtDate(n.created_at)}</span></div>
+  <div class="row" style="gap:6px"><span class="tag">${KINDS[n.kind] || 'Announcement'}</span>${n.pinned ? '<span class="tag pin">📌 Pinned</span>' : ''}<span class="muted" style="font-size:12px">${fmtDate(n.created_at)}</span></div>
   <h3>${esc(n.title)}</h3><p class="muted body">${esc(full ? body : body.slice(0, 130) + (body.length > 130 ? '…' : ''))}</p>
-  ${isStaff() ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="news" data-id="${n.id}">Editar</button><button class="btn sm danger" data-act="entDel" data-v="news" data-id="${n.id}">Excluir</button></div>` : ''}</article>`;
+  ${isStaff() ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="news" data-id="${n.id}">Edit</button><button class="btn sm danger" data-act="entDel" data-v="news" data-id="${n.id}">Delete</button></div>` : ''}</article>`;
 }
 function driverTable(rows, limit) {
   const list = limit ? rows.slice(0, limit) : rows;
-  if (!list.length) return '<div class="empty">Sem pilotos cadastrados.</div>';
-  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+  if (!list.length) return '<div class="empty">No drivers registered.</div>';
+  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Driver</th><th>Team</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
   ${list.map((x, i) => { const t = teamOf(x.d.team_id); return `<tr class="click" data-go="#/driver/${x.d.id}"><td class="pos">${i + 1}</td>
   <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span>${avatarHTML(x.d, 'thumb')}${flag(x.d.country_code)} <b>${esc(x.d.name)}</b><span class="num">${x.d.number ?? ''}</span></td>
   <td class="muted" style="white-space:nowrap">${teamLogo(t)}${esc(t?.name || '—')}</td><td>${x.wins}</td><td>${x.pod}</td><td class="pts">${x.pts}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function teamTable(rows) {
-  if (!rows.length) return '<div class="empty">Sem equipes cadastradas.</div>';
-  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Equipe</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+  if (!rows.length) return '<div class="empty">No teams registered.</div>';
+  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Team</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
   ${rows.map((x, i) => `<tr><td class="pos">${i + 1}</td><td style="white-space:nowrap"><span class="bar" style="background:${safeColor(x.t.color)}"></span>${teamLogo(x.t, 26)}<b>${esc(x.t.name)}</b></td><td>${x.wins}</td><td>${x.pod}</td><td class="pts">${x.pts}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function resultTable(raceId) {
   const race = D.races.find(x => x.id === raceId), nav = race ? sessNav(race) : '', cs = race ? curSess(race) : 'RACE';
   const rs = D.results.filter(r => r.race_id === raceId && sx(r) === cs).sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
-  if (!rs.length) return nav + '<div class="empty">Resultados ainda não publicados' + (nav ? ' para ' + cs : '') + '.</div>';
-  return nav + `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>${isTimed(cs) ? 'Tempo' : 'Grid'}</th><th>Estado</th><th>Pen.</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+  if (!rs.length) return nav + '<div class="empty">Results not published yet' + (nav ? ' para ' + cs : '') + '.</div>';
+  return nav + `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Driver</th><th>Team</th><th>${isTimed(cs) ? 'Time' : 'Grid'}</th><th>Status</th><th>Pen.</th><th style="text-align:right">Pts</th></tr></thead><tbody>
   ${rs.map(r => { const d = driverOf(r.driver_id), t = teamOf(r.team_id); return `<tr><td class="pos">${r.status === 'FIN' ? (r.position ?? '—') : r.status}</td>
   <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(d?.name || '?')}</b>${r.pole ? ' <span class="tag">Pole</span>' : ''}${r.fastest_lap ? ' <span class="tag">VR</span>' : ''}</td>
   <td class="muted" style="white-space:nowrap">${teamLogo(t, 20)}${esc(t?.name || '—')}</td><td>${isTimed(cs) ? esc(r.lap_time || '—') : (r.grid ?? '—')}</td><td>${r.status}</td>
@@ -778,7 +789,7 @@ const drvsOf = cid => D.entries.filter(e => e.championship_id === cid).map(e => 
 const teamInCat = (tid, cid) => D.team_entries.some(e => e.team_id === tid && e.championship_id === cid) || D.entries.some(e => e.team_id === tid && e.championship_id === cid);
 const teamCats = tid => { const ids = new Set(D.team_entries.filter(e => e.team_id === tid).map(e => e.championship_id)); D.entries.filter(e => e.team_id === tid).forEach(e => ids.add(e.championship_id)); return [...ids].map(champOf).filter(Boolean).map(c => esc(champLbl(c))).join(', ') || '—'; };
 const getL = () => L || (L = buildLeague());
-const tName = tid => { const t = teamOf(tid); return t ? `${teamLogo(t, 20)}${esc(t.name)}` : '<span class="muted">Sem equipe</span>'; };
+const tName = tid => { const t = teamOf(tid); return t ? `${teamLogo(t, 20)}${esc(t.name)}` : '<span class="muted">No team</span>'; };
 
 function buildLeague() {
   const seasons = seasonsAsc(), sIdx = Object.fromEntries(seasons.map((s, i) => [s.id, i]));
@@ -841,7 +852,7 @@ function buildLeague() {
   });
   Object.values(byDriver).forEach(p => { p.debut = p.seasons.size ? Math.min(...p.seasons) : 0; });
 
-  /* ---- campeões (só categorias com todas as corridas finalizadas) ---- */
+  /* ---- campeões (só categorias com todas as races finalizadas) ---- */
   const champs = [];
   D.championships.forEach(c => {
     const rc = D.races.filter(r => r.championship_id === c.id && sessOf(r) === 'race');
@@ -921,23 +932,23 @@ PAGES.players = () => {
     age: (a, b) => b.age - a.age, name: (a, b) => a.d.name.localeCompare(b.d.name) };
   rows.sort(SORTS[sort] || SORTS.ovr);
   const sOpt = (v, l) => `<option value="${v}" ${sort === v ? 'selected' : ''}>${l}</option>`;
-  const filters = `<div class="filters"><select data-change="plSeason" aria-label="Temporada">${seasonOpts(Lg, sel, 'Carreira completa (todas as temporadas)')}</select>
-    <select data-change="plCls" aria-label="Classe"><option value="all">Todas as classes</option>${CLASSES.map(c => `<option value="${c[0]}" ${cf === c[0] ? 'selected' : ''}>Classe ${c[0]}</option>`).join('')}</select>
-    <select data-change="plSort" aria-label="Ordenar">${sOpt('ovr', 'Ordenar: Overall')}${sOpt('wins', 'Ordenar: Vitórias')}${sOpt('pod', 'Ordenar: Pódios')}${sOpt('age', 'Ordenar: Idade')}${sOpt('name', 'Ordenar: Nome')}</select>
-    <input type="search" id="plSearch" placeholder="Buscar piloto ou equipe…" aria-label="Buscar piloto"></div>`;
-  return `${pageHead('Players', 'Todos os pilotos que já correram na liga: classe, overall, salário e carreira completa. Clique em um nome para ver os dados.')}
+  const filters = `<div class="filters"><select data-change="plSeason" aria-label="Season">${seasonOpts(Lg, sel, 'Full career (all seasons)')}</select>
+    <select data-change="plCls" aria-label="Class"><option value="all">All classes</option>${CLASSES.map(c => `<option value="${c[0]}" ${cf === c[0] ? 'selected' : ''}>Class ${c[0]}</option>`).join('')}</select>
+    <select data-change="plSort" aria-label="Sort">${sOpt('ovr', 'Sort: Overall')}${sOpt('wins', 'Sort: Wins')}${sOpt('pod', 'Sort: Podiums')}${sOpt('age', 'Sort: Age')}${sOpt('name', 'Sort: Name')}</select>
+    <input type="search" id="plSearch" placeholder="Search driver or team…" aria-label="Search driver"></div>`;
+  return `${pageHead('Drivers', 'Every driver who has raced in the league: class, overall, salary and full career. Click a name to see the details.')}
   ${filters}
-  <div class="card scroll"><table class="tbl"><thead><tr><th>Classe</th><th>Piloto</th><th>Equipe</th><th>Idade</th><th>Temp.</th><th>OVR</th><th style="text-align:right">Salário</th><th>V</th><th>P</th><th>Poles</th><th>Títulos</th></tr></thead>
+  <div class="card scroll"><table class="tbl"><thead><tr><th>Class</th><th>Driver</th><th>Team</th><th>Age</th><th>Seas.</th><th>OVR</th><th style="text-align:right">Salary</th><th>V</th><th>P</th><th>Poles</th><th>Titles</th></tr></thead>
   <tbody id="plRows">${rows.map(x => `<tr class="click" data-act="playerCard" data-id="${x.did}" data-q="${esc((x.d.name + ' ' + (x.team ? x.team.name : '')).toLowerCase())}">
     <td>${clsBadge(x.o)}</td><td style="white-space:nowrap">${avatarHTML(x.d, 'thumb')}${flag(x.d.country_code)} <b>${esc(x.d.name)}</b></td>
-    <td class="muted" style="white-space:nowrap">${x.team ? teamLogo(x.team, 20) + esc(x.team.name) : 'Sem equipe'}</td><td>${x.age}</td><td>${x.ns}</td><td class="ovr">${x.o}</td>
-    <td style="text-align:right" class="wage">${money(wageOf(x.o))}</td><td>${x.st.wins}</td><td>${x.st.pod}</td><td>${x.st.poles}</td><td>${x.titles}</td></tr>`).join('') || '<tr><td colspan="11" class="empty">Nenhum piloto encontrado.</td></tr>'}</tbody></table></div>
-  <p class="muted" style="margin-top:12px;font-size:13px">Classes: ${CLASSES.map(c => `<b>${c[0]}</b> ${c[0] === 'D' ? '&lt; 68' : '≥ ' + c[1]}`).join(' · ')}. O overall depende da experiência (temporadas na liga) e da nota média nos fins de semana. Todos estreiam com ${AGE0} anos e ganham +1 a cada temporada.</p>`;
+    <td class="muted" style="white-space:nowrap">${x.team ? teamLogo(x.team, 20) + esc(x.team.name) : 'No team'}</td><td>${x.age}</td><td>${x.ns}</td><td class="ovr">${x.o}</td>
+    <td style="text-align:right" class="wage">${money(wageOf(x.o))}</td><td>${x.st.wins}</td><td>${x.st.pod}</td><td>${x.st.poles}</td><td>${x.titles}</td></tr>`).join('') || '<tr><td colspan="11" class="empty">No driver found.</td></tr>'}</tbody></table></div>
+  <p class="muted" style="margin-top:12px;font-size:13px">Classes: ${CLASSES.map(c => `<b>${c[0]}</b> ${c[0] === 'D' ? '&lt; 68' : '≥ ' + c[1]}`).join(' · ')}. Overall depends on experience (seasons in the league) and on the average weekend rating. Everyone starts at ${AGE0} years old and gains +1 every season.</p>`;
 };
 
 PAGES.driver = id => {
   const d = driverOf(id);
-  if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
+  if (!d) return '<div class="card empty">Driver not found.</div>';
   const Lg = getL(), p = Lg.byDriver[id] || { wk: [], entries: [], seasons: new Set() }, st = Lg.stats(id), o = Lg.ovr(id);
   const le = [...p.entries].sort((a, b) => b.si - a.si)[0], t = teamOf(le && le.team_id), col = safeColor(t && t.color);
   const sRows = [...p.seasons].sort((a, b) => b - a).map(si => {
@@ -946,36 +957,36 @@ PAGES.driver = id => {
   });
   const wk = [...p.wk].sort((a, b) => new Date(b.date) - new Date(a.date)), myTitles = Lg.champs.filter(c => c.driverId === id);
   const S1 = (l, v) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`;
-  return `<a href="#/players" class="muted">← Players</a>
+  return `<a href="#/players" class="muted">← Drivers</a>
   <section class="card" style="margin-top:12px;border-left:4px solid ${col}"><div class="drv-head">
     ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
     <div class="big" style="color:${col}">${le && le.number != null ? le.number : ''}</div>
-    <div style="flex:1"><h1 style="font-size:38px">${esc(d.name)}</h1><p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 24)}${esc(t ? t.name : 'Sem equipe')}</p>
+    <div style="flex:1"><h1 style="font-size:38px">${esc(d.name)}</h1><p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 24)}${esc(t ? t.name : 'No team')}</p>
     <p style="margin-top:8px"><span class="wage" style="font-size:20px">${o != null ? money(wageOf(o)) : '—'}</span></p>
-    ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar piloto</button></p>` : ''}</div>
+    ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Edit driver</button></p>` : ''}</div>
     <div style="text-align:center">${clsBadge(o, true)}<div class="ovr" style="font-size:34px;margin-top:6px">${o ?? '—'}</div><small class="muted">OVERALL</small></div></div></section>
-  <section class="sec"><div class="stats">${S1('Idade', o != null ? Lg.ageNow(id) : '—')}${S1('Temporadas', p.seasons.size)}${S1('Corridas', st.races)}${S1('Vitórias', st.wins)}${S1('Pódios', st.pod)}${S1('Voltas rápidas', st.fl)}${S1('Poles', st.poles)}${S1('Campeonatos', Lg.titlesOf(id))}${S1('Abandonos', st.dnf)}${S1('Nota média', st.avg != null ? st.avg.toFixed(1) : '—')}</div>
+  <section class="sec"><div class="stats">${S1('Age', o != null ? Lg.ageNow(id) : '—')}${S1('Seasons', p.seasons.size)}${S1('Races', st.races)}${S1('Wins', st.wins)}${S1('Podiums', st.pod)}${S1('Fastest laps', st.fl)}${S1('Poles', st.poles)}${S1('Championships', Lg.titlesOf(id))}${S1('Retirements', st.dnf)}${S1('Average rating', st.avg != null ? st.avg.toFixed(1) : '—')}</div>
   ${myTitles.length ? `<p class="muted" style="margin-top:12px">🏆 ${myTitles.map(c => `${esc(c.season)} · ${esc(c.name)}`).join(' &nbsp;|&nbsp; ')}</p>` : ''}</section>
-  <section class="sec"><h2>Nota média por temporada</h2><div class="card scroll">${sRows.length ? `<table class="tbl"><thead><tr><th>Temporada</th><th>Categoria</th><th>Equipe</th><th>Nº</th><th>Idade</th><th>Corridas</th><th>V</th><th>P</th><th>Pts</th><th>Nota</th><th>OVR</th></tr></thead><tbody>
+  <section class="sec"><h2>Average rating per season</h2><div class="card scroll">${sRows.length ? `<table class="tbl"><thead><tr><th>Season</th><th>Category</th><th>Team</th><th>Nº</th><th>Age</th><th>Races</th><th>V</th><th>P</th><th>Pts</th><th>Rating</th><th>OVR</th></tr></thead><tbody>
   ${sRows.map(r => `<tr><td>${esc(Lg.seasons[r.si] ? Lg.seasons[r.si].name : '—')}</td><td class="muted">${r.es.map(e => esc(champOf(e.championship_id) ? champOf(e.championship_id).name : '')).join(', ')}</td>
-  <td class="muted" style="white-space:nowrap">${r.teams.map(x => teamLogo(x, 18) + esc(x.name)).join(', ') || '—'}</td><td>${r.es.map(e => e.number ?? '—').join(', ')}</td><td>${Lg.ageAt(id, r.si)}</td><td>${r.s.races}</td><td>${r.s.wins}</td><td>${r.s.pod}</td><td>${r.s.pts}</td><td>${notaHTML(r.s.avg)}</td><td class="ovr">${r.o ?? '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sem temporadas.</div>'}</div></section>
-  <section class="sec"><h2>Nota por fim de semana</h2><div class="card scroll">${wk.length ? `<table class="tbl"><thead><tr><th>Corrida</th><th>Temporada</th><th>Grid</th><th>Final</th><th></th><th style="text-align:right">Nota</th></tr></thead><tbody>
+  <td class="muted" style="white-space:nowrap">${r.teams.map(x => teamLogo(x, 18) + esc(x.name)).join(', ') || '—'}</td><td>${r.es.map(e => e.number ?? '—').join(', ')}</td><td>${Lg.ageAt(id, r.si)}</td><td>${r.s.races}</td><td>${r.s.wins}</td><td>${r.s.pod}</td><td>${r.s.pts}</td><td>${notaHTML(r.s.avg)}</td><td class="ovr">${r.o ?? '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No seasons.</div>'}</div></section>
+  <section class="sec"><h2>Rating per weekend</h2><div class="card scroll">${wk.length ? `<table class="tbl"><thead><tr><th>Race</th><th>Season</th><th>Grid</th><th>Final</th><th></th><th style="text-align:right">Rating</th></tr></thead><tbody>
   ${wk.map(x => `<tr class="click" data-go="#/race/${x.raceId}"><td>${flag(x.race.country_code)} ${esc(x.race.name)}</td><td class="muted">${esc(Lg.seasons[x.si] ? Lg.seasons[x.si].name : '')}</td><td>${x.grid ?? '—'}</td><td>${x.fin ? 'P' + x.pos : (x.status || '—')}</td>
-  <td>${x.win ? '<span class="tag finished">Vitória</span> ' : x.pod ? '<span class="tag">Pódio</span> ' : ''}${x.pole ? '<span class="tag">Pole</span> ' : ''}${x.fl ? '<span class="tag">VR</span> ' : ''}${x.gain > 0 ? `<span class="tag">+${x.gain} pos</span>` : ''}</td><td style="text-align:right">${notaHTML(x.rating)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sem corridas.</div>'}</div></section>
-  <details class="card sec"><summary>Como a nota e o overall são calculados</summary><p class="muted" style="margin-top:10px;font-size:14px">A nota do fim de semana (0 a 10) soma: posição final, posição de largada, posições ganhas/perdidas (ultrapassagens), vitória, pódio, pole, volta mais rápida, e desconta penalizações. Abandono rende pouco; desclassificação, quase nada. Em fins de semana com sprint, a corrida principal vale 70% e a sprint 30%. O overall parte da experiência (1 temporada ≈ 62, 2 ≈ 79, 3 ≈ 87 …) e sobe ou desce conforme a nota média (a forma recente pesa mais) e os títulos. A classe e o salário vêm do overall.</p></details>`;
+  <td>${x.win ? '<span class="tag finished">Win</span> ' : x.pod ? '<span class="tag">Podium</span> ' : ''}${x.pole ? '<span class="tag">Pole</span> ' : ''}${x.fl ? '<span class="tag">VR</span> ' : ''}${x.gain > 0 ? `<span class="tag">+${x.gain} pos</span>` : ''}</td><td style="text-align:right">${notaHTML(x.rating)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No races.</div>'}</div></section>
+  <details class="card sec"><summary>How the rating and overall are calculated</summary><p class="muted" style="margin-top:10px;font-size:14px">The weekend rating (0 to 10) adds up: finishing position, starting position, positions gained/lost (overtakes), win, podium, pole, fastest lap, minus penalties. A retirement scores low; a disqualification almost nothing. On sprint weekends, the main race counts 70% and the sprint 30%. Overall starts from experience (1 season ≈ 62, 2 ≈ 79, 3 ≈ 87 …) and moves up or down with the average rating (recent form weighs more) and titles. Class and salary come from overall.</p></details>`;
 };
 
 PAGES.transfers = () => {
   const Lg = getL(), f = S.trSeason ?? 'all', list = Lg.transfers.filter(t => f === 'all' || String(t.si) === String(f));
   const sis = [...new Set(list.map(t => t.si))].sort((a, b) => b - a);
   const moves = list.filter(t => t.type === 'move').length, debuts = list.length - moves;
-  return `${pageHead('Janela de transferências', 'Todas as movimentações de pilotos entre as temporadas: estreias e trocas de equipe.', `<select data-change="trSeason" style="width:auto;min-width:200px">${seasonOpts(Lg, f, 'Todas as temporadas')}</select>`)}
-  <div class="stats" style="margin-bottom:8px"><div class="stat"><b>${moves}</b><small>Transferências</small></div><div class="stat"><b>${debuts}</b><small>Estreias</small></div></div>
-  ${sis.map(si => `<section class="sec"><h2>Janela · ${esc(Lg.seasons[si] ? Lg.seasons[si].name : '')}</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Classe</th><th>Piloto</th><th>Movimento</th><th>Nº</th><th>Categoria</th></tr></thead><tbody>
+  return `${pageHead('Transfer window', 'All driver moves between seasons: debuts and team changes.', `<select data-change="trSeason" style="width:auto;min-width:200px">${seasonOpts(Lg, f, 'All seasons')}</select>`)}
+  <div class="stats" style="margin-bottom:8px"><div class="stat"><b>${moves}</b><small>Transfers</small></div><div class="stat"><b>${debuts}</b><small>Debuts</small></div></div>
+  ${sis.map(si => `<section class="sec"><h2>Window · ${esc(Lg.seasons[si] ? Lg.seasons[si].name : '')}</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Class</th><th>Driver</th><th>Move</th><th>Nº</th><th>Category</th></tr></thead><tbody>
   ${list.filter(t => t.si === si).sort((a, b) => (Lg.ovr(b.did, si) || 0) - (Lg.ovr(a.did, si) || 0)).map(t => { const d = driverOf(t.did); return `<tr class="click" data-go="#/driver/${t.did}"><td>${clsBadge(Lg.ovr(t.did, si))}</td>
   <td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : '?')}</b></td>
-  <td style="white-space:nowrap">${t.type === 'debut' ? `<span class="tag upcoming">Estreia</span> → ${tName(t.to)}` : `<span class="tag live" style="animation:none">Transferência</span> ${tName(t.from)} → ${tName(t.to)}`}</td>
-  <td>${t.number ?? '—'}</td><td class="muted">${esc(champOf(t.cid) ? champOf(t.cid).name : '')}</td></tr>`; }).join('')}</tbody></table></div></section>`).join('') || '<div class="card empty" style="margin-top:16px">Nenhuma transferência registrada ainda.</div>'}`;
+  <td style="white-space:nowrap">${t.type === 'debut' ? `<span class="tag upcoming">Debut</span> → ${tName(t.to)}` : `<span class="tag live" style="animation:none">Transfer</span> ${tName(t.from)} → ${tName(t.to)}`}</td>
+  <td>${t.number ?? '—'}</td><td class="muted">${esc(champOf(t.cid) ? champOf(t.cid).name : '')}</td></tr>`; }).join('')}</tbody></table></div></section>`).join('') || '<div class="card empty" style="margin-top:16px">No transfers recorded yet.</div>'}`;
 };
 
 PAGES.teams = () => {
@@ -984,15 +995,15 @@ PAGES.teams = () => {
     const per = {}; st.w.forEach(x => { if (x.win) per[x.did] = (per[x.did] || 0) + 1; }); const star = Object.entries(per).sort((a, b) => b[1] - a[1])[0];
     return { t, st, ns: ss.size, wcc: Lg.champs.filter(c => c.teamId === t.id).length, wdc: Lg.champs.filter(c => c.driverTeam === t.id).length, star }; })
     .sort((a, b) => b.wcc - a.wcc || b.wdc - a.wdc || b.st.wins - a.st.wins || a.t.name.localeCompare(b.t.name));
-  return `${pageHead('Equipes', 'Histórico de todas as equipes da liga: títulos, vitórias e pilotos.', isAdmin() ? '<button class="btn red" data-act="entNew" data-v="teams">+ Nova equipe</button>' : '')}
+  return `${pageHead('Teams', 'History of every team in the league: titles, wins and drivers.', isAdmin() ? '<button class="btn red" data-act="entNew" data-v="teams">+ New team</button>' : '')}
   <div class="cols3">${rows.map(x => `<a href="#/team/${x.t.id}" class="card hover team-card" style="--tc:${safeColor(x.t.color)}"><div class="row" style="gap:10px;margin-bottom:10px">${teamLogo(x.t, 34)}<h3>${esc(x.t.name)}</h3></div>
-  <div class="stats" style="grid-template-columns:repeat(4,1fr)"><div class="stat"><b>${x.wcc}</b><small>WCC</small></div><div class="stat"><b>${x.wdc}</b><small>WDC</small></div><div class="stat"><b>${x.st.wins}</b><small>Vit.</small></div><div class="stat"><b>${x.st.pod}</b><small>Pód.</small></div></div>
-  <p class="muted" style="margin-top:10px;font-size:13px">${x.ns} temporada(s)${x.star ? ` · Mais vitorioso: <b style="color:var(--text)">${esc(driverOf(x.star[0]) ? driverOf(x.star[0]).name : '?')}</b> (${x.star[1]})` : ''}</p></a>`).join('') || '<div class="card empty">Sem equipes cadastradas.</div>'}</div>`;
+  <div class="stats" style="grid-template-columns:repeat(4,1fr)"><div class="stat"><b>${x.wcc}</b><small>WCC</small></div><div class="stat"><b>${x.wdc}</b><small>WDC</small></div><div class="stat"><b>${x.st.wins}</b><small>Wins</small></div><div class="stat"><b>${x.st.pod}</b><small>Pod.</small></div></div>
+  <p class="muted" style="margin-top:10px;font-size:13px">${x.ns} season(s)${x.star ? ` · Mais vitorioso: <b style="color:var(--text)">${esc(driverOf(x.star[0]) ? driverOf(x.star[0]).name : '?')}</b> (${x.star[1]})` : ''}</p></a>`).join('') || '<div class="card empty">No teams registered.</div>'}</div>`;
 };
 
 PAGES.team = id => {
   const t = teamOf(id);
-  if (!t) return '<div class="card empty">Equipe não encontrada.</div>';
+  if (!t) return '<div class="card empty">Team not found.</div>';
   const Lg = getL(), ts = Lg.teamStats(id), wcc = Lg.champs.filter(c => c.teamId === id), wdc = Lg.champs.filter(c => c.driverTeam === id), col = safeColor(t.color);
   const per = {};
   ts.w.forEach(x => { const r = (per[x.did] ||= { did: x.did, wins: 0, pod: 0, poles: 0, races: 0, pts: 0, seasons: new Set() }); if (x.raced) r.races++; if (x.win) r.wins++; if (x.pod) r.pod++; if (x.pole) r.poles++; r.pts += x.pts; r.seasons.add(x.si); });
@@ -1000,22 +1011,22 @@ PAGES.team = id => {
   const cids = new Set(D.team_entries.filter(e => e.team_id === id).map(e => e.championship_id)); D.entries.filter(e => e.team_id === id).forEach(e => cids.add(e.championship_id)); ts.w.forEach(x => cids.add(x.cid));
   const hist = [...cids].map(champOf).filter(Boolean).sort((a, b) => Lg.siOf(b.id) - Lg.siOf(a.id)).map(c => { const s = standings(c.id), pos = s.teams.findIndex(x => x.t.id === id); return { c, pos: pos + 1, row: s.teams[pos], ds: s.drivers.filter(x => x.d.team_id === id) }; });
   const S1 = (l, v) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`;
-  return `<a href="#/teams" class="muted">← Equipes</a>
-  <section class="card" style="margin-top:12px;border-left:4px solid ${col}"><div class="drv-head">${teamLogo(t, 80)}<div style="flex:1"><h1 style="font-size:38px">${esc(t.name)}</h1><p class="muted">${esc(t.short_name || '')} · ${hist.length} participação(ões)</p>
-  ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="teams" data-id="${t.id}">Editar equipe</button></p>` : ''}</div></div></section>
-  <section class="sec"><div class="stats">${S1('Títulos de construtores (WCC)', wcc.length)}${S1('Títulos de pilotos (WDC)', wdc.length)}${S1('Vitórias', ts.wins)}${S1('Pódios', ts.pod)}${S1('Poles', ts.poles)}${S1('Voltas rápidas', ts.fl)}${S1('Corridas', ts.races)}${S1('Pontos', ts.pts)}</div></section>
-  ${star && star.wins > 0 ? `<section class="sec"><h2>Piloto mais vencedor</h2><a href="#/driver/${star.did}" class="card hover race-card">${avatarHTML(driverOf(star.did) || {}, 'avatar')}<div><h3 style="font-size:22px">${esc(driverOf(star.did) ? driverOf(star.did).name : '?')}</h3><p class="muted">${star.wins} vitórias · ${star.pod} pódios · ${star.poles} poles pela equipe</p></div></a></section>` : ''}
-  <div class="cols sec"><div><h2 class="sec-h"><span>Campeonatos de construtores</span></h2><div class="card">${wcc.length ? `<table class="tbl"><tbody>${wcc.map(c => `<tr><td class="pos">🏆</td><td>${esc(c.season)}</td><td class="muted">${esc(c.name)}</td><td class="pts">${c.teamPts} pts</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Ainda sem títulos.</div>'}</div></div>
-  <div><h2 class="sec-h"><span>Campeonatos de pilotos</span></h2><div class="card">${wdc.length ? `<table class="tbl"><tbody>${wdc.map(c => `<tr class="click" data-go="#/driver/${c.driverId}"><td class="pos">🏆</td><td>${esc(c.season)}</td><td><b>${esc(driverOf(c.driverId) ? driverOf(c.driverId).name : '?')}</b></td><td class="muted">${esc(c.name)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Ainda sem títulos de pilotos.</div>'}</div></div></div>
-  <section class="sec"><h2>Pilotos pela equipe</h2><div class="card scroll">${drivers.length ? `<table class="tbl"><thead><tr><th>Piloto</th><th>Temp.</th><th>Corridas</th><th>V</th><th>P</th><th>Poles</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${drivers.map(r => { const d = driverOf(r.did); return `<tr class="click" data-go="#/driver/${r.did}"><td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : '?')}</b></td><td>${r.seasons.size}</td><td>${r.races}</td><td>${r.wins}</td><td>${r.pod}</td><td>${r.poles}</td><td class="pts">${r.pts}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">Sem resultados.</div>'}</div></section>
-  <section class="sec"><h2>Histórico por temporada</h2><div class="card scroll">${hist.length ? `<table class="tbl"><thead><tr><th>Temporada</th><th>Categoria</th><th>Pos. WCC</th><th>Pts</th><th>Pilotos</th></tr></thead><tbody>
-  ${hist.map(h => `<tr><td>${esc(Lg.seasons[Lg.siOf(h.c.id)] ? Lg.seasons[Lg.siOf(h.c.id)].name : '')}</td><td class="muted">${esc(h.c.name)}</td><td class="pos">${h.pos || '—'}</td><td>${h.row ? h.row.pts : 0}</td><td class="muted">${h.ds.map(x => esc(x.d.name) + ' (' + x.pts + ')').join(', ') || '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sem temporadas.</div>'}</div></section>`;
+  return `<a href="#/teams" class="muted">← Teams</a>
+  <section class="card" style="margin-top:12px;border-left:4px solid ${col}"><div class="drv-head">${teamLogo(t, 80)}<div style="flex:1"><h1 style="font-size:38px">${esc(t.name)}</h1><p class="muted">${esc(t.short_name || '')} · ${hist.length} appearance(s)</p>
+  ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="teams" data-id="${t.id}">Edit team</button></p>` : ''}</div></div></section>
+  <section class="sec"><div class="stats">${S1('Constructors’ titles (WCC)', wcc.length)}${S1('Drivers’ titles (WDC)', wdc.length)}${S1('Wins', ts.wins)}${S1('Podiums', ts.pod)}${S1('Poles', ts.poles)}${S1('Fastest laps', ts.fl)}${S1('Races', ts.races)}${S1('Points', ts.pts)}</div></section>
+  ${star && star.wins > 0 ? `<section class="sec"><h2>Most successful driver</h2><a href="#/driver/${star.did}" class="card hover race-card">${avatarHTML(driverOf(star.did) || {}, 'avatar')}<div><h3 style="font-size:22px">${esc(driverOf(star.did) ? driverOf(star.did).name : '?')}</h3><p class="muted">${star.wins} wins · ${star.pod} podiums · ${star.poles} poles for the team</p></div></a></section>` : ''}
+  <div class="cols sec"><div><h2 class="sec-h"><span>Constructors’ championships</span></h2><div class="card">${wcc.length ? `<table class="tbl"><tbody>${wcc.map(c => `<tr><td class="pos">🏆</td><td>${esc(c.season)}</td><td class="muted">${esc(c.name)}</td><td class="pts">${c.teamPts} pts</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No titles yet.</div>'}</div></div>
+  <div><h2 class="sec-h"><span>Drivers’ championships</span></h2><div class="card">${wdc.length ? `<table class="tbl"><tbody>${wdc.map(c => `<tr class="click" data-go="#/driver/${c.driverId}"><td class="pos">🏆</td><td>${esc(c.season)}</td><td><b>${esc(driverOf(c.driverId) ? driverOf(c.driverId).name : '?')}</b></td><td class="muted">${esc(c.name)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No drivers’ titles yet.</div>'}</div></div></div>
+  <section class="sec"><h2>Drivers for the team</h2><div class="card scroll">${drivers.length ? `<table class="tbl"><thead><tr><th>Driver</th><th>Seas.</th><th>Races</th><th>V</th><th>P</th><th>Poles</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+  ${drivers.map(r => { const d = driverOf(r.did); return `<tr class="click" data-go="#/driver/${r.did}"><td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : '?')}</b></td><td>${r.seasons.size}</td><td>${r.races}</td><td>${r.wins}</td><td>${r.pod}</td><td>${r.poles}</td><td class="pts">${r.pts}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">No results.</div>'}</div></section>
+  <section class="sec"><h2>History by season</h2><div class="card scroll">${hist.length ? `<table class="tbl"><thead><tr><th>Season</th><th>Category</th><th>WCC pos.</th><th>Pts</th><th>Drivers</th></tr></thead><tbody>
+  ${hist.map(h => `<tr><td>${esc(Lg.seasons[Lg.siOf(h.c.id)] ? Lg.seasons[Lg.siOf(h.c.id)].name : '')}</td><td class="muted">${esc(h.c.name)}</td><td class="pos">${h.pos || '—'}</td><td>${h.row ? h.row.pts : 0}</td><td class="muted">${h.ds.map(x => esc(x.d.name) + ' (' + x.pts + ')').join(', ') || '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No seasons.</div>'}</div></section>`;
 };
 
 PAGES.records = () => {
   const Lg = getL(), W = []; Object.values(Lg.byDriver).forEach(p => p.wk.forEach(x => W.push(x)));
-  if (!W.length) return pageHead('Recordes', 'Os maiores números da história da liga.') + '<div class="card empty">Os recordes aparecem assim que houver resultados publicados.</div>';
+  if (!W.length) return pageHead('Records', 'The biggest numbers in league history.') + '<div class="card empty">Records appear as soon as results are published.</div>';
   const sn = si => (Lg.seasons[si] ? Lg.seasons[si].name : '—'), row = (did, val, unit, tag) => ({ did, val, unit, tag });
   const raceTag = x => `${sn(x.si)} · ${x.race.name}`;
   const ageList = (pred, oldest) => { const best = {};
@@ -1033,63 +1044,63 @@ PAGES.records = () => {
   const streaks = (pred, unit) => { const best = {};
     Object.values(groups).forEach(rs => { rs.sort((a, b) => new Date(a.race_date) - new Date(b.race_date)); const dids = new Set(); rs.forEach(r => byRaceW[r.id].forEach(d => dids.add(d)));
       dids.forEach(did => { let cur = 0; rs.forEach(r => { const x = wmap[r.id + '|' + did]; if (x && pred(x)) { cur++; if (cur > ((best[did] && best[did].v) || 0)) best[did] = { v: cur, x }; } else cur = 0; }); }); });
-    return Object.entries(best).filter(([, b]) => b.v >= 2).sort((a, b) => b[1].v - a[1].v).map(([did, b]) => row(did, b.v, unit, 'até ' + raceTag(b.x))); };
+    return Object.entries(best).filter(([, b]) => b.v >= 2).sort((a, b) => b[1].v - a[1].v).map(([did, b]) => row(did, b.v, unit, 'until ' + raceTag(b.x))); };
   const sAvg = {}; W.filter(x => x.rating != null).forEach(x => { (sAvg[kc(x)] ||= []).push(x.rating); });
   const bestAvg = Object.entries(sAvg).filter(([, a]) => a.length >= 3).map(([k, a]) => [k, a.reduce((s, v) => s + v, 0) / a.length]).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const [did, cid] = k.split('|'); return row(did, v.toFixed(1), 'nota', `${sn(Lg.siOf(cid))} · ${champOf(cid) ? champOf(cid).name : ''}`); });
   const tt = (pred, unit) => { const m = {}; W.filter(x => x.team && pred(x)).forEach(x => { m[x.team] = (m[x.team] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([tid, v]) => ({ tid, val: v, unit, tag: '' })); };
   const wccT = {}; Lg.champs.forEach(c => { if (c.teamId) wccT[c.teamId] = (wccT[c.teamId] || 0) + 1; });
-  const wdcL = Object.entries(Lg.byDriver).map(([did]) => [did, Lg.titlesOf(did)]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).map(([did, n]) => row(did, n, 'títulos', ''));
+  const wdcL = Object.entries(Lg.byDriver).map(([did]) => [did, Lg.titlesOf(did)]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).map(([did, n]) => row(did, n, 'titles', ''));
   const recRow = (r, i) => { let name, img, go;
     if (r.tid) { const t = teamOf(r.tid); name = esc(t ? t.name : '?'); img = teamLogo(t, 26); go = '#/team/' + r.tid; }
     else { const d = driverOf(r.did); name = esc(d ? d.name : '?'); img = avatarHTML(d || {}, 'thumb'); go = '#/driver/' + r.did; }
     return `<div class="ri" data-go="${go}"><span class="rk">${i + 1}</span>${img}<span class="rn">${name}${r.tag ? `<br><span class="rt">${esc(r.tag)}</span>` : ''}</span><span class="rv">${esc(r.val)}${r.unit ? `<small>${esc(r.unit)}</small>` : ''}</span></div>`; };
-  const card = (title, rows) => `<div class="card rec"><h3>${title}</h3>${rows.slice(0, 5).map(recRow).join('') || '<div class="muted" style="padding:8px 0;font-size:13px">Sem registros ainda.</div>'}</div>`;
+  const card = (title, rows) => `<div class="card rec"><h3>${title}</h3>${rows.slice(0, 5).map(recRow).join('') || '<div class="muted" style="padding:8px 0;font-size:13px">No records yet.</div>'}</div>`;
   const sec = (h, cs) => `<section class="sec"><h2>${h}</h2><div class="cols3">${cs.join('')}</div></section>`;
   const hall = [...Lg.champs].sort((a, b) => b.si - a.si || a.name.localeCompare(b.name));
-  return `${pageHead('Recordes', 'Os extremos da liga: mais jovens, mais velhos, carreira, temporada, sequências e equipes.')}
-  ${sec('Idade', [card('Mais novo a vencer uma corrida', ageList(x => x.win)), card('Mais novo a fazer uma pole', ageList(x => x.pole)), card('Mais novo a subir no pódio', ageList(x => x.pod)),
-    card('Mais novo campeão', Lg.champs.map(c => ({ c, a: Lg.ageAt(c.driverId, c.si) })).sort((a, b) => a.a - b.a || a.c.si - b.c.si).map(({ c, a }) => row(c.driverId, a, 'anos', `${c.season} · ${c.name}`))),
-    card('Mais velho a vencer uma corrida', ageList(x => x.win, true)), card('Mais velho campeão', Lg.champs.map(c => ({ c, a: Lg.ageAt(c.driverId, c.si) })).sort((a, b) => b.a - a.a || a.c.si - b.c.si).map(({ c, a }) => row(c.driverId, a, 'anos', `${c.season} · ${c.name}`))) ])}
-  ${sec('Carreira', [card('Mais vitórias', rank(tally(x => x.win), 'vitórias')), card('Mais poles', rank(tally(x => x.pole), 'poles')), card('Mais pódios', rank(tally(x => x.pod), 'pódios')),
-    card('Mais voltas rápidas', rank(tally(x => x.fl), 'VR')), card('Mais corridas disputadas', rank(tally(x => x.raced), 'corridas')), card('Mais títulos de pilotos', wdcL),
-    card('Mais abandonos', rank(tally(x => x.dnf), 'DNF')), card('Mais temporadas', Object.entries(Lg.byDriver).map(([did, p]) => [did, p.seasons.size]).sort((a, b) => b[1] - a[1]).map(([did, n]) => row(did, n, 'temporadas', '')))])}
-  ${sec('Numa temporada', [card('Mais vitórias numa temporada', perSeason(tally(x => x.win, kc), 'vitórias')), card('Mais poles numa temporada', perSeason(tally(x => x.pole, kc), 'poles')), card('Mais pódios numa temporada', perSeason(tally(x => x.pod, kc), 'pódios')),
-    card('Mais pontos numa temporada', perSeason(ptsSeason, 'pts')), card('Melhor nota média numa temporada', bestAvg)])}
-  ${sec('Corridas e sequências', [card('Mais vitórias consecutivas', streaks(x => x.win, 'seguidas')), card('Mais pódios consecutivos', streaks(x => x.pod, 'seguidos')), card('Mais posições ganhas numa corrida', bestPer(W.filter(x => x.gain > 0), x => x.gain, raceTag, 'posições')),
-    card('Vitória largando mais atrás', bestPer(W.filter(x => x.win && x.grid), x => x.grid, raceTag, 'grid')), card('Melhor nota num fim de semana', bestPer(W.filter(x => x.rating != null), x => +x.rating.toFixed(1), raceTag, 'nota'))])}
-  ${sec('Equipes', [card('Mais títulos de construtores', Object.entries(wccT).sort((a, b) => b[1] - a[1]).map(([tid, v]) => ({ tid, val: v, unit: 'WCC', tag: '' }))), card('Mais vitórias', tt(x => x.win, 'vitórias')), card('Mais pódios', tt(x => x.pod, 'pódios')), card('Mais poles', tt(x => x.pole, 'poles'))])}
-  <section class="sec"><h2>Campeões por temporada</h2><div class="card scroll">${hall.length ? `<table class="tbl"><thead><tr><th>Temporada</th><th>Categoria</th><th>Campeão de pilotos</th><th>Campeão de construtores</th></tr></thead><tbody>
-  ${hall.map(c => `<tr><td>${esc(c.season)}</td><td class="muted">${esc(c.name)}</td><td class="click" data-go="#/driver/${c.driverId}"><b>${esc(driverOf(c.driverId) ? driverOf(c.driverId).name : '?')}</b> <span class="muted">(${c.driverPts} pts)</span></td><td>${c.teamId ? `<a href="#/team/${c.teamId}">${tName(c.teamId)}</a>` : '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Os campeões aparecem quando todas as corridas de uma categoria estiverem finalizadas.</div>'}</div></section>`;
+  return `${pageHead('Records', 'League extremes: youngest, oldest, career, season, streaks and teams.')}
+  ${sec('Age', [card('Youngest race winner', ageList(x => x.win)), card('Youngest pole sitter', ageList(x => x.pole)), card('Youngest on the podium', ageList(x => x.pod)),
+    card('Youngest champion', Lg.champs.map(c => ({ c, a: Lg.ageAt(c.driverId, c.si) })).sort((a, b) => a.a - b.a || a.c.si - b.c.si).map(({ c, a }) => row(c.driverId, a, 'anos', `${c.season} · ${c.name}`))),
+    card('Oldest race winner', ageList(x => x.win, true)), card('Oldest champion', Lg.champs.map(c => ({ c, a: Lg.ageAt(c.driverId, c.si) })).sort((a, b) => b.a - a.a || a.c.si - b.c.si).map(({ c, a }) => row(c.driverId, a, 'anos', `${c.season} · ${c.name}`))) ])}
+  ${sec('Career', [card('Most wins', rank(tally(x => x.win), 'wins')), card('Most poles', rank(tally(x => x.pole), 'poles')), card('Most podiums', rank(tally(x => x.pod), 'podiums')),
+    card('Most fastest laps', rank(tally(x => x.fl), 'VR')), card('Most races entered', rank(tally(x => x.raced), 'races')), card('Most drivers’ titles', wdcL),
+    card('Most retirements', rank(tally(x => x.dnf), 'DNF')), card('Most seasons', Object.entries(Lg.byDriver).map(([did, p]) => [did, p.seasons.size]).sort((a, b) => b[1] - a[1]).map(([did, n]) => row(did, n, 'temporadas', '')))])}
+  ${sec('In a season', [card('Most wins in a season', perSeason(tally(x => x.win, kc), 'wins')), card('Most poles in a season', perSeason(tally(x => x.pole, kc), 'poles')), card('Most podiums in a season', perSeason(tally(x => x.pod, kc), 'podiums')),
+    card('Most points in a season', perSeason(ptsSeason, 'pts')), card('Best average rating in a season', bestAvg)])}
+  ${sec('Races and streaks', [card('Most consecutive wins', streaks(x => x.win, 'seguidas')), card('Most consecutive podiums', streaks(x => x.pod, 'seguidos')), card('Most positions gained in a race', bestPer(W.filter(x => x.gain > 0), x => x.gain, raceTag, 'positions')),
+    card('Win from furthest back', bestPer(W.filter(x => x.win && x.grid), x => x.grid, raceTag, 'grid')), card('Best rating in a weekend', bestPer(W.filter(x => x.rating != null), x => +x.rating.toFixed(1), raceTag, 'nota'))])}
+  ${sec('Teams', [card('Most constructors’ titles', Object.entries(wccT).sort((a, b) => b[1] - a[1]).map(([tid, v]) => ({ tid, val: v, unit: 'WCC', tag: '' }))), card('Most wins', tt(x => x.win, 'wins')), card('Most podiums', tt(x => x.pod, 'podiums')), card('Most poles', tt(x => x.pole, 'poles'))])}
+  <section class="sec"><h2>Champions by season</h2><div class="card scroll">${hall.length ? `<table class="tbl"><thead><tr><th>Season</th><th>Category</th><th>Drivers’ champion</th><th>Constructors’ champion</th></tr></thead><tbody>
+  ${hall.map(c => `<tr><td>${esc(c.season)}</td><td class="muted">${esc(c.name)}</td><td class="click" data-go="#/driver/${c.driverId}"><b>${esc(driverOf(c.driverId) ? driverOf(c.driverId).name : '?')}</b> <span class="muted">(${c.driverPts} pts)</span></td><td>${c.teamId ? `<a href="#/team/${c.teamId}">${tName(c.teamId)}</a>` : '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Champions appear when all races in a category are finished.</div>'}</div></section>`;
 };
 
 /* =====================================================================
-   ADMIN — pilotos e equipes únicos + virada de temporada
+   ADMIN — drivers and equipes únicos + virada de temporada
    ===================================================================== */
 function teamOpts(cat, sel) {
   const inCat = new Set(D.team_entries.filter(e => e.championship_id === cat).map(e => e.team_id)); D.entries.filter(e => e.championship_id === cat && e.team_id).forEach(e => inCat.add(e.team_id));
   const opt = t => `<option value="${t.id}" ${t.id === sel ? 'selected' : ''}>${esc(t.name)}</option>`, a = D.teams.filter(t => inCat.has(t.id)), b = D.teams.filter(t => !inCat.has(t.id));
-  return `<option value="">— Sem equipe —</option>${a.length ? `<optgroup label="Nesta categoria">${a.map(opt).join('')}</optgroup>` : ''}${b.length ? `<optgroup label="Outras equipes da liga">${b.map(opt).join('')}</optgroup>` : ''}<option value="__new">➕ Criar nova equipe…</option>`;
+  return `<option value="">— No team —</option>${a.length ? `<optgroup label="In this category">${a.map(opt).join('')}</optgroup>` : ''}${b.length ? `<optgroup label="Other teams in the league">${b.map(opt).join('')}</optgroup>` : ''}<option value="__new">➕ Create new team…</option>`;
 }
 function openDriver(id, cat) {
-  if (!D.championships.length) { toast('Crie uma categoria antes de adicionar pilotos.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
+  if (!D.championships.length) { toast('Create a category before adding drivers.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
   const d = id ? driverOf(id) : { active: true, titles: 0 };
   cat = cat || (id && latestEntry(id) && latestEntry(id).championship_id) || (S.admCat !== 'all' ? S.admCat : S.champ);
   const e = id ? (D.entries.find(x => x.driver_id === id && x.championship_id === cat) || latestEntry(id)) : null, t = teamOf(e && e.team_id);
-  $('#dlg').innerHTML = `<form data-form="driver" data-id="${id || ''}"><h3>${id ? 'Editar piloto' : 'Inscrever piloto na categoria'}</h3>
-  ${id ? '' : `<label>Piloto já existente na liga (para reinscrever em outra temporada)</label><select name="pick" data-change="drvPick"><option value="">— Novo piloto —</option>${[...D.drivers].sort((a, b) => a.name.localeCompare(b.name)).map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>`}
-  <label>Categoria / temporada</label><select name="championship_id" data-change="drvCat" required><option value="">—</option>${optC().map(([v, l]) => `<option value="${v}" ${v === cat ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
-  ${fieldHTML({ k: 'photo_url', l: 'Foto do piloto', t: 'image' }, d.photo_url)}
-  <div class="grid2"><div><label>Nome</label><input name="name" value="${esc(d.name || '')}" required></div><div><label>Número (nesta categoria)</label><input type="number" name="number" min="0" max="999" value="${e && e.number != null ? e.number : ''}"></div></div>
-  ${fieldHTML({ k: 'country', k2: 'country_code', l: 'Nacionalidade', t: 'country', cur: d.country_code }, '')}
-  <label>Equipe (nesta categoria)</label><select name="team_id" id="drvTeam" data-change="drvTeam">${teamOpts(cat, e && e.team_id)}</select>
-  <div id="newTeam" hidden><label>Nome da nova equipe</label><input name="new_team_name" placeholder="Ex.: Aurora Racing"></div>
-  <label>Cor da equipe</label><input type="color" name="team_color" id="drvColor" value="${safeColor(t && t.color)}">
-  ${fieldHTML({ k: 'team_logo', l: 'Logo da equipe', t: 'image' }, (t && t.logo_url) || '')}
-  <div class="hint">O piloto e a equipe são únicos na liga. Trocar a equipe aqui registra uma transferência automaticamente. Mudar cor/logo altera a equipe inteira.</div>
-  <div class="grid2"><div><label>Campeonatos extras (antes do site)</label><input type="number" name="titles" min="0" value="${d.titles || 0}"></div>
-  <div><label>Conta associada (opcional)</label><select name="profile_id"><option value="">—</option>${optP().map(([v, l]) => `<option value="${v}" ${v === d.profile_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div>
-  <label class="chk"><input type="checkbox" name="active" ${d.active === false ? '' : 'checked'}> Piloto ativo</label>
-  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar piloto</button></div></form>`;
+  $('#dlg').innerHTML = `<form data-form="driver" data-id="${id || ''}"><h3>${id ? 'Edit driver' : 'Enroll driver in category'}</h3>
+  ${id ? '' : `<label>Existing driver in the league (to re-enroll in another season)</label><select name="pick" data-change="drvPick"><option value="">— New driver —</option>${[...D.drivers].sort((a, b) => a.name.localeCompare(b.name)).map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>`}
+  <label>Category / season</label><select name="championship_id" data-change="drvCat" required><option value="">—</option>${optC().map(([v, l]) => `<option value="${v}" ${v === cat ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
+  ${fieldHTML({ k: 'photo_url', l: 'Driver photo', t: 'image' }, d.photo_url)}
+  <div class="grid2"><div><label>Name</label><input name="name" value="${esc(d.name || '')}" required></div><div><label>Number (in this category)</label><input type="number" name="number" min="0" max="999" value="${e && e.number != null ? e.number : ''}"></div></div>
+  ${fieldHTML({ k: 'country', k2: 'country_code', l: 'Nationality', t: 'country', cur: d.country_code }, '')}
+  <label>Team (in this category)</label><select name="team_id" id="drvTeam" data-change="drvTeam">${teamOpts(cat, e && e.team_id)}</select>
+  <div id="newTeam" hidden><label>New team name</label><input name="new_team_name" placeholder="Ex.: Aurora Racing"></div>
+  <label>Team color</label><input type="color" name="team_color" id="drvColor" value="${safeColor(t && t.color)}">
+  ${fieldHTML({ k: 'team_logo', l: 'Team logo', t: 'image' }, (t && t.logo_url) || '')}
+  <div class="hint">Drivers and teams are unique in the league. Changing the team here records a transfer automatically. Changing color/logo changes the whole team.</div>
+  <div class="grid2"><div><label>Extra championships (before the site)</label><input type="number" name="titles" min="0" value="${d.titles || 0}"></div>
+  <div><label>Linked account (optional)</label><select name="profile_id"><option value="">—</option>${optP().map(([v, l]) => `<option value="${v}" ${v === d.profile_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div>
+  <label class="chk"><input type="checkbox" name="active" ${d.active === false ? '' : 'checked'}> Active driver</label>
+  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Save driver</button></div></form>`;
   $('#dlg').showModal();
 }
 function driversPanel() {
@@ -1097,26 +1108,26 @@ function driversPanel() {
   if (S.admCat !== 'all') rows = rows.filter(x => x.e.championship_id === S.admCat);
   rows.sort((a, b) => seasonIdxOf(b.e.championship_id) - seasonIdxOf(a.e.championship_id) || (a.e.number ?? 999) - (b.e.number ?? 999));
   const orphans = S.admCat === 'all' ? D.drivers.filter(d => !D.entries.some(e => e.driver_id === d.id)) : [];
-  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Pilotos</h2><div class="row">${catFilter()}<button class="btn red" data-act="entNew" data-v="drivers">+ Inscrever piloto</button></div></div>
-  <p class="muted" style="margin-bottom:12px;font-size:13px">Cada piloto existe uma única vez na liga; aqui você vê as inscrições dele por categoria/temporada. Para levar todo mundo para a próxima temporada use <b>Temporadas → Virada de temporada</b>.</p>
-  <div class="card scroll">${rows.length || orphans.length ? `<table class="tbl"><thead><tr><th>Piloto</th><th>Nº</th><th>País</th><th>Equipe</th><th>Categoria</th><th></th></tr></thead><tbody>
-  ${rows.map(({ e, d }) => { const t = teamOf(e.team_id), c = champOf(e.championship_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inativo</span>' : ''}</td><td class="display">${e.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Drivers</h2><div class="row">${catFilter()}<button class="btn red" data-act="entNew" data-v="drivers">+ Enroll driver</button></div></div>
+  <p class="muted" style="margin-bottom:12px;font-size:13px">Each driver exists only once in the league; here you see their enrollments by category/season. To move everyone to the next season use <b>Seasons → Season rollover</b>.</p>
+  <div class="card scroll">${rows.length || orphans.length ? `<table class="tbl"><thead><tr><th>Driver</th><th>Nº</th><th>Country</th><th>Team</th><th>Category</th><th></th></tr></thead><tbody>
+  ${rows.map(({ e, d }) => { const t = teamOf(e.team_id), c = champOf(e.championship_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inactive</span>' : ''}</td><td class="display">${e.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
   <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t && t.color)}"></span>${teamLogo(t, 20)}${esc(t ? t.name : '—')}</td><td class="muted">${esc(c ? champLbl(c) : '—')}</td>
-  <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}" data-cat="${e.championship_id}">Editar</button> <button class="btn sm" data-act="entryDel" data-id="${e.id}">Tirar da categoria</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Excluir piloto</button></td></tr>`; }).join('')}
-  ${orphans.map(d => `<tr><td>${avatarHTML(d)}<b>${esc(d.name)}</b></td><td>—</td><td>${flag(d.country_code)}</td><td class="muted">—</td><td class="muted">Sem inscrição</td><td style="text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}">Inscrever</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Excluir piloto</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhum piloto nesta categoria. Use “+ Inscrever piloto”.</div>'}</div>`;
+  <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}" data-cat="${e.championship_id}">Edit</button> <button class="btn sm" data-act="entryDel" data-id="${e.id}">Remove from category</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Delete driver</button></td></tr>`; }).join('')}
+  ${orphans.map(d => `<tr><td>${avatarHTML(d)}<b>${esc(d.name)}</b></td><td>—</td><td>${flag(d.country_code)}</td><td class="muted">—</td><td class="muted">Not enrolled</td><td style="text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}">Inscrever</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Delete driver</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">No drivers in this category. Use “+ Enroll driver”.</div>'}</div>`;
 }
 function openRoll() {
   const asc = seasonsAsc(), last = asc[asc.length - 1], y = last ? last.year + 1 : new Date().getFullYear();
-  if (!asc.length) { toast('Crie a primeira temporada antes de fazer uma virada.', true); return; }
-  $('#dlg').innerHTML = `<form data-form="roll"><h3>Virada de temporada</h3>
-  <p class="muted" style="font-size:13px">Cria a nova temporada com as mesmas categorias (nome, pontuação, cor). Pilotos e equipes <b>não são copiados</b>: continuam sendo os mesmos e apenas são reinscritos com a equipe e o número da temporada anterior. Depois, é só editar quem mudou de equipe — isso aparece em Transferências.</p>
-  <label>Nome da nova temporada</label><input name="name" value="Temporada ${y}" required>
+  if (!asc.length) { toast('Create the first season before doing a rollover.', true); return; }
+  $('#dlg').innerHTML = `<form data-form="roll"><h3>Season rollover</h3>
+  <p class="muted" style="font-size:13px">Creates the new season with the same categories (name, scoring, color). Drivers and teams <b>are not copied</b>: they stay the same and are simply re-enrolled with the team and number from the previous season. Then just edit whoever changed team — it shows up in Transfers.</p>
+  <label>New season name</label><input name="name" value="Season ${y}" required>
   <label>Ano</label><input type="number" name="year" value="${y}" required>
-  <label>Temporada de origem</label><select name="from">${[...asc].reverse().map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select>
-  <label class="chk"><input type="checkbox" name="drivers" checked> Reinscrever pilotos ativos (mesma equipe e número)</label>
-  <label class="chk"><input type="checkbox" name="teams" checked> Reinscrever as equipes</label>
-  <label class="chk"><input type="checkbox" name="active" checked> Tornar a nova temporada a ativa</label>
-  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Criar temporada</button></div></form>`;
+  <label>Source season</label><select name="from">${[...asc].reverse().map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select>
+  <label class="chk"><input type="checkbox" name="drivers" checked> Re-enroll active drivers (same team and number)</label>
+  <label class="chk"><input type="checkbox" name="teams" checked> Re-enroll teams</label>
+  <label class="chk"><input type="checkbox" name="active" checked> Make the new season the active one</label>
+  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Create season</button></div></form>`;
   $('#dlg').showModal();
 }
 
@@ -1128,39 +1139,66 @@ PAGES.home = () => {
   const lastRace = [...D.races].filter(r => r.status === 'finished' && D.results.some(x => x.race_id === r.id)).sort((a, b) => new Date(b.race_date) - new Date(a.race_date))[0];
   const upcoming = D.races.filter(r => r.status !== 'finished').sort((a, b) => new Date(a.race_date) - new Date(b.race_date)).slice(0, 4);
   const banner = safeUrl(cfg('partner_banner'));
-  const blockLast = `<div><h2 class="sec-h"><span>Últimos resultados</span>${lastRace ? `<a class="btn sm ghost" href="#/race/${lastRace.id}">Ver tudo</a>` : ''}</h2>
-      <div class="card">${lastRace ? `<p class="muted" style="margin-bottom:8px">${flag(lastRace.country_code)} ${esc(lastRace.name)} · ${fmtDate(lastRace.race_date)}</p>${resultTableTop(lastRace.id, 8)}` : '<div class="empty">Ainda sem resultados.</div>'}</div></div>`;
-  const blockNext = `<div><h2 class="sec-h"><span>Próximas corridas</span><a class="btn sm ghost" href="#/calendar">Calendário</a></h2>
-      <div style="display:grid;gap:10px">${upcoming.length ? upcoming.map(raceCard).join('') : '<div class="card empty">Sem corridas agendadas.</div>'}</div></div>`;
-  const blockDrv = `<div><h2 class="sec-h"><span>Pilotos</span><span>${champSel()}<a class="btn sm ghost" href="#/standings">Completa</a></span></h2><div class="card">${driverTable(st.drivers, 8)}</div></div>`;
-  const blockTeams = `<div><h2 class="sec-h"><span>Construtores</span><a class="btn sm ghost" href="#/standings">Completa</a></h2><div class="card">${teamTable(st.teams)}</div></div>`;
+  const blockLast = `<div><h2 class="sec-h"><span>Latest results</span>${lastRace ? `<a class="btn sm ghost" href="#/race/${lastRace.id}">View all</a>` : ''}</h2>
+      <div class="card">${lastRace ? `<p class="muted" style="margin-bottom:8px">${flag(lastRace.country_code)} ${esc(lastRace.name)} · ${fmtDate(lastRace.race_date)}</p>${resultTableTop(lastRace.id, 8)}` : '<div class="empty">No results yet.</div>'}</div></div>`;
+  const blockNext = `<div><h2 class="sec-h"><span>Upcoming races</span><a class="btn sm ghost" href="#/calendar">Calendar</a></h2>
+      <div style="display:grid;gap:10px">${upcoming.length ? upcoming.map(raceCard).join('') : '<div class="card empty">No races scheduled.</div>'}</div></div>`;
+  const blockDrv = `<div><h2 class="sec-h"><span>Drivers</span><span>${champSel()}<a class="btn sm ghost" href="#/standings">Full</a></span></h2><div class="card">${driverTable(st.drivers, 8)}</div></div>`;
+  const blockTeams = `<div><h2 class="sec-h"><span>Constructors</span><a class="btn sm ghost" href="#/standings">Full</a></h2><div class="card">${teamTable(st.teams)}</div></div>`;
   const t10r = (x, i) => { const t = teamOf(x.d.team_id); return `<div class="t10r" data-go="#/driver/${x.d.id}"><span class="t10n">${i + 1}</span>${avatarHTML(x.d, 'thumb')}<div class="t10m"><b>${flag(x.d.country_code)} ${esc(x.d.name)}</b><small>${teamLogo(t, 14)}${esc(t?.name || '—')}</small></div><div class="t10p"><b>${x.pts}</b><small>Pts</small></div></div>`; };
   const tp = st.drivers.slice(0, 10);
-  const top10 = `<section class="panel"><div class="ph"><div><small>Temporada · classificação</small><h2>Top 10 pilotos</h2></div><span>${champSel()}<a href="#/standings">Ver classificação completa →</a></span></div>
-    ${tp.length ? `<div class="t10g"><div>${tp.slice(0, 5).map((x, i) => t10r(x, i)).join('')}</div><div>${tp.slice(5).map((x, i) => t10r(x, i + 5)).join('')}</div></div>` : '<div class="empty" style="border-top:1px solid var(--line)">Sem pilotos cadastrados.</div>'}</section>`;
+  const top10 = `<section class="panel"><div class="ph"><div><small>Season · standings</small><h2>Top 10 drivers</h2></div><span>${champSel()}<a href="#/standings">View full standings →</a></span></div>
+    ${tp.length ? `<div class="t10g"><div>${tp.slice(0, 5).map((x, i) => t10r(x, i)).join('')}</div><div>${tp.slice(5).map((x, i) => t10r(x, i + 5)).join('')}</div></div>` : '<div class="empty" style="border-top:1px solid var(--line)">No drivers registered.</div>'}</section>`;
   const row = (a, b) => (a || b) ? `<section class="sec"><div class="cols">${a || ''}${b || ''}</div></section>` : '';
   return `
-  <div class="hub-h"><span>${esc(cfg('site_name'))} · Hub da liga</span><i></i></div>
+  <div class="hub-h"><span>${esc(cfg('site_name'))} · League hub</span><i></i></div>
   <section class="hub">
     <div class="hub-card hub-big" ${safeUrl(cfg('hero_image')) ? `style="--img:url('${safeUrl(cfg('hero_image'))}')"` : ''}><div class="inner">
-      <small>${nr ? (nr.status === 'live' ? 'Acontecendo agora' : 'Próximo Grand Prix') : 'Temporada'}</small>
-      ${nr ? `<h2>${flag(nr.country_code)} ${esc(nr.name)}</h2><p>${esc(nr.circuit || '')} · ${esc(nr.country || '')} · ${fmtDate(nr.race_date, { weekday: 'long', day: '2-digit', month: 'long' })} às ${fmtTime(nr.race_date)}</p>
+      <small>${nr ? (nr.status === 'live' ? 'Happening now' : 'Next Grand Prix') : 'Season'}</small>
+      ${nr ? `<h2>${flag(nr.country_code)} ${esc(nr.name)}</h2><p>${esc(nr.circuit || '')} · ${esc(nr.country || '')} · ${fmtDate(nr.race_date, { weekday: 'long', day: '2-digit', month: 'long' })} at ${fmtTime(nr.race_date)}</p>
       <div class="count" id="count" data-t="${nr.race_date}" data-live="${nr.status === 'live'}"></div>
-      <a class="btn" href="#/race/${nr.id}">Detalhes da corrida →</a>` : `<h2>${esc(cfg('welcome_title'))}</h2><p>${esc(cfg('welcome_text'))}</p><p style="margin-top:10px">Nenhuma corrida agendada no momento.</p>`}
+      <a class="btn" href="#/race/${nr.id}">Race details →</a>` : `<h2>${esc(cfg('welcome_title'))}</h2><p>${esc(cfg('welcome_text'))}</p><p style="margin-top:10px">No race scheduled at the moment.</p>`}
     </div></div>
-    <a href="#/calendar" class="hub-card wide" data-ic="🗓"><small>Temporada</small><h3>Calendário</h3><p>Corridas, sessões e datas da temporada.</p></a>
-    <a href="#/drivers" class="hub-card" data-ic="👤"><small>Todos os pilotos</small><h3>Pilotos</h3></a>
-    <a href="#/teams" class="hub-card" data-ic="🛡"><small>Grelha</small><h3>Equipes</h3></a>
-    <a href="#/records" class="hub-card wide" data-ic="🏆"><small>Histórico</small><h3>Recordes</h3><p>Maiores vencedores, pódios, poles e campeões.</p></a>
-    <a href="#/transfers" class="hub-card wide" data-ic="🔁"><small>Mercado</small><h3>Transferências</h3><p>Movimentos de pilotos e equipes entre temporadas.</p></a>
+    <a href="#/calendar" class="hub-card wide" data-ic="🗓"><small>Season</small><h3>Calendar</h3><p>Races, sessions and dates of the season.</p></a>
+    <a href="#/players" class="hub-card" data-ic="👤"><small>All drivers</small><h3>Drivers</h3></a>
+    <a href="#/teams" class="hub-card" data-ic="🛡"><small>Grid</small><h3>Teams</h3></a>
+    <a href="#/records" class="hub-card wide" data-ic="🏆"><small>History</small><h3>Records</h3><p>Biggest winners, podiums, poles and champions.</p></a>
+    <a href="#/transfers" class="hub-card wide" data-ic="🔁"><small>Market</small><h3>Transfers</h3><p>Driver and team moves between seasons.</p></a>
   </section>
   ${on('show_drivers') ? top10 : ''}
-  ${banner && on('show_banner') ? `<div class="partner"><img src="${banner}" alt="Parceiro oficial"></div>` : ''}
+  ${banner && on('show_banner') ? `<div class="partner"><img src="${banner}" alt="Official partner"></div>` : ''}
   ${row(on('show_last') && blockLast, on('show_next') && blockNext)}
   ${on('show_teams') ? `<section class="sec">${blockTeams}</section>` : ''}
-  ${on('show_news') ? `<section class="sec"><h2 class="sec-h"><span>Anúncios oficiais</span><a class="btn sm ghost" href="#/news">Todos</a></h2>
-    <div class="cols3">${sortedNews().slice(0, 3).map(n => newsCard(n)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div></section>` : ''}`;
+  ${sortedVods().length ? `<section class="sec"><h2 class="sec-h"><span>Latest VODs</span><a class="btn sm ghost" href="#/vods">All</a></h2><div class="cols3">${sortedVods().slice(0, 3).map(vodCard).join('')}</div></section>` : ''}
+  ${on('show_news') ? `<section class="sec"><h2 class="sec-h"><span>Official announcements</span><a class="btn sm ghost" href="#/news">All</a></h2>
+    <div class="cols3">${sortedNews().slice(0, 3).map(n => newsCard(n)).join('') || '<div class="card empty">No announcements.</div>'}</div></section>` : ''}`;
 };
+
+
+function vodInfo(u) {
+  u = String(u || '').trim(); let m;
+  if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|shorts\/|embed\/))([\w-]{11})/))) return { embed: 'https://www.youtube.com/embed/' + m[1] + '?autoplay=1', thumb: 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg' };
+  if ((m = u.match(/twitch\.tv\/videos\/(\d+)/))) return { embed: 'https://player.twitch.tv/?video=' + m[1] + '&parent=' + (location.hostname || 'localhost') + '&autoplay=true', thumb: '' };
+  return { embed: '', thumb: '', link: safeUrl(u) };
+}
+function vodCard(v) {
+  const i = vodInfo(v.url), race = D.races.find(r => r.id === v.race_id);
+  return `<article class="card hover vod-card" style="padding:0;overflow:hidden"><div class="vod-th" data-act="vodPlay" data-id="${v.id}" ${i.thumb ? `style="background-image:url('${i.thumb}')"` : ''}><span class="vod-play">▶</span></div>
+  <div style="padding:14px 16px"><h3 style="font-size:16px">${esc(v.title)}</h3><p class="muted" style="font-size:12px;margin-top:4px">${race ? flag(race.country_code) + ' ' + esc(race.name) + ' · ' : ''}${fmtDate(v.created_at)}</p>
+  ${v.description ? `<p class="muted" style="margin-top:8px;font-size:13px">${esc(v.description.slice(0, 120))}${v.description.length > 120 ? '…' : ''}</p>` : ''}
+  ${isStaff() ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="vods" data-id="${v.id}">Edit</button><button class="btn sm danger" data-act="entDel" data-v="vods" data-id="${v.id}">Delete</button></div>` : ''}</div></article>`;
+}
+const sortedVods = () => [...(D.vods || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+PAGES.vods = () => `${pageHead('VODs', 'Race replays and broadcasts.', isStaff() ? '<button class="btn red" data-act="entNew" data-v="vods">+ Add VOD</button>' : '')}
+  <div class="cols3">${sortedVods().map(vodCard).join('') || '<div class="card empty">No VODs yet.</div>'}</div>`;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act="vodPlay"]'); if (!b) return;
+  const v = (D.vods || []).find(x => x.id === b.dataset.id); if (!v) return; const i = vodInfo(v.url);
+  $('#dlg').innerHTML = `<div class="vodp"><h3 style="margin-bottom:12px">${esc(v.title)}</h3>${i.embed ? `<div class="vod-fr"><iframe src="${i.embed}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>` : `<p><a class="btn red" href="${i.link}" target="_blank" rel="noopener">Open video ↗</a></p>`}
+  <div class="row end" style="margin-top:14px"><button type="button" class="btn" data-act="closeDlg">Close</button></div></div>`;
+  $('#dlg').showModal();
+});
+$('#dlg').addEventListener('close', () => { if ($('#dlg .vodp')) $('#dlg').innerHTML = ''; });
 
 PAGES.calendar = () => {
   const m = S.calMonth, y = m.getFullYear(), mo = m.getMonth();
@@ -1172,154 +1210,161 @@ PAGES.calendar = () => {
     const dayT = new Date(y, mo, d).getTime(), sess = base.filter(r => { if (!r.start_date) return false; const a = new Date(r.start_date), b = new Date(r.race_date), a0 = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime(), b0 = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime(); return dayT >= a0 && dayT < b0; });
     const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0] || sess[0];
     const today = new Date(); const isT = today.getFullYear() === y && today.getMonth() === mo && today.getDate() === d;
-    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}</div>`);
+    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grand Prix ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.name.replace('Grand Prix ', 'GP '))}</span>`).join('')}</div>`);
   }
   const f = S.calFilter;
   const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
-  const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
-  return `${pageHead('Calendário da temporada', 'Todas as etapas, horários e circuitos.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Adicionar sessão</button>' : ''))}
+  const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">All categories</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
+  return `${pageHead('Season calendar', 'All rounds, times and circuits.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Add session</button>' : ''))}
   <div class="cols"><div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px">
-    <button class="btn sm" data-act="calPrev">←</button><h3>${m.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3><button class="btn sm" data-act="calNext">→</button></div>
-    <div class="cal">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(x => `<div class="h">${x}</div>`).join('')}${cells.join('')}</div></div>
-    <div><div class="chips" style="margin-bottom:8px">${['all', ...Object.keys(SESS)].map(k => `<button class="chip ${S.calKind === k ? 'on' : ''}" data-act="calKind" data-v="${k}">${k === 'all' ? 'Todos os tipos' : SESS[k]}</button>`).join('')}</div>
-    <div class="chips" style="margin-bottom:12px">${['all', 'upcoming', 'live', 'finished'].map(s => `<button class="chip ${f === s ? 'on' : ''}" data-act="calFilter" data-v="${s}">${s === 'all' ? 'Todas' : STATUS[s]}</button>`).join('')}</div>
-    <div style="display:grid;gap:12px">${list.map(raceCardAdm).join('') || '<div class="card empty">Sem corridas.</div>'}</div></div></div>`;
+    <button class="btn sm" data-act="calPrev">←</button><h3>${m.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h3><button class="btn sm" data-act="calNext">→</button></div>
+    <div class="cal">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<div class="h">${x}</div>`).join('')}${cells.join('')}</div></div>
+    <div><div class="chips" style="margin-bottom:8px">${['all', ...Object.keys(SESS)].map(k => `<button class="chip ${S.calKind === k ? 'on' : ''}" data-act="calKind" data-v="${k}">${k === 'all' ? 'All types' : SESS[k]}</button>`).join('')}</div>
+    <div class="chips" style="margin-bottom:12px">${['all', 'upcoming', 'live', 'finished'].map(s => `<button class="chip ${f === s ? 'on' : ''}" data-act="calFilter" data-v="${s}">${s === 'all' ? 'All' : STATUS[s]}</button>`).join('')}</div>
+    <div style="display:grid;gap:12px">${list.map(raceCardAdm).join('') || '<div class="card empty">No races.</div>'}</div></div></div>`;
 };
 
 PAGES.race = id => {
   const r = D.races.find(x => x.id === id);
-  if (!r) return '<div class="card empty">Corrida não encontrada.</div>';
+  if (!r) return '<div class="card empty">Race not found.</div>';
   const ch = champOf(r.championship_id), bg = safeUrl(r.image_url) || safeUrl(cfg('track_image'));
-  return `<a href="#/calendar" class="muted">← Calendário</a>
+  return `<a href="#/calendar" class="muted">← Calendar</a>
   <section class="hero sm" style="margin-top:12px;background-image:url('${bg}');background-position:center"><div class="inner"><div class="eyebrow">${esc(ch?.name || cfg('site_name'))} · ${roundLbl(r)}</div>
-  <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>${r.start_date ? `Início: ${fmtDate(r.start_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.start_date)}<br>Final: ` : 'Corrida: '}${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
-  ${r.laps ? `<br>${r.laps} voltas` : ''}</p>
-  <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Adicionar ao meu calendário</button></p></div></section>
+  <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>${r.start_date ? `Start: ${fmtDate(r.start_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} at ${fmtTime(r.start_date)}<br>End: ` : 'Race: '}${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} at ${fmtTime(r.race_date)}
+  ${r.laps ? `<br>${r.laps} laps` : ''}</p>
+  <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Add to my calendar</button></p></div></section>
 
   ${r.description ? `<section class="sec"><div class="card" style="white-space:pre-line">${esc(r.description)}</div></section>` : ''}
-  ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar corrida</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Lançar resultados</button></div>` : ''}
-  <section class="sec"><h2>Resultados</h2><div class="card">${resultTable(r.id)}</div></section>`;
+  ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Edit race</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Enter results</button></div>` : ''}
+  <section class="sec"><h2>Results</h2><div class="card">${resultTable(r.id)}</div></section>`;
 };
 
 PAGES.standings = () => {
   const st = standings(S.champ), ch = champOf(S.champ);
-  return `${pageHead(esc(ch?.name || 'Classificações'), esc(ch?.description || 'Campeonato de pilotos e de construtores.'), champSel() + '<button class="btn" data-act="csv">Exportar CSV</button>' + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ Nova categoria</button>' : ''), ch?.image_url, ch?.color)}
-  <section class="sec" style="margin-top:0"><h2>Campeonato de pilotos</h2><div class="card">${driverTable(st.drivers)}</div></section>
-  <section class="sec"><h2>Campeonato de construtores</h2><div class="card">${teamTable(st.teams)}</div></section>
-  <section class="sec"><h2>Classificação por equipes</h2><div class="cols3">${st.teams.map(x => {
+  return `${pageHead(esc(ch?.name || 'Standings'), esc(ch?.description || 'Drivers’ and constructors’ championship.'), champSel() + '<button class="btn" data-act="csv">Export CSV</button>' + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ New category</button>' : ''), ch?.image_url, ch?.color)}
+  <section class="sec" style="margin-top:0"><h2>Drivers’ championship</h2><div class="card">${driverTable(st.drivers)}</div></section>
+  <section class="sec"><h2>Constructors’ championship</h2><div class="card">${teamTable(st.teams)}</div></section>
+  <section class="sec"><h2>Team standings</h2><div class="cols3">${st.teams.map(x => {
     const ds = st.drivers.filter(y => y.d.team_id === x.t.id);
-    return `<div class="card" style="border-top:3px solid ${safeColor(x.t.color)}"><div class="row" style="gap:10px;margin-bottom:6px">${teamLogo(x.t, 30)}<h3>${esc(x.t.name)}</h3></div><p class="muted" style="margin-bottom:10px">${x.pts} pts</p>${ds.map(y => `<div class="row" style="justify-content:space-between"><a href="#/driver/${y.d.id}">${esc(y.d.name)}</a><b class="display">${y.pts}</b></div>`).join('') || '<span class="muted">Sem pilotos</span>'}</div>`; }).join('') || '<div class="card empty">Sem equipes nesta categoria.</div>'}</div></section>`;
+    return `<div class="card" style="border-top:3px solid ${safeColor(x.t.color)}"><div class="row" style="gap:10px;margin-bottom:6px">${teamLogo(x.t, 30)}<h3>${esc(x.t.name)}</h3></div><p class="muted" style="margin-bottom:10px">${x.pts} pts</p>${ds.map(y => `<div class="row" style="justify-content:space-between"><a href="#/driver/${y.d.id}">${esc(y.d.name)}</a><b class="display">${y.pts}</b></div>`).join('') || '<span class="muted">No drivers</span>'}</div>`; }).join('') || '<div class="card empty">No teams in this category.</div>'}</div></section>`;
 };
 
-PAGES.drivers = () => {
+PAGES.drivers = (...a) => PAGES.players(...a);
+PAGES._oldDrivers = () => {
   const st = standings(S.champ);
-  return `${pageHead('Pilotos', 'Grid oficial da categoria.', champSel() + (isAdmin() ? '<button class="btn red" data-act="entNew" data-v="drivers">+ Adicionar piloto</button>' : ''))}
-  ${st.drivers.length > 6 ? '<input type="search" id="drvSearch" placeholder="Buscar piloto ou equipe…" aria-label="Buscar piloto" style="margin:0 0 14px;max-width:340px">' : ''}
+  return `${pageHead('Drivers', 'Official grid of the category.', champSel() + (isAdmin() ? '<button class="btn red" data-act="entNew" data-v="drivers">+ Add driver</button>' : ''))}
+  ${st.drivers.length > 6 ? '<input type="search" id="drvSearch" placeholder="Search driver or team…" aria-label="Search driver" style="margin:0 0 14px;max-width:340px">' : ''}
   <div class="cols3" id="drvGrid">${st.drivers.map(x => { const t = teamOf(x.d.team_id); return `<a href="#/driver/${x.d.id}" data-q="${esc((x.d.name + ' ' + (t?.name || '') + ' ' + (x.d.number ?? '')).toLowerCase())}" class="card hover drv-card" style="border-top:3px solid ${safeColor(t?.color)}">
-  ${avatarHTML(x.d, 'avatar')}<h3>${esc(x.d.name)}</h3><p class="muted">${flag(x.d.country_code)} #${x.d.number ?? '—'}</p><p class="muted">${teamLogo(t, 20)}${esc(t?.name || 'Sem equipe')}</p><p class="display" style="font-size:22px;margin-top:6px">${x.pts} pts</p></a>`; }).join('') || '<div class="card empty">Sem pilotos.</div>'}</div>`;
+  ${avatarHTML(x.d, 'avatar')}<h3>${esc(x.d.name)}</h3><p class="muted">${flag(x.d.country_code)} #${x.d.number ?? '—'}</p><p class="muted">${teamLogo(t, 20)}${esc(t?.name || 'No team')}</p><p class="display" style="font-size:22px;margin-top:6px">${x.pts} pts</p></a>`; }).join('') || '<div class="card empty">No drivers.</div>'}</div>`;
 };
 
-PAGES.news = () => `${pageHead('Anúncios e comunicados', 'Avisos oficiais da direção da liga.', isStaff() ? '<button class="btn red" data-act="entNew" data-v="news">+ Novo anúncio</button>' : '')}
-  <div class="cols3">${sortedNews().map(n => newsCard(n, true)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div>`;
+PAGES.news = () => `${pageHead('Announcements', 'Official notices from the league management.', isStaff() ? '<button class="btn red" data-act="entNew" data-v="news">+ New announcement</button>' : '')}
+  <div class="cols3">${sortedNews().map(n => newsCard(n, true)).join('') || '<div class="card empty">No announcements.</div>'}</div>`;
 
 /* ---------- autenticação ---------- */
 const localNote = () => '';
-PAGES.login = () => `<div class="card auth"><h2>Entrar</h2>${localNote()}<form data-form="login">
-  <label>Nome de usuário</label><input name="username" required autocomplete="username"><label>Senha</label><input type="password" name="password" required autocomplete="current-password">
-  <div class="row" style="margin-top:18px"><button class="btn red">Entrar</button></div></form>
-  <p class="hint" style="margin-top:14px">Esqueceu a senha? Peça a um administrador para redefinir.</p>
-  <p class="muted" style="margin-top:12px">Ainda não tem conta? <a href="#/register" style="color:var(--red2)">Criar conta</a></p></div>`;
-PAGES.register = () => `<div class="card auth"><h2>Criar conta</h2>${localNote()}<form data-form="register">
-  <label>Nome de usuário</label><input name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="username" title="3 a 24 caracteres: letras, números e _">
-  <div class="hint">Letras, números e _ (sem espaços).</div>
-  <label>Senha (mín. 8 caracteres)</label><input type="password" name="password" required minlength="8" autocomplete="new-password">
-  <label>Repita a senha</label><input type="password" name="password2" required minlength="8" autocomplete="new-password">
-  <p class="muted" style="margin-top:10px;font-size:13px">Sua conta fica pendente até ser aprovada pela equipe de staff.</p>
-  <div class="row" style="margin-top:14px"><button class="btn red">Cadastrar</button></div></form></div>`;
+PAGES.login = () => `<div class="card auth"><h2>Sign in</h2>${localNote()}<form data-form="login">
+  <label>Username</label><input name="username" required autocomplete="username"><label>Password</label><input type="password" name="password" required autocomplete="current-password">
+  <div class="row" style="margin-top:18px"><button class="btn red">Sign in</button></div></form>
+  <p class="hint" style="margin-top:14px">Forgot your password? Ask an administrator to reset it.</p>
+  <p class="muted" style="margin-top:12px">Don’t have an account yet? <a href="#/register" style="color:var(--red2)">Create account</a></p></div>`;
+PAGES.register = () => `<div class="card auth"><h2>Create account</h2>${localNote()}<form data-form="register">
+  <label>Username</label><input name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="username" title="3 to 24 characters: letters, numbers and _">
+  <div class="hint">Letters, numbers and _ (no spaces).</div>
+  <label>Password (min. 8 characters)</label><input type="password" name="password" required minlength="8" autocomplete="new-password">
+  <label>Repeat password</label><input type="password" name="password2" required minlength="8" autocomplete="new-password">
+  <p class="muted" style="margin-top:10px;font-size:13px">Your account stays pending until approved by the staff team.</p>
+  <div class="row" style="margin-top:14px"><button class="btn red">Sign up</button></div></form></div>`;
 
 PAGES.profile = () => {
-  if (!me.user) return '<div class="card empty">Entre para ver o seu perfil. <a href="#/login" style="color:var(--red2)">Entrar</a></div>';
+  if (!me.user) return '<div class="card empty">Sign in to see your profile. <a href="#/login" style="color:var(--red2)">Sign in</a></div>';
   const p = me.profile || {}, d0 = D.drivers.find(x => x.profile_id === me.user.id), le = d0 && latestEntry(d0.id), d = d0 && { ...d0, team_id: le && le.team_id, number: le && le.number }, t = d && teamOf(d.team_id);
   const rs = d ? D.results.filter(r => r.driver_id === d.id) : [], fin = rs.filter(r => r.status === 'FIN');
   const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race && sx(x.r) === mainSess(x.race)).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
   const myTeam = D.teams.find(x => x.principal_id === me.user.id);
-  return `${pageHead('Meu perfil', '')}
+  return `${pageHead('My profile', '')}
   <div class="cols"><div class="card"><div class="drv-head">${safeUrl(p.avatar_url) ? `<img class="avatar" src="${safeUrl(p.avatar_url)}" alt="">` : `<div class="avatar">${initials(p.username)}</div>`}
-    <div><h2>${esc(p.username || '')}</h2><p style="margin-top:6px"><span class="tag">${ROLES[p.role] || 'Visitante'}</span> <span class="tag">${ACCT[p.status] || ''}</span>${isOwner() ? ' <span class="tag owner">Conta principal</span>' : ''}</p></div></div>
-    ${p.status === 'pending' ? '<p class="muted" style="margin-top:14px">Sua conta aguarda aprovação do staff.</p>' : ''}
-    <form data-form="profile" style="margin-top:12px"><label>Nome de usuário</label><input name="username" value="${esc(p.username || '')}" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" ${isOwner() ? 'readonly' : ''}>
-    <label>Foto de perfil</label><input type="file" name="avatar" accept="image/*">
-    <div class="row" style="margin-top:16px"><button class="btn red">Salvar</button><button type="button" class="btn" data-act="logout">Sair</button></div></form>
+    <div><h2>${esc(p.username || '')}</h2><p style="margin-top:6px"><span class="tag">${ROLES[p.role] || 'Visitor'}</span> <span class="tag">${ACCT[p.status] || ''}</span>${isOwner() ? ' <span class="tag owner">Main account</span>' : ''}</p></div></div>
+    ${p.status === 'pending' ? '<p class="muted" style="margin-top:14px">Your account is awaiting staff approval.</p>' : ''}
+    <form data-form="profile" style="margin-top:12px"><label>Username</label><input name="username" value="${esc(p.username || '')}" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" ${isOwner() ? 'readonly' : ''}>
+    <label>Profile photo</label><input type="file" name="avatar" accept="image/*">
+    <div class="row" style="margin-top:16px"><button class="btn red">Save</button><button type="button" class="btn" data-act="logout">Sign out</button></div></form>
     <form data-form="changepw" style="margin-top:22px;border-top:1px solid var(--line);padding-top:6px"><label>Nova senha (mín. 8)</label><input type="password" name="password" required minlength="8" autocomplete="new-password">
-    <div class="row" style="margin-top:12px"><button class="btn">Alterar senha</button></div></form></div>
-  <div><div class="card"><h3 style="margin-bottom:10px">Equipe e número</h3>${d ? `<p>${teamLogo(t, 24)}<span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(t?.name || 'Sem equipe')}</b> · <span class="display" style="font-size:22px">#${d.number ?? '—'}</span></p><p style="margin-top:8px"><a class="btn sm" href="#/driver/${d.id}">Página pública</a></p>` : '<p class="muted">Você ainda não tem perfil de piloto associado. Fale com o staff.</p>'}</div>
-  <div class="stats" style="margin-top:14px"><div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Pontos</small></div><div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Vitórias</small></div><div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Pódios</small></div><div class="stat"><b>${rs.length}</b><small>Corridas</small></div></div></div></div>
-  ${myTeam ? `<section class="sec"><h2>Gerenciar minha equipe</h2><div class="card"><form data-form="myteam" data-id="${myTeam.id}"><div class="grid2"><div><label>Nome</label><input name="name" value="${esc(myTeam.name)}" required></div><div><label>Cor</label><input type="color" name="color" value="${safeColor(myTeam.color)}"></div></div>
-  ${fieldHTML({ k: 'logo_url', l: 'Logo da equipe', t: 'image' }, myTeam.logo_url)}<div class="row" style="margin-top:14px"><button class="btn red">Salvar equipe</button></div></form></div></section>` : ''}
-  <section class="sec"><h2>Histórico de corridas</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem corridas registradas.</div>'}</div></section>`;
+    <div class="row" style="margin-top:12px"><button class="btn">Change password</button></div></form></div>
+  <div><div class="card"><h3 style="margin-bottom:10px">Team and number</h3>${d ? `<p>${teamLogo(t, 24)}<span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(t?.name || 'No team')}</b> · <span class="display" style="font-size:22px">#${d.number ?? '—'}</span></p><p style="margin-top:8px"><a class="btn sm" href="#/driver/${d.id}">Public page</a></p>` : '<p class="muted">You don’t have a linked driver profile yet. Talk to the staff.</p>'}</div>
+  <div class="stats" style="margin-top:14px"><div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Points</small></div><div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Wins</small></div><div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Podiums</small></div><div class="stat"><b>${rs.length}</b><small>Races</small></div></div></div></div>
+  ${myTeam ? `<section class="sec"><h2>Manage my team</h2><div class="card"><form data-form="myteam" data-id="${myTeam.id}"><div class="grid2"><div><label>Name</label><input name="name" value="${esc(myTeam.name)}" required></div><div><label>Cor</label><input type="color" name="color" value="${safeColor(myTeam.color)}"></div></div>
+  ${fieldHTML({ k: 'logo_url', l: 'Team logo', t: 'image' }, myTeam.logo_url)}<div class="row" style="margin-top:14px"><button class="btn red">Save team</button></div></form></div></section>` : ''}
+  <section class="sec"><h2>Race history</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Race</th><th>Date</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">No races recorded.</div>'}</div></section>`;
 };
 
 /* ---------- ADMIN ---------- */
 const optT = () => D.teams.map(t => [t.id, t.name + (t.championship_id ? ' — ' + (champOf(t.championship_id)?.name || '') : '')]);
 const optP = () => D.profiles.map(p => [p.id, p.username || p.id.slice(0, 8)]);
-const optS = () => D.seasons.map(s => [s.id, s.name + (s.is_active ? ' (ativa)' : '')]);
+const optS = () => D.seasons.map(s => [s.id, s.name + (s.is_active ? ' (active)' : '')]);
 const optC = () => D.championships.map(c => [c.id, champLbl(c)]);
 const ENT = {
-  drivers: { label: 'Pilotos', cols: ['number', 'name', 'team_id', 'championship_id'], fields: [] },
-  teams: { label: 'Equipes', cols: ['name', 'short_name', 'cats', 'principal_id', 'color'], fields: [
-    { k: 'name', l: 'Nome da equipe', t: 'text', req: 1 }, { k: 'short_name', l: 'Sigla (3 letras)', t: 'text' },
-    { k: 'add_cat', l: 'Inscrever em uma categoria (opcional)', t: 'select', o: optC, virtual: 1, help: 'A equipe é única na liga. Aqui você só a coloca em mais uma categoria/temporada.' },
-    { k: 'color', l: 'Cor da equipe', t: 'color' }, { k: 'logo_url', l: 'Logo da equipe', t: 'image' }, { k: 'principal_id', l: 'Chefe de equipe (conta)', t: 'select', o: optP }] },
-  seasons: { label: 'Temporadas', cols: ['name', 'year', 'is_active'], fields: [{ k: 'name', l: 'Nome', t: 'text', req: 1 }, { k: 'year', l: 'Ano', t: 'number', req: 1 }, { k: 'is_active', l: 'Temporada ativa', t: 'bool' }] },
-  championships: { label: 'Categorias', one: 'Categoria', add: '+ Nova categoria', cols: ['name', 'category', 'season_id', 'points_scale'], fields: [
-    { k: 'name', l: 'Nome da categoria', t: 'text', req: 1 }, { k: 'category', l: 'Divisão / classe (opcional)', t: 'text' },
-    { k: 'season_id', l: 'Temporada', t: 'select', o: optS, help: 'Se deixar vazio, usa a temporada ativa (ou cria uma automaticamente).' },
-    { k: 'description', l: 'Descrição / regulamento resumido', t: 'textarea' }, { k: 'image_url', l: 'Imagem de capa', t: 'image' }, { k: 'color', l: 'Cor da categoria', t: 'color' },
-    { k: 'points_scale', l: 'Sistema de pontos (1º,2º,3º…)', t: 'text', help: 'Separe por vírgula. Ex.: 25,18,15,12,10,8,6,4,2,1 — só pontuam as posições listadas.' },
-    { k: 'fl_bonus', l: 'Pontos da volta mais rápida', t: 'number', help: 'Use 0 para desativar. Se mudar o sistema, todos os resultados são recalculados.' }] },
-  races: { label: 'Calendário', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
-    { k: 'kind', l: 'Tipo', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Nome (Grand Prix, teste…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
-    { k: 'circuit', l: 'Circuito', t: 'text' }, { k: 'country', k2: 'country_code', l: 'País (bandeira)', t: 'country' },
-    { k: 'format', l: 'Modelo de fim de semana (sessões dos resultados)', t: 'select', o: WK_OPTS },
-    { k: 'start_date', l: 'Início do fim de semana', t: 'datetime' }, { k: 'race_date', l: 'Final do fim de semana', t: 'datetime', req: 1 },
-    { k: 'laps', l: 'Número de voltas', t: 'number' }, { k: 'status', l: 'Estado', t: 'select', o: () => Object.entries(STATUS), req: 1 },
-    { k: 'description', l: 'Descrição / regras da etapa', t: 'textarea' }, { k: 'image_url', l: 'Imagem do circuito', t: 'image' }] },
-  news: { label: 'Anúncios', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
-    { k: 'title', l: 'Título', t: 'text', req: 1 }, { k: 'kind', l: 'Tipo', t: 'select', o: () => Object.entries(KINDS), req: 1 },
-    { k: 'body', l: 'Texto do anúncio', t: 'textarea' }, { k: 'image_url', l: 'Imagem (opcional)', t: 'image' },
-    { k: 'pinned', l: 'Fixar no topo', t: 'bool', def: false }, { k: 'published', l: 'Publicado', t: 'bool', def: true }] }
+  drivers: { label: 'Drivers', cols: ['number', 'name', 'team_id', 'championship_id'], fields: [] },
+  teams: { label: 'Teams', cols: ['name', 'short_name', 'cats', 'principal_id', 'color'], fields: [
+    { k: 'name', l: 'Team name', t: 'text', req: 1 }, { k: 'short_name', l: 'Short (3 letras)', t: 'text' },
+    { k: 'add_cat', l: 'Enroll in a category (optional)', t: 'select', o: optC, virtual: 1, help: 'The team is unique in the league. Here you only add it to one more category/season.' },
+    { k: 'color', l: 'Team color', t: 'color' }, { k: 'logo_url', l: 'Team logo', t: 'image' }, { k: 'principal_id', l: 'Team principal (account)', t: 'select', o: optP }] },
+  seasons: { label: 'Seasons', cols: ['name', 'year', 'is_active'], fields: [{ k: 'name', l: 'Name', t: 'text', req: 1 }, { k: 'year', l: 'Ano', t: 'number', req: 1 }, { k: 'is_active', l: 'Active season', t: 'bool' }] },
+  championships: { label: 'Categories', one: 'Category', add: '+ New category', cols: ['name', 'category', 'season_id', 'points_scale'], fields: [
+    { k: 'name', l: 'Category name', t: 'text', req: 1 }, { k: 'category', l: 'Division / class (optional)', t: 'text' },
+    { k: 'season_id', l: 'Season', t: 'select', o: optS, help: 'If left empty, uses the active season (or creates one automatically).' },
+    { k: 'description', l: 'Description / short rules', t: 'textarea' }, { k: 'image_url', l: 'Cover image', t: 'image' }, { k: 'color', l: 'Category color', t: 'color' },
+    { k: 'points_scale', l: 'Points system (1st, 2nd, 3rd…)', t: 'text', help: 'Separate with commas. E.g. 25,18,15,12,10,8,6,4,2,1 — only the listed positions score.' },
+    { k: 'fl_bonus', l: 'Fastest lap points', t: 'number', help: 'Use 0 to disable. If you change the system, all results are recalculated.' }] },
+  races: { label: 'Calendar', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
+    { k: 'kind', l: 'Type', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Name (Grand Prix, test…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Category', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Round', t: 'number' },
+    { k: 'circuit', l: 'Circuit', t: 'text' }, { k: 'country', k2: 'country_code', l: 'Country (flag)', t: 'country' },
+    { k: 'format', l: 'Weekend template (result sessions)', t: 'select', o: WK_OPTS },
+    { k: 'start_date', l: 'Weekend start', t: 'datetime' }, { k: 'race_date', l: 'Weekend end', t: 'datetime', req: 1 },
+    { k: 'laps', l: 'Number of laps', t: 'number' }, { k: 'status', l: 'Status', t: 'select', o: () => Object.entries(STATUS), req: 1 },
+    { k: 'description', l: 'Round description / rules', t: 'textarea' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
+  news: { label: 'Announcements', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
+    { k: 'title', l: 'Title', t: 'text', req: 1 }, { k: 'kind', l: 'Type', t: 'select', o: () => Object.entries(KINDS), req: 1 },
+    { k: 'body', l: 'Announcement text', t: 'textarea' }, { k: 'image_url', l: 'Image (optional)', t: 'image' },
+    { k: 'pinned', l: 'Pin to top', t: 'bool', def: false }, { k: 'published', l: 'Published', t: 'bool', def: true }] }
+  ,vods: { label: 'VODs', one: 'VOD', add: '+ Add VOD', cols: ['title', 'race_id', 'created_at', 'published'], fields: [
+    { k: 'title', l: 'Title', t: 'text', req: 1 }, { k: 'url', l: 'Video link (YouTube or Twitch VOD)', t: 'text', req: 1 },
+    { k: 'race_id', l: 'Race (optional)', t: 'select', o: () => D.races.map(r => [r.id, r.name]) },
+    { k: 'description', l: 'Description', t: 'textarea' }, { k: 'published', l: 'Published', t: 'bool', def: true }] }
 };
 const SET_FIELDS = [
-  ['Identidade', [
-    { k: 'site_name', l: 'Nome da liga (sigla)', t: 'text' }, { k: 'site_subtitle', l: 'Subtítulo', t: 'text' }, { k: 'site_description', l: 'Descrição (texto ao compartilhar o link)', t: 'text' }, { k: 'logo_url', l: 'Logo principal', t: 'image' }]],
-  ['Cores e fonte', [
-    { k: 'accent', l: 'Cor de destaque', t: 'color' }, { k: 'color_bg', l: 'Cor de fundo', t: 'color' }, { k: 'color_panel', l: 'Cor dos cartões', t: 'color' }, { k: 'color_text', l: 'Cor do texto', t: 'color' },
-    { k: 'font_display', l: 'Fonte dos títulos', t: 'select', o: () => FONTS.map(f => [f, f]), noblank: 1 }]],
-  ['Imagens', [
-    { k: 'hero_image', l: 'Imagem principal da página inicial', t: 'image' }, { k: 'track_image', l: 'Imagem de circuito (fundo dos cabeçalhos)', t: 'image' }]],
-  ['Parceiro oficial', [
-    { k: 'partner_banner', l: 'Banner do parceiro (página inicial)', t: 'image' }, { k: 'partner_logo', l: 'Logo do parceiro (rodapé)', t: 'image' }, { k: 'partner_name', l: 'Nome do parceiro', t: 'text' }]],
+  ['Identity', [
+    { k: 'site_name', l: 'League name (short)', t: 'text' }, { k: 'site_subtitle', l: 'Subtitle', t: 'text' }, { k: 'site_description', l: 'Description (text when sharing the link)', t: 'text' }, { k: 'logo_url', l: 'Main logo', t: 'image' }]],
+  ['Colors and font', [
+    { k: 'accent', l: 'Accent color', t: 'color' }, { k: 'color_bg', l: 'Background color', t: 'color' }, { k: 'color_panel', l: 'Card color', t: 'color' }, { k: 'color_text', l: 'Text color', t: 'color' },
+    { k: 'font_display', l: 'Heading font', t: 'select', o: () => FONTS.map(f => [f, f]), noblank: 1 }]],
+  ['Images', [
+    { k: 'hero_image', l: 'Main image of the home page', t: 'image' }, { k: 'track_image', l: 'Circuit image (header background)', t: 'image' }]],
+  ['Official partner', [
+    { k: 'partner_banner', l: 'Partner banner (home page)', t: 'image' }, { k: 'partner_logo', l: 'Partner logo (footer)', t: 'image' }, { k: 'partner_name', l: 'Partner name', t: 'text' }]],
   ['Menu', [
-    { k: 'nav_home', l: 'Nome do botão: Início', t: 'text' }, { k: 'nav_calendar', l: 'Nome do botão: Calendário', t: 'text' }, { k: 'nav_standings', l: 'Nome do botão: Classificações', t: 'text' },
-    { k: 'nav_drivers', l: 'Nome do botão: Pilotos', t: 'text' }, { k: 'nav_players', l: 'Nome do botão: Players', t: 'text' }, { k: 'nav_teams', l: 'Nome do botão: Equipes', t: 'text' }, { k: 'nav_transfers', l: 'Nome do botão: Transferências', t: 'text' }, { k: 'nav_records', l: 'Nome do botão: Recordes', t: 'text' }, { k: 'nav_news', l: 'Nome do botão: Anúncios', t: 'text' }]],
-  ['Seções da página inicial', [
-    { k: 'show_banner', l: 'Mostrar banner do parceiro', t: 'bool' }, { k: 'show_last', l: 'Mostrar últimos resultados', t: 'bool' }, { k: 'show_next', l: 'Mostrar próximas corridas', t: 'bool' },
-    { k: 'show_drivers', l: 'Mostrar classificação de pilotos', t: 'bool' }, { k: 'show_teams', l: 'Mostrar classificação de construtores', t: 'bool' }, { k: 'show_news', l: 'Mostrar anúncios', t: 'bool' }]],
-  ['Textos e links', [
-    { k: 'welcome_title', l: 'Título de boas-vindas (sem corridas)', t: 'text' }, { k: 'welcome_text', l: 'Texto de boas-vindas', t: 'text' }, { k: 'footer_text', l: 'Texto do rodapé', t: 'text' },
-    { k: 'discord_url', l: 'Link do Discord', t: 'text' }, { k: 'instagram_url', l: 'Link do Instagram', t: 'text' }, { k: 'youtube_url', l: 'Link do YouTube', t: 'text' }]],
-  ['Avançado', [
-    { k: 'custom_css', l: 'CSS personalizado', t: 'textarea', code: 1, help: 'Para quem quiser mexer em qualquer detalhe visual. Ex.: .card{border-radius:2px}' }]]
+    { k: 'nav_home', l: 'Button name: Home', t: 'text' }, { k: 'nav_calendar', l: 'Button name: Calendar', t: 'text' }, { k: 'nav_standings', l: 'Button name: Standings', t: 'text' },
+    { k: 'nav_players', l: 'Button name: Drivers', t: 'text' }, { k: 'nav_teams', l: 'Button name: Teams', t: 'text' }, { k: 'nav_transfers', l: 'Button name: Transfers', t: 'text' }, { k: 'nav_records', l: 'Button name: Records', t: 'text' }, { k: 'nav_news', l: 'Button name: Announcements', t: 'text' }, { k: 'nav_vods', l: 'Button name: VODs', t: 'text' }]],
+  ['Home page sections', [
+    { k: 'show_banner', l: 'Show partner banner', t: 'bool' }, { k: 'show_last', l: 'Show latest results', t: 'bool' }, { k: 'show_next', l: 'Show upcoming races', t: 'bool' },
+    { k: 'show_drivers', l: 'Show drivers’ standings', t: 'bool' }, { k: 'show_teams', l: 'Show constructors’ standings', t: 'bool' }, { k: 'show_news', l: 'Show announcements', t: 'bool' }]],
+  ['Texts and links', [
+    { k: 'welcome_title', l: 'Welcome title (no races)', t: 'text' }, { k: 'welcome_text', l: 'Welcome text', t: 'text' }, { k: 'footer_text', l: 'Footer text', t: 'text' },
+    { k: 'discord_url', l: 'Discord link', t: 'text' }, { k: 'instagram_url', l: 'Instagram link', t: 'text' }, { k: 'youtube_url', l: 'YouTube link', t: 'text' }]],
+  ['Advanced', [
+    { k: 'custom_css', l: 'Custom CSS', t: 'textarea', code: 1, help: 'For anyone who wants to tweak any visual detail. E.g. .card{border-radius:2px}' }]]
 ];
 const TABS = () => {
   const t = [];
-  if (isAdmin()) t.push(['site', 'Personalizar site'], ['championships', 'Categorias'], ['seasons', 'Temporadas'], ['drivers', 'Pilotos'], ['teams', 'Equipes']);
-  t.push(['races', 'Calendário'], ['results', 'Resultados'], ['news', 'Anúncios']);
-  if (isAdmin()) t.push(['users', 'Usuários'], ['audit', 'Histórico']);
+  if (isAdmin()) t.push(['site', 'Customize site'], ['championships', 'Categories'], ['seasons', 'Seasons'], ['drivers', 'Drivers'], ['teams', 'Teams']);
+  t.push(['races', 'Calendar'], ['results', 'Results'], ['news', 'Announcements'], ['vods', 'VODs']);
+  if (isAdmin()) t.push(['users', 'Users'], ['audit', 'History']);
   return t;
 };
 function cellVal(k, v) {
   if (v === null || v === undefined || v === '') return '—';
+  if (k === 'race_id') return esc(D.races.find(r => r.id === v)?.name || '—');
+  if (k === 'url') return esc(String(v).slice(0, 42));
   if (k === 'team_id') return esc(teamOf(v)?.name || '—');
   if (k === 'championship_id') return esc(champOf(v) ? champLbl(champOf(v)) : '—');
   if (k === 'principal_id') return esc(D.profiles.find(p => p.id === v)?.username || '—');
@@ -1328,14 +1373,14 @@ function cellVal(k, v) {
   if (k === 'created_at') return fmtDate(v);
   if (k === 'kind') return KINDS[v] || v;
   if (k === 'color') return `<span class="bar" style="background:${safeColor(v)};height:14px"></span><b>${esc(v)}</b>`;
-  if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
+  if (typeof v === 'boolean') return v ? 'Sim' : 'No';
   if (k === 'status') return `<span class="tag ${v}">${STATUS[v] || v}</span>`;
   return esc(v);
 }
 
 PAGES.admin = async () => {
-  if (!me.user) return '<div class="card empty">Entre para continuar. <a href="#/login" style="color:var(--red2)">Entrar</a></div>';
-  if (!isStaff()) return '<div class="card empty"><h3>Acesso negado</h3><p class="muted" style="margin-top:8px">Esta área é exclusiva de administradores e staff autorizados.</p></div>';
+  if (!me.user) return '<div class="card empty">Sign in to continue. <a href="#/login" style="color:var(--red2)">Sign in</a></div>';
+  if (!isStaff()) return '<div class="card empty"><h3>Access denied</h3><p class="muted" style="margin-top:8px">This area is for administrators and authorized staff only.</p></div>';
   const tabs = TABS();
   if (!S.adminTab || !tabs.find(t => t[0] === S.adminTab)) S.adminTab = tabs[0][0];
   const k = S.adminTab; let body = '';
@@ -1345,11 +1390,11 @@ PAGES.admin = async () => {
   else if (k === 'results') body = resultsPanel();
   else if (k === 'users') body = usersPanel();
   else if (k === 'audit') body = await auditPanel();
-  return `${pageHead('Painel de administração', `${ROLES[me.profile.role]} · ${esc(me.profile.username)}`)}
+  return `${pageHead('Admin panel', `${ROLES[me.profile.role]} · ${esc(me.profile.username)}`)}
   <div class="tabs">${tabs.map(([key, l]) => `<button class="chip ${key === k ? 'on' : ''}" data-act="adminTab" data-v="${key}">${l}</button>`).join('')}</div>${body}`;
 };
 
-const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
+const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">All categories</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
 
 function entPanel(key) {
   const E = ENT[key]; let rows = D[key] || [];
@@ -1357,19 +1402,19 @@ function entPanel(key) {
   if (key === 'teams' && S.admCat !== 'all') rows = rows.filter(r => teamInCat(r.id, S.admCat));
   if (key === 'races') rows = [...rows].sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   if (key === 'news') rows = sortedNews();
-  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Resultados</button> ` : (key === 'teams' && S.admCat !== 'all' ? `<button class="btn sm" data-act="teamLeave" data-id="${r.id}">Tirar da categoria</button> ` : '');
-  const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumerar rodadas por data</button>' : ''}${key === 'seasons' ? '<button class="btn" data-act="rollNew">Virada de temporada</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Adicionar'}</button></div></div>`;
-  const H = { cats: 'Categorias', number: 'Nº', name: 'Nome', team_id: 'Equipe', championship_id: 'Categoria', short_name: 'Sigla', principal_id: 'Chefe', color: 'Cor', year: 'Ano', is_active: 'Ativa', category: 'Divisão', season_id: 'Temporada', points_scale: 'Pontos', round: 'Rodada', circuit: 'Circuito', race_date: 'Data', status: 'Estado', title: 'Título', kind: 'Tipo', pinned: 'Fixado', created_at: 'Criado', published: 'Publicado' };
+  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Results</button> ` : (key === 'teams' && S.admCat !== 'all' ? `<button class="btn sm" data-act="teamLeave" data-id="${r.id}">Remove from category</button> ` : '');
+  const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumber rounds by date</button>' : ''}${key === 'seasons' ? '<button class="btn" data-act="rollNew">Season rollover</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Add'}</button></div></div>`;
+  const H = { cats: 'Categories', number: 'Nº', name: 'Name', team_id: 'Team', championship_id: 'Category', short_name: 'Short', principal_id: 'Principal', color: 'Cor', year: 'Ano', is_active: 'Active', category: 'Division', season_id: 'Season', points_scale: 'Points', round: 'Round', circuit: 'Circuit', race_date: 'Date', status: 'Status', title: 'Title', url: 'Link', race_id: 'Race', kind: 'Type', pinned: 'Pinned', created_at: 'Created', published: 'Published' };
   return head + `<div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr>${key === 'teams' ? '<th>Logo</th>' : ''}${E.cols.map(c => `<th>${H[c] || c}</th>`).join('')}<th></th></tr></thead><tbody>
-  ${rows.map(r => `<tr>${key === 'teams' ? `<td>${teamLogo(r, 28) || '<span class="muted">—</span>'}</td>` : ''}${E.cols.map(c => `<td>${c === 'cats' ? teamCats(r.id) : cellVal(c, r[c])}</td>`).join('')}<td style="white-space:nowrap;text-align:right">${extra(r)}<button class="btn sm" data-act="entEdit" data-v="${key}" data-id="${r.id}">Editar</button> <button class="btn sm danger" data-act="entDel" data-v="${key}" data-id="${r.id}">Excluir</button></td></tr>`).join('')}</tbody></table>` : `<div class="empty">Nada por aqui ainda. Use “${E.add || '+ Adicionar'}”.</div>`}</div>`;
+  ${rows.map(r => `<tr>${key === 'teams' ? `<td>${teamLogo(r, 28) || '<span class="muted">—</span>'}</td>` : ''}${E.cols.map(c => `<td>${c === 'cats' ? teamCats(r.id) : cellVal(c, r[c])}</td>`).join('')}<td style="white-space:nowrap;text-align:right">${extra(r)}<button class="btn sm" data-act="entEdit" data-v="${key}" data-id="${r.id}">Edit</button> <button class="btn sm danger" data-act="entDel" data-v="${key}" data-id="${r.id}">Delete</button></td></tr>`).join('')}</tbody></table>` : `<div class="empty">Nothing here yet. Use “${E.add || '+ Add'}”.</div>`}</div>`;
 }
 function sitePanel() {
-  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Personalizar o site</h2><button class="btn danger" data-act="resetSite">Restaurar padrão</button></div>
-  <p class="muted" style="margin-bottom:14px">Aqui você muda nome, logo, cores, fonte, imagens, menu, seções da página inicial, textos, links e até o CSS. Deixe um campo vazio para voltar ao padrão.</p>
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Customize the site</h2><button class="btn danger" data-act="resetSite">Reset to default</button></div>
+  <p class="muted" style="margin-bottom:14px">Here you change the name, logo, colors, font, images, menu, home page sections, texts, links and even the CSS. Leave a field empty to go back to the default.</p>
   <form data-form="settings" class="card">${SET_FIELDS.map(([g, fs]) => `<h3 style="margin:22px 0 4px;color:var(--red2)">${g}</h3>${fs.map(f => {
     let v = f.t === 'color' || f.t === 'select' ? cfg(f.k) : f.t === 'bool' ? on(f.k) : (D.settings[f.k] || '');
     return fieldHTML({ ...f, ph: DEFS[f.k] || '', prev: f.t === 'image' ? cfg(f.k) : null }, v); }).join('')}`).join('')}
-  <div class="row" style="margin-top:24px"><button class="btn red">Salvar personalização</button></div></form>`;
+  <div class="row" style="margin-top:24px"><button class="btn red">Save customization</button></div></form>`;
 }
 
 /* campos de formulário reutilizáveis */
@@ -1382,7 +1427,7 @@ function fieldHTML(f, v) {
   else if (f.t === 'country') inp = `<select ${n}><option value="">—</option>${COUNTRIES.map(([c, nm]) => `<option value="${c}" ${(f.cur || '').toUpperCase() === c ? 'selected' : ''}>${flag(c)} ${nm}</option>`).join('')}</select>`;
   else if (f.t === 'datetime') { const dt = v ? new Date(new Date(v) - new Date(v).getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : ''; inp = `<input type="datetime-local" ${n} value="${dt}">`; }
   else if (f.t === 'color') inp = `<input type="color" ${n} value="${safeColor(v)}">`;
-  else if (f.t === 'image') { const pv = safeUrl(f.prev || v); inp = `<div class="imgf">${pv ? `<img class="prev" src="${pv}" alt="">` : ''}<input type="url" name="${f.k}" value="${esc((v || '').startsWith('data:') ? '' : v || '')}" placeholder="Cole um link (https://…) ou envie um arquivo abaixo"><input type="file" name="${f.k}__file" accept="image/*"></div>`; }
+  else if (f.t === 'image') { const pv = safeUrl(f.prev || v); inp = `<div class="imgf">${pv ? `<img class="prev" src="${pv}" alt="">` : ''}<input type="url" name="${f.k}" value="${esc((v || '').startsWith('data:') ? '' : v || '')}" placeholder="Paste a link (https://…) or upload a file below"><input type="file" name="${f.k}__file" accept="image/*"></div>`; }
   else inp = `<input type="${f.t}" ${n} value="${esc(v ?? '')}" placeholder="${esc(f.ph || '')}">`;
   return `<label>${f.l}</label>${inp}${help}`;
 }
@@ -1393,10 +1438,10 @@ function openEnt(key, id) {
   if (!id && key === 'teams' && S.admCat !== 'all') row.add_cat = S.admCat;
   if (!id && key === 'championships') { row.points_scale = '25,18,15,12,10,8,6,4,2,1'; row.fl_bonus = 1; row.color = DEFS.accent; }
   if (!id && key === 'news') row.kind = 'anuncio';
-  if (!id && key === 'races' && !D.championships.length) { toast('Crie uma categoria antes de adicionar corridas.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
+  if (!id && key === 'races' && !D.championships.length) { toast('Create a category before adding races.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
   
-  $('#dlg').innerHTML = `<form data-form="ent" data-key="${key}" data-id="${id || ''}"><h3>${id ? 'Editar' : 'Adicionar'} — ${E.one || E.label}</h3>${E.fields.map(f => fieldHTML(f.t === 'country' ? { ...f, cur: row[f.k2] } : f, row[f.k])).join('')}
-  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar</button></div></form>`;
+  $('#dlg').innerHTML = `<form data-form="ent" data-key="${key}" data-id="${id || ''}"><h3>${id ? 'Edit' : 'Add'} — ${E.one || E.label}</h3>${E.fields.map(f => fieldHTML(f.t === 'country' ? { ...f, cur: row[f.k2] } : f, row[f.k])).join('')}
+  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Save</button></div></form>`;
   $('#dlg').showModal();
 }
 
@@ -1408,49 +1453,49 @@ function resultsPanel() {
   const cs = race ? curSess(race) : 'RACE';
   const ex = id => D.results.find(r => r.race_id === S.resRace && r.driver_id === id && sx(r) === cs) || {};
   const ch = race && champOf(race.championship_id);
-  return `<h2 style="margin-bottom:12px">Publicar resultados</h2>
+  return `<h2 style="margin-bottom:12px">Publish results</h2>
   <div class="card"><label style="margin-top:0">Grand Prix</label><select data-change="resRace">${races.map(r => `<option value="${r.id}" ${r.id === S.resRace ? 'selected' : ''}>${flag(r.country_code)} ${esc(r.name)} — ${fmtDate(r.race_date)}</option>`).join('')}</select>
-  ${race ? `<div style="margin-top:16px">${sessNav(race)}</div><form data-form="results" style="margin-top:4px"><h3 style="margin-bottom:8px">Sessão: ${esc(cs)}</h3><p class="muted" style="font-size:13px;margin-bottom:10px">Informe a posição final classificada (já com as penalizações em segundos aplicadas). Os pontos são calculados automaticamente com o sistema de pontos da categoria (${esc(ch?.points_scale || '25,18,15,12,10,8,6,4,2,1')}; volta mais rápida +${ch?.fl_bonus ?? 1}), menos a penalização em pontos.</p>
-  <div class="scroll"><table class="tbl"><thead><tr><th>Piloto</th><th>${isTimed(cs) ? 'Tempo' : 'Grid'}</th><th>Pos</th><th>Estado</th><th>Pen. s</th><th>Pen. pts</th><th>Pole</th><th>VR</th><th>Pts</th></tr></thead><tbody>
+  ${race ? `<div style="margin-top:16px">${sessNav(race)}</div><form data-form="results" style="margin-top:4px"><h3 style="margin-bottom:8px">Session: ${esc(cs)}</h3><p class="muted" style="font-size:13px;margin-bottom:10px">Informe a posição final classificada (já com as penalizações em segundos aplicadas). Os pontos são calculados automaticamente com o sistema de pontos da categoria (${esc(ch?.points_scale || '25,18,15,12,10,8,6,4,2,1')}; volta mais rápida +${ch?.fl_bonus ?? 1}), menos a penalização em pontos.</p>
+  <div class="scroll"><table class="tbl"><thead><tr><th>Driver</th><th>${isTimed(cs) ? 'Time' : 'Grid'}</th><th>Pos</th><th>Status</th><th>Pen. s</th><th>Pen. pts</th><th>Pole</th><th>VR</th><th>Pts</th></tr></thead><tbody>
   ${ds.map(d => { const e = ex(d.id); return `<tr data-d="${d.id}"><td style="white-space:nowrap">${esc(d.name)} <span class="num">${d.number ?? ''}</span></td>
   <td>${isTimed(cs) ? `<input type="text" name="lap" value="${esc(e.lap_time || '')}" placeholder="1:32.456" inputmode="decimal" autocomplete="off" style="width:110px">` : `<input type="number" min="1" name="grid" value="${e.grid ?? ''}" style="width:64px">`}</td><td><input type="number" min="1" name="position" value="${e.position ?? ''}" style="width:64px"></td>
   <td><select name="status" style="width:84px">${['FIN', 'DNF', 'DSQ', 'DNS'].map(s => `<option ${e.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
   <td><input type="number" min="0" name="ps" value="${e.penalty_seconds || 0}" style="width:64px"></td><td><input type="number" min="0" name="pp" value="${e.penalty_points || 0}" style="width:64px"></td>
-  <td><input type="checkbox" name="pole" ${e.pole ? 'checked' : ''}></td><td><input type="checkbox" name="fl" ${e.fastest_lap ? 'checked' : ''}></td><td class="pts">${e.points ?? '—'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="empty">Nenhum piloto nesta categoria. Adicione pilotos na aba “Pilotos”.</td></tr>'}</tbody></table></div>
-  <label class="chk"><input type="checkbox" name="finish" checked> Marcar corrida como finalizada</label>
-  <div class="row" style="margin-top:14px"><button class="btn red">Publicar resultados</button></div></form>` : '<div class="empty">Crie primeiro uma corrida na aba Calendário.</div>'}</div>`;
+  <td><input type="checkbox" name="pole" ${e.pole ? 'checked' : ''}></td><td><input type="checkbox" name="fl" ${e.fastest_lap ? 'checked' : ''}></td><td class="pts">${e.points ?? '—'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="empty">No drivers in this category. Add drivers in the “Drivers” tab.</td></tr>'}</tbody></table></div>
+  <label class="chk"><input type="checkbox" name="finish" checked> Mark race as finished</label>
+  <div class="row" style="margin-top:14px"><button class="btn red">Publish results</button></div></form>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
 }
 function usersPanel() {
   const ps = D.profiles, pend = ps.filter(p => p.status === 'pending');
   const row = p => {
     const main = (p.username || '').toLowerCase() === OWNER_NAME, locked = main || (p.role === 'admin' && !isOwner());
     const roleOpts = Object.entries(ROLES).filter(([k]) => k !== 'admin' || isOwner() || p.role === 'admin');
-    return `<tr><td><b>${esc(p.username || '—')}</b> ${main ? '<span class="tag owner">Conta principal</span>' : ''}<br><small class="muted">${esc(p.id.slice(0, 8))}</small></td><td>${fmtDate(p.created_at)}</td>
+    return `<tr><td><b>${esc(p.username || '—')}</b> ${main ? '<span class="tag owner">Main account</span>' : ''}<br><small class="muted">${esc(p.id.slice(0, 8))}</small></td><td>${fmtDate(p.created_at)}</td>
   <td><select data-change="userRole" data-id="${p.id}" style="width:auto" ${locked ? 'disabled' : ''}>${roleOpts.map(([k, l]) => `<option value="${k}" ${p.role === k ? 'selected' : ''}>${l}</option>`).join('')}</select></td>
   <td><span class="tag ${p.status === 'active' ? 'finished' : p.status === 'pending' ? 'upcoming' : ''}">${ACCT[p.status]}</span></td>
-  <td style="white-space:nowrap;text-align:right">${!locked && p.status !== 'active' ? `<button class="btn sm" data-act="userStatus" data-id="${p.id}" data-v="active">Aprovar</button> ` : ''}${!locked && p.status !== 'suspended' ? `<button class="btn sm danger" data-act="userStatus" data-id="${p.id}" data-v="suspended">Suspender</button> ` : ''}${!(p.role === 'admin' && !isOwner() && !main && p.id !== me.user.id) || main && isOwner() ? `<button class="btn sm" data-act="pwReset" data-id="${p.id}" data-n="${esc(p.username)}">Redefinir senha</button>` : ''}</td></tr>`; };
-  return `<h2 style="margin-bottom:6px">Usuários e acessos</h2>
-  <p class="muted" style="margin-bottom:14px">Mude a permissão de qualquer conta para dar ou tirar acesso. ${isOwner() ? 'Como conta principal, você também pode dar e tirar o cargo de administrador.' : 'Somente a conta principal pode dar ou tirar o cargo de administrador.'}</p>
-  ${pend.length ? `<div class="card" style="margin-bottom:16px;border-color:#52421d"><h3 style="margin-bottom:8px">Pedidos de cadastro (${pend.length})</h3><div class="scroll"><table class="tbl"><tbody>${pend.map(row).join('')}</tbody></table></div></div>` : ''}
-  <div class="card scroll"><table class="tbl"><thead><tr><th>Usuário</th><th>Criada</th><th>Permissão</th><th>Estado</th><th></th></tr></thead><tbody>${ps.map(row).join('') || '<tr><td class="empty" colspan="5">Sem contas.</td></tr>'}</tbody></table></div>`;
+  <td style="white-space:nowrap;text-align:right">${!locked && p.status !== 'active' ? `<button class="btn sm" data-act="userStatus" data-id="${p.id}" data-v="active">Approve</button> ` : ''}${!locked && p.status !== 'suspended' ? `<button class="btn sm danger" data-act="userStatus" data-id="${p.id}" data-v="suspended">Suspend</button> ` : ''}${!(p.role === 'admin' && !isOwner() && !main && p.id !== me.user.id) || main && isOwner() ? `<button class="btn sm" data-act="pwReset" data-id="${p.id}" data-n="${esc(p.username)}">Reset password</button>` : ''}</td></tr>`; };
+  return `<h2 style="margin-bottom:6px">Users and access</h2>
+  <p class="muted" style="margin-bottom:14px">Change any account’s permission to grant or remove access. ${isOwner() ? 'Como conta principal, você também pode dar e tirar o cargo de administrador.' : 'Only the main account can grant or remove the administrator role.'}</p>
+  ${pend.length ? `<div class="card" style="margin-bottom:16px;border-color:#52421d"><h3 style="margin-bottom:8px">Sign-up requests (${pend.length})</h3><div class="scroll"><table class="tbl"><tbody>${pend.map(row).join('')}</tbody></table></div></div>` : ''}
+  <div class="card scroll"><table class="tbl"><thead><tr><th>User</th><th>Created</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>${ps.map(row).join('') || '<tr><td class="empty" colspan="5">No accounts.</td></tr>'}</tbody></table></div>`;
 }
 async function auditPanel() {
   const { data, error } = await sb.from('audit_log').select('*').order('created_at', { ascending: false }).limit(100);
   if (error) return `<div class="card empty">${esc(error.message)}</div>`;
   const who = id => D.profiles.find(p => p.id === id)?.username || (id ? id.slice(0, 8) : 'sistema');
-  const ACTN = { INSERT: 'Criou', UPDATE: 'Alterou', DELETE: 'Excluiu' };
-  return `<h2 style="margin-bottom:12px">Histórico de alterações</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Quando</th><th>Quem</th><th>Ação</th><th>Tabela</th><th>Detalhe</th></tr></thead><tbody>
-  ${data.map(a => { const o = a.new_data || a.old_data || {}; return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(a.created_at)} ${fmtTime(a.created_at)}</td><td>${esc(who(a.user_id))}</td><td>${ACTN[a.action] || a.action}</td><td>${esc(a.table_name)}</td><td class="muted">${esc(o.name || o.title || o.username || o.key || o.position || String(a.row_id || '').slice(0, 8))}</td></tr>`; }).join('') || '<tr><td colspan="5" class="empty">Sem registros.</td></tr>'}</tbody></table></div>`;
+  const ACTN = { INSERT: 'Created', UPDATE: 'Changed', DELETE: 'Deleted' };
+  return `<h2 style="margin-bottom:12px">Change history</h2><div class="card scroll"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Table</th><th>Detail</th></tr></thead><tbody>
+  ${data.map(a => { const o = a.new_data || a.old_data || {}; return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(a.created_at)} ${fmtTime(a.created_at)}</td><td>${esc(who(a.user_id))}</td><td>${ACTN[a.action] || a.action}</td><td>${esc(a.table_name)}</td><td class="muted">${esc(o.name || o.title || o.username || o.key || o.position || String(a.row_id || '').slice(0, 8))}</td></tr>`; }).join('') || '<tr><td colspan="5" class="empty">No entries.</td></tr>'}</tbody></table></div>`;
 }
 
 /* ---------- router ---------- */
 function renderNav() {
   const h = location.hash || '#/';
-  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/drivers', 'nav_drivers'], ['#/players', 'nav_players'], ['#/teams', 'nav_teams'], ['#/transfers', 'nav_transfers'], ['#/records', 'nav_records'], ['#/news', 'nav_news']];
+  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/players', 'nav_players'], ['#/teams', 'nav_teams'], ['#/transfers', 'nav_transfers'], ['#/records', 'nav_records'], ['#/vods', 'nav_vods'], ['#/news', 'nav_news']];
   const l = NAVL.map(([href, k]) => `<a href="${href}" class="${h === href || (href !== '#/' && h.startsWith(href + '/')) ? 'on' : ''}">${esc(cfg(k))}</a>`);
   if (isStaff()) l.push(`<a href="#/admin" class="${h.startsWith('#/admin') ? 'on' : ''}">Admin</a>`);
-  l.push('<div class="gsearch"><input id="gSearch" type="search" placeholder="Pesquisar pilotos ou equipes…" autocomplete="off"></div>');
-  l.push(me.user ? `<a href="#/profile" class="${h === '#/profile' ? 'on' : ''}">${esc(me.profile?.username || 'Perfil')}</a>` : `<a href="#/login" class="loginbtn">Entrar</a>`);
+  l.push('<div class="gsearch"><input id="gSearch" type="search" placeholder="Search drivers or teams…" autocomplete="off"></div>');
+  l.push(me.user ? `<a href="#/profile" class="${h === '#/profile' ? 'on' : ''}">${esc(me.profile?.username || 'Profile')}</a>` : `<a href="#/login" class="loginbtn">Sign in</a>`);
   $('#links').innerHTML = l.join(''); $('#links').classList.remove('open');
   $('#gear').hidden = !isAdmin();
 }
@@ -1464,12 +1509,12 @@ function renderTicker() {
   const fin = rs.filter(r => r.status === 'finished' && D.results.some(x => x.race_id === r.id)).sort((a, b) => new Date(b.race_date) - new Date(a.race_date)).slice(0, 12);
   const pos = (r, p) => D.results.find(y => y.race_id === r.id && y.position === p && y.status === 'FIN' && String(sx(y)).startsWith('RACE'));
   const line = (r, p) => { const x = pos(r, p); if (!x) return rowH('#555', '—', ''); const d = driverOf(x.driver_id), t = teamOf(x.team_id || (d && d.team_id)); return rowH(safeColor(t && t.color), esc(d ? d.name : '?'), p); };
-  const html = live.map(r => cell(r, r.status === 'live' ? 'AO VIVO' : fmtDate(r.race_date, { day: '2-digit', month: 'short' }).toUpperCase() + ' · ' + fmtTime(r.race_date), rowH('#5a5df0', flag(r.country_code) + ' ' + esc(r.name.replace('Grande Prêmio ', 'GP ')), ''), rowH('#555', esc(r.circuit || r.country || ''), ''), r.status === 'live' ? 'live' : ''))
-    .concat(fin.map(r => cell(r, 'FIM · ' + esc(r.name.replace('Grande Prêmio ', 'GP ')), line(r, 1), line(r, 2)))).join('');
-  el.innerHTML = html || '<div class="tk-c"><small>Sem corridas</small></div>';
+  const html = live.map(r => cell(r, r.status === 'live' ? 'LIVE' : fmtDate(r.race_date, { day: '2-digit', month: 'short' }).toUpperCase() + ' · ' + fmtTime(r.race_date), rowH('#5a5df0', flag(r.country_code) + ' ' + esc(r.name.replace('Grand Prix ', 'GP ')), ''), rowH('#555', esc(r.circuit || r.country || ''), ''), r.status === 'live' ? 'live' : ''))
+    .concat(fin.map(r => cell(r, 'FT · ' + esc(r.name.replace('Grand Prix ', 'GP ')), line(r, 1), line(r, 2)))).join('');
+  el.innerHTML = html || '<div class="tk-c"><small>No races</small></div>';
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-tk]'); if (b) $('#tkS').scrollBy({ left: 300 * Number(b.dataset.tk) }); });
-document.addEventListener('keydown', e => { if (e.target.id !== 'gSearch' || e.key !== 'Enter') return; window.__q = e.target.value.trim(); if (location.hash === '#/drivers') route(); else location.hash = '#/drivers'; });
+document.addEventListener('keydown', e => { if (e.target.id !== 'gSearch' || e.key !== 'Enter') return; window.__q = e.target.value.trim(); if (location.hash === '#/players') route(); else location.hash = '#/players'; });
 let countTimer;
 async function route() {
   clearInterval(countTimer);
@@ -1478,14 +1523,14 @@ async function route() {
   renderNav(); try { renderTicker(); } catch (e) { console.error(e); }
   const fn = PAGES[page] || PAGES.home;
   const app = $('#app'); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = '';
-  try { app.innerHTML = await fn(h[1]); } catch (err) { console.error(err); app.innerHTML = '<div class="card empty"><h3>Erro ao abrir esta página</h3><p class="muted" style="margin-top:8px">' + esc(err.message) + '</p></div>'; }
-  if (window.__q != null) { const sb = $('#drvSearch'); if (sb) { sb.value = window.__q; sb.dispatchEvent(new Event('input', { bubbles: true })); } window.__q = null; }
+  try { app.innerHTML = await fn(h[1]); } catch (err) { console.error(err); app.innerHTML = '<div class="card empty"><h3>Error opening this page</h3><p class="muted" style="margin-top:8px">' + esc(err.message) + '</p></div>'; }
+  if (window.__q != null) { const sb = $('#plSearch'); if (sb) { sb.value = window.__q; sb.dispatchEvent(new Event('input', { bubbles: true })); } window.__q = null; }
   const c = $('#count');
   if (c) { const tick = () => {
     const t = new Date(c.dataset.t) - Date.now();
-    if (t <= 0 || c.dataset.live === 'true') { c.innerHTML = '<div style="min-width:160px"><b style="color:var(--red2)">LIVE</b><small>Em pista</small></div>'; return; }
+    if (t <= 0 || c.dataset.live === 'true') { c.innerHTML = '<div style="min-width:160px"><b style="color:var(--red2)">LIVE</b><small>On track</small></div>'; return; }
     const v = [Math.floor(t / 864e5), Math.floor(t / 36e5) % 24, Math.floor(t / 6e4) % 60, Math.floor(t / 1e3) % 60];
-    c.innerHTML = ['Dias', 'Horas', 'Min', 'Seg'].map((l, i) => `<div><b>${String(v[i]).padStart(2, '0')}</b><small>${l}</small></div>`).join(''); };
+    c.innerHTML = ['Days', 'Hours', 'Min', 'Sec'].map((l, i) => `<div><b>${String(v[i]).padStart(2, '0')}</b><small>${l}</small></div>`).join(''); };
     tick(); countTimer = setInterval(tick, 1000); }
 }
 async function refresh() { const y = window.scrollY; await loadData(); await route(); window.scrollTo(0, y); }
@@ -1497,15 +1542,15 @@ const ACT = {
   closeDlg: () => $('#dlg').close(),
   csv: () => {
     const st = standings(S.champ), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-    const rows = [['Pos', 'Piloto', 'Equipe', 'Pontos', 'Vitórias', 'Pódios']].concat(st.drivers.map((x, i) => [i + 1, x.d.name, teamOf(x.d.team_id)?.name || '', x.pts, x.wins, x.pod]));
-    rows.push([], ['Pos', 'Equipe', 'Pontos', 'Vitórias', 'Pódios']);
+    const rows = [['Pos', 'Driver', 'Team', 'Points', 'Wins', 'Podiums']].concat(st.drivers.map((x, i) => [i + 1, x.d.name, teamOf(x.d.team_id)?.name || '', x.pts, x.wins, x.pod]));
+    rows.push([], ['Pos', 'Team', 'Points', 'Wins', 'Podiums']);
     st.teams.forEach((x, i) => rows.push([i + 1, x.t.name, x.pts, x.wins, x.pod]));
     download('classificacao.csv', '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n'), 'text/csv;charset=utf-8');
   },
   ics: a => {
     const r = D.races.find(x => x.id === a.dataset.v); if (!r) return;
     const f = d => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, ''), t0 = new Date(r.race_date).getTime();
-    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Liga//PT', 'BEGIN:VEVENT', 'UID:' + r.id + '@liga', 'DTSTAMP:' + f(Date.now()), 'DTSTART:' + f(r.start_date ? new Date(r.start_date).getTime() : t0), 'DTEND:' + f(t0 + 2 * 36e5),
+    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//League//EN', 'BEGIN:VEVENT', 'UID:' + r.id + '@liga', 'DTSTAMP:' + f(Date.now()), 'DTSTART:' + f(r.start_date ? new Date(r.start_date).getTime() : t0), 'DTEND:' + f(t0 + 2 * 36e5),
       'SUMMARY:' + (cfg('site_name') + ' — ' + r.name).replace(/[,;]/g, ' '), 'LOCATION:' + [r.circuit, r.country].filter(Boolean).join(' ').replace(/[,;]/g, ' '), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     download('corrida.ics', ics, 'text/calendar;charset=utf-8');
   },
@@ -1523,23 +1568,23 @@ const ACT = {
   goResults: el => { S.resRace = el.dataset.id; goAdmin('results'); },
   entDel: async el => {
     const k = el.dataset.v;
-    const warn = k === 'championships' ? 'Isto também exclui as corridas e resultados desta categoria. ' : k === 'races' ? 'Isto também exclui os resultados da corrida. ' : '';
-    if (!confirm(warn + 'Excluir este registro? A ação fica registrada no histórico.')) return;
+    const warn = k === 'championships' ? 'This also deletes the races and results of this category. ' : k === 'races' ? 'This also deletes the results of the race. ' : '';
+    if (!confirm(warn + 'Delete this record? The action is kept in the history.')) return;
     const { error } = await sb.from(k).delete().eq('id', el.dataset.id);
     if (error) return toast(error.message, true);
-    toast('Excluído.'); refresh();
+    toast('Deleted.'); refresh();
   },
   userStatus: async el => {
     const { error } = await sb.from('profiles').update({ status: el.dataset.v }).eq('id', el.dataset.id);
     if (error) return toast(error.message, true);
-    toast('Estado atualizado.'); refresh();
+    toast('Status updated.'); refresh();
   },
   pwReset: async el => {
-    const pw = prompt(`Nova senha para "${el.dataset.n}" (mínimo 8 caracteres):`);
+    const pw = prompt(`New password for "${el.dataset.n}" (minimum 8 characters):`);
     if (!pw) return;
     const { error } = await sb.rpc('admin_set_password', { target: el.dataset.id, new_password: pw });
     if (error) return toast(error.message, true);
-    toast('Senha redefinida. Avise o usuário.');
+    toast('Password reset. Let the user know.');
   },
   renumber: async () => {
     const groups = {};
@@ -1548,13 +1593,13 @@ const ACT = {
     Object.values(groups).forEach(rs => rs.sort((a, b) => new Date(a.race_date) - new Date(b.race_date)).forEach((r, i) => { if (r.round !== i + 1) ups.push(sb.from('races').update({ round: i + 1 }).eq('id', r.id)); }));
     const res = await Promise.all(ups); const e = res.find(x => x.error);
     if (e) return toast(e.error.message, true);
-    toast(ups.length ? 'Rodadas renumeradas pela data.' : 'As rodadas já estão em ordem.'); refresh();
+    toast(ups.length ? 'Rounds renumbered by date.' : 'Rounds are already in order.'); refresh();
   },
   resetSite: async () => {
-    if (!confirm('Restaurar nome, cores, imagens e textos para o padrão?')) return;
+    if (!confirm('Reset name, colors, images and texts to default?')) return;
     const { error } = await sb.from('settings').delete().neq('key', '');
     if (error) return toast(error.message, true);
-    toast('Site restaurado ao padrão.'); refresh();
+    toast('Site reset to default.'); refresh();
   }
 };
 Object.assign(ACT, {
@@ -1563,26 +1608,26 @@ Object.assign(ACT, {
     const d = p.d, st = Lg.stats(did), o = Lg.ovr(did), le = [...p.entries].sort((a, b) => b.si - a.si)[0], t = teamOf(le && le.team_id);
     const R = (l, v) => `<tr><td class="muted">${l}</td><td style="text-align:right"><b>${v}</b></td></tr>`;
     $('#dlg').innerHTML = `<div class="row" style="gap:16px;margin-bottom:14px;flex-wrap:nowrap">${avatarHTML(d, 'avatar')}<div style="flex:1;min-width:0"><h3 style="font-size:24px">${esc(d.name)}</h3>
-      <p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 20)}${esc(t ? t.name : 'Sem equipe')}${le && le.number != null ? ' · #' + le.number : ''}</p><p style="margin-top:6px"><span class="wage" style="font-size:20px">${money(wageOf(o))}</span></p></div>${clsBadge(o, true)}</div>
-      <table class="tbl"><tbody>${R('Idade', Lg.ageNow(did))}${R('Overall', o)}${R('Temporadas', p.seasons.size)}${R('Corridas', st.races)}${R('Vitórias', st.wins)}${R('Pódios', st.pod)}${R('Voltas rápidas', st.fl)}${R('Poles', st.poles)}${R('Campeonatos', Lg.titlesOf(did))}${R('Abandonos', st.dnf)}${R('Nota média', st.avg != null ? st.avg.toFixed(1) : '—')}</tbody></table>
-      <div class="row end" style="margin-top:18px"><button type="button" class="btn" data-act="closeDlg">Fechar</button><button type="button" class="btn red" data-act="goDriver" data-id="${did}">Ver perfil completo →</button></div>`;
+      <p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 20)}${esc(t ? t.name : 'No team')}${le && le.number != null ? ' · #' + le.number : ''}</p><p style="margin-top:6px"><span class="wage" style="font-size:20px">${money(wageOf(o))}</span></p></div>${clsBadge(o, true)}</div>
+      <table class="tbl"><tbody>${R('Age', Lg.ageNow(did))}${R('Overall', o)}${R('Seasons', p.seasons.size)}${R('Races', st.races)}${R('Wins', st.wins)}${R('Podiums', st.pod)}${R('Fastest laps', st.fl)}${R('Poles', st.poles)}${R('Championships', Lg.titlesOf(did))}${R('Retirements', st.dnf)}${R('Average rating', st.avg != null ? st.avg.toFixed(1) : '—')}</tbody></table>
+      <div class="row end" style="margin-top:18px"><button type="button" class="btn" data-act="closeDlg">Close</button><button type="button" class="btn red" data-act="goDriver" data-id="${did}">View full profile →</button></div>`;
     $('#dlg').showModal();
   },
   goDriver: el => { $('#dlg').close(); location.hash = '#/driver/' + el.dataset.id; },
   rollNew: () => openRoll(),
   drvEdit: el => openDriver(el.dataset.id, el.dataset.cat || undefined),
   entryDel: async el => {
-    if (!confirm('Tirar este piloto da categoria? O piloto e os resultados antigos continuam salvos na liga.')) return;
+    if (!confirm('Remove this driver from the category? The driver and old results stay saved in the league.')) return;
     const { error } = await sb.from('entries').delete().eq('id', el.dataset.id);
     if (error) return toast(error.message, true);
-    toast('Piloto removido da categoria.'); refresh();
+    toast('Driver removed from the category.'); refresh();
   },
   teamLeave: async el => {
-    if (S.admCat === 'all' || !confirm('Tirar esta equipe da categoria selecionada? A equipe continua existindo na liga.')) return;
+    if (S.admCat === 'all' || !confirm('Remove this team from the selected category? The team still exists in the league.')) return;
     let r = await sb.from('team_entries').delete().eq('championship_id', S.admCat).eq('team_id', el.dataset.id);
     if (!r.error) r = await sb.from('entries').update({ team_id: null }).eq('championship_id', S.admCat).eq('team_id', el.dataset.id);
     if (r.error) return toast(r.error.message, true);
-    toast('Equipe removida da categoria.'); refresh();
+    toast('Team removed from the category.'); refresh();
   }
 });
 document.addEventListener('input', e => {
@@ -1630,12 +1675,12 @@ document.addEventListener('change', async e => {
   }
   else if (k === 'userRole') {
     const { error } = await sb.from('profiles').update({ role: el.value }).eq('id', el.dataset.id);
-    if (error) toast(error.message, true); else toast('Permissão atualizada.');
+    if (error) toast(error.message, true); else toast('Permission updated.');
     refresh();
   }
   else if (k === 'raceStatus') {
     const { error } = await sb.from('races').update({ status: el.value }).eq('id', el.dataset.id);
-    if (error) toast(error.message, true); else toast('Estado da corrida atualizado.');
+    if (error) toast(error.message, true); else toast('Race status updated.');
     refresh();
   }
 });
@@ -1643,7 +1688,7 @@ $('#burger').onclick = () => $('#links').classList.toggle('open');
 
 async function uploadMedia(file, folder) {
   if (!file || !file.size) return null;
-  if (file.size > 4e6) throw new Error('A imagem precisa ter menos de 4 MB.');
+  if (file.size > 4e6) throw new Error('The image must be smaller than 4 MB.');
   const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
   const up = await sb.storage.from('media').upload(path, file, { upsert: false, contentType: file.type });
@@ -1660,36 +1705,36 @@ document.addEventListener('submit', async e => {
   try {
     if (type === 'login') {
       const { error } = await sb.auth.signInWithPassword({ email: toEmail(fd.get('username')), password: fd.get('password') });
-      if (error) throw new Error(/invalid/i.test(error.message) ? 'Nome de usuário ou senha incorretos.' : error.message);
+      if (error) throw new Error(/invalid/i.test(error.message) ? 'Incorrect username or password.' : error.message);
       await loadMe();
-      if (me.profile?.status === 'suspended') { await sb.auth.signOut(); me = { user: null, profile: null }; throw new Error('Esta conta está suspensa.'); }
-      toast('Bem-vindo!'); location.hash = '#/profile'; await refresh();
+      if (me.profile?.status === 'suspended') { await sb.auth.signOut(); me = { user: null, profile: null }; throw new Error('This account is suspended.'); }
+      toast('Welcome!'); location.hash = '#/profile'; await refresh();
     } else if (type === 'register') {
       const un = (fd.get('username') || '').trim();
-      if (!/^[A-Za-z0-9_]{3,24}$/.test(un)) throw new Error('Nome de usuário: 3 a 24 caracteres, só letras, números e _.');
-      if (fd.get('password') !== fd.get('password2')) throw new Error('As senhas não são iguais.');
+      if (!/^[A-Za-z0-9_]{3,24}$/.test(un)) throw new Error('Username: 3 to 24 characters, only letters, numbers and _.');
+      if (fd.get('password') !== fd.get('password2')) throw new Error('Passwords do not match.');
       const { data, error } = await sb.auth.signUp({ email: toEmail(un), password: fd.get('password'), options: { data: { username: un } } });
-      if (error) throw new Error(/already|registered/i.test(error.message) ? 'Esse nome de usuário já está em uso.' : error.message);
-      if (!data.session) { toast('Conta criada.', true); location.hash = '#/login'; }
-      else { await loadMe(); toast('Conta criada!'); location.hash = '#/profile'; await refresh(); }
+      if (error) throw new Error(/already|registered/i.test(error.message) ? 'That username is already in use.' : error.message);
+      if (!data.session) { toast('Account created.', true); location.hash = '#/login'; }
+      else { await loadMe(); toast('Account created!'); location.hash = '#/profile'; await refresh(); }
     } else if (type === 'changepw') {
       const { error } = await sb.auth.updateUser({ password: fd.get('password') });
-      if (error) throw error; f.reset(); toast('Senha alterada.');
+      if (error) throw error; f.reset(); toast('Password changed.');
     } else if (type === 'profile') {
       let avatar_url = me.profile?.avatar_url || null;
       const file = fd.get('avatar');
       if (file && file.size) {
-        if (file.size > 3e6) throw new Error('A imagem precisa ter menos de 3 MB.');
+        if (file.size > 3e6) throw new Error('The image must be smaller than 3 MB.');
         const path = `${me.user.id}/avatar-${Date.now()}.${(file.name.split('.').pop() || 'png').toLowerCase()}`;
         const up = await sb.storage.from('avatars').upload(path, file, { upsert: true });
         if (up.error) throw up.error;
         avatar_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
       }
       const { error } = await sb.from('profiles').update({ username: fd.get('username'), avatar_url }).eq('id', me.user.id);
-      if (error) throw error; await loadMe(); toast('Perfil atualizado.'); await refresh();
+      if (error) throw error; await loadMe(); toast('Profile updated.'); await refresh();
     } else if (type === 'myteam') {
       const { error } = await sb.from('teams').update({ name: fd.get('name'), color: fd.get('color'), logo_url: await imgVal(fd, 'logo_url', 'teams') }).eq('id', f.dataset.id);
-      if (error) throw error; toast('Equipe atualizada.'); await refresh();
+      if (error) throw error; toast('Team updated.'); await refresh();
     } else if (type === 'ent') {
       const key = f.dataset.key, E = ENT[key], row = {}, virt = {}, id = f.dataset.id;
       for (const fl of E.fields) {
@@ -1705,33 +1750,33 @@ document.addEventListener('submit', async e => {
       }
       if (key === 'races') row.format = row.format || null;
       if (key === 'championships') {
-        if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(row.points_scale || '')) throw new Error('Sistema de pontos inválido. Use números separados por vírgula, ex.: 25,18,15,12,10.');
+        if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(row.points_scale || '')) throw new Error('Invalid points system. Use numbers separated by commas, e.g. 25,18,15,12,10.');
         row.points_scale = row.points_scale.replace(/\s/g, ''); row.fl_bonus = row.fl_bonus ?? 0;
         if (!row.season_id) {
           let s = D.seasons.find(x => x.is_active) || D.seasons[0];
-          if (!s) { const y = new Date().getFullYear(); const r = await sb.from('seasons').insert({ name: 'Temporada ' + y, year: y, is_active: true }).select().single(); if (r.error) throw r.error; s = r.data; }
+          if (!s) { const y = new Date().getFullYear(); const r = await sb.from('seasons').insert({ name: 'Season ' + y, year: y, is_active: true }).select().single(); if (r.error) throw r.error; s = r.data; }
           row.season_id = s.id;
         }
       }
       if (key === 'seasons' && row.is_active) await sb.from('seasons').update({ is_active: false }).neq('id', id || '00000000-0000-0000-0000-000000000000');
-      if (key === 'news' && !id) row.author_id = me.user.id;
+      if (['news', 'vods'].includes(key) && !id) row.author_id = me.user.id;
       const res = await (id ? sb.from(key).update(row).eq('id', id) : sb.from(key).insert(row).select().single());
       if (res.error) throw res.error;
       
       const newId = id || res.data?.id;
       if (key === 'championships' && newId && !id) { S.champ = newId; S.admCat = 'all'; }
       if (key === 'teams' && virt.add_cat) { const r2 = await sb.from('team_entries').upsert({ championship_id: virt.add_cat, team_id: newId }, { onConflict: 'championship_id,team_id' }); if (r2.error) throw r2.error; }
-      $('#dlg').close(); toast(id ? 'Salvo.' : 'Adicionado com sucesso!'); await refresh();
+      $('#dlg').close(); toast(id ? 'Saved.' : 'Added successfully!'); await refresh();
     } else if (type === 'driver') {
       const cat = fd.get('championship_id'), id = f.dataset.id || fd.get('pick') || '';
-      if (!cat) throw new Error('Escolha a categoria.');
+      if (!cat) throw new Error('Choose the category.');
       const name = (fd.get('name') || '').trim();
-      if (D.drivers.some(d => d.id !== id && d.name.trim().toLowerCase() === name.toLowerCase())) throw new Error('Já existe um piloto com esse nome. Use "Piloto já existente" para inscrevê-lo nesta categoria.');
+      if (D.drivers.some(d => d.id !== id && d.name.trim().toLowerCase() === name.toLowerCase())) throw new Error('A driver with that name already exists. Use "Existing driver" to enroll them in this category.');
       const num = fd.get('number') === '' ? null : Number(fd.get('number'));
-      if (num !== null && D.entries.some(e => e.driver_id !== id && e.championship_id === cat && e.number === num)) throw new Error(`O número ${num} já está em uso nesta categoria.`);
+      if (num !== null && D.entries.some(e => e.driver_id !== id && e.championship_id === cat && e.number === num)) throw new Error(`Number ${num} is already in use in this category.`);
       let teamId = fd.get('team_id') || null; const color = fd.get('team_color'), logo = await imgVal(fd, 'team_logo', 'teams');
       if (teamId === '__new') {
-        const tn = (fd.get('new_team_name') || '').trim(); if (!tn) throw new Error('Informe o nome da nova equipe.');
+        const tn = (fd.get('new_team_name') || '').trim(); if (!tn) throw new Error('Enter the new team name.');
         const r = await sb.from('teams').insert({ name: tn, short_name: tn.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase(), color, logo_url: logo }).select().single();
         if (r.error) throw r.error; teamId = r.data.id;
       } else if (teamId) {
@@ -1749,10 +1794,10 @@ document.addEventListener('submit', async e => {
       const er = await sb.from('entries').upsert({ championship_id: cat, driver_id: did, team_id: teamId, number: num }, { onConflict: 'championship_id,driver_id' });
       if (er.error) throw er.error;
       if (teamId) { const tr = await sb.from('team_entries').upsert({ championship_id: cat, team_id: teamId }, { onConflict: 'championship_id,team_id' }); if (tr.error) throw tr.error; }
-      $('#dlg').close(); toast(id ? 'Piloto atualizado.' : 'Piloto inscrito na categoria.'); await refresh();
+      $('#dlg').close(); toast(id ? 'Driver updated.' : 'Driver enrolled in the category.'); await refresh();
     } else if (type === 'roll') {
       const from = fd.get('from'), cs = D.championships.filter(c => c.season_id === from);
-      if (!cs.length) throw new Error('A temporada de origem não tem categorias.');
+      if (!cs.length) throw new Error('The source season has no categories.');
       const year = Number(fd.get('year')), sr = await sb.from('seasons').insert({ name: (fd.get('name') || '').trim(), year, is_active: false }).select().single();
       if (sr.error) throw sr.error;
       if (fd.get('active')) { await sb.from('seasons').update({ is_active: false }).neq('id', sr.data.id); const r = await sb.from('seasons').update({ is_active: true }).eq('id', sr.data.id); if (r.error) throw r.error; }
@@ -1771,7 +1816,7 @@ document.addEventListener('submit', async e => {
           if (ts.length) { const r = await sb.from('team_entries').insert(ts); if (r.error) throw r.error; nt += ts.length; }
         }
       }
-      $('#dlg').close(); S.champ = first; S.admCat = 'all'; toast(`Temporada criada: ${cs.length} categoria(s), ${nd} pilotos e ${nt} equipes reinscritos.`); await refresh();
+      $('#dlg').close(); S.champ = first; S.admCat = 'all'; toast(`Season created: ${cs.length} categories, ${nd} drivers and ${nt} teams re-enrolled.`); await refresh();
     } else if (type === 'settings') {
       const up = [], del = [];
       for (const [, fs] of SET_FIELDS) for (const fl of fs) {
@@ -1783,7 +1828,7 @@ document.addEventListener('submit', async e => {
       }
       if (up.length) { const r = await sb.from('settings').upsert(up, { onConflict: 'key' }); if (r.error) throw r.error; }
       if (del.length) { const r = await sb.from('settings').delete().in('key', del); if (r.error) throw r.error; }
-      toast('Personalização salva.'); await refresh();
+      toast('Customization saved.'); await refresh();
     } else if (type === 'results') {
       const rows = [], del = [];
       f.querySelectorAll('tbody tr[data-d]').forEach(tr => {
@@ -1793,7 +1838,7 @@ document.addEventListener('submit', async e => {
         if (!pos && status === 'FIN' && !hasLap) { del.push(did); return; }
         const sNow = curSess(D.races.find(r => r.id === S.resRace)), timed = isTimed(sNow);
         const lap = timed ? (g('lap').value || '').trim() : '';
-        if (lap && !/^(\d{1,2}:)?\d{1,2}[.,]\d{1,3}$/.test(lap)) throw new Error(`Tempo inválido para ${d?.name || 'piloto'}. Use o formato 1:32.456`);
+        if (lap && !/^(\d{1,2}:)?\d{1,2}[.,]\d{1,3}$/.test(lap)) throw new Error(`Invalid time for ${d?.name || 'piloto'}. Use o formato 1:32.456`);
         rows.api = true;
         rows.push({ race_id: S.resRace, session: sNow, driver_id: did, team_id: entryTeam(did, S.resRace) || null,
           ...(timed ? { lap_time: lap ? lap.replace(',', '.') : null } : { grid: g('grid').value ? Number(g('grid').value) : null }),
@@ -1801,13 +1846,13 @@ document.addEventListener('submit', async e => {
           pole: g('pole').checked, fastest_lap: g('fl').checked });
       });
       const pos = rows.filter(r => r.status === 'FIN' && r.position).map(r => r.position);
-      if (new Set(pos).size !== pos.length) throw new Error('Existem posições repetidas.');
+      if (new Set(pos).size !== pos.length) throw new Error('There are repeated positions.');
       if (rows.length) { const { error } = await sb.from('results').upsert(rows, { onConflict: 'race_id,session,driver_id' }); if (error) throw error; }
       if (del.length) { const { error } = await sb.from('results').delete().eq('race_id', S.resRace).eq('session', curSess(D.races.find(r => r.id === S.resRace))).in('driver_id', del); if (error) throw error; }
       if (fd.get('finish')) { const { error } = await sb.from('races').update({ status: 'finished' }).eq('id', S.resRace); if (error) throw error; }
-      toast('Resultados publicados. Classificações atualizadas.'); await refresh();
+      toast('Results published. Standings updated.'); await refresh();
     }
-  } catch (err) { toast(err.message || 'Ocorreu um erro.', true); }
+  } catch (err) { toast(err.message || 'An error occurred.', true); }
   finally { if (btn) btn.disabled = false; }
 });
 
