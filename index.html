@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Minha Liga</title>
 <meta name="description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Minha Liga">
+<meta property="og:description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.">
+<meta property="og:image" content="">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="">
 <link rel="icon" id="favicon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,7 +41,7 @@ header.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--b
 .logo b{font-family:var(--fd);letter-spacing:.1em;font-size:17px;line-height:1.05;text-transform:uppercase}
 .logo b small{display:block;font-size:9.5px;color:var(--muted);letter-spacing:.22em;font-weight:500}
 .links{display:flex;gap:4px;margin-left:auto;align-items:center}
-.links a{padding:8px 12px;border-radius:6px;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--muted);transition:.2s}
+.links a{padding:8px 9px;border-radius:6px;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--muted);transition:.2s}
 .links a:hover,.links a.on{color:var(--text);background:var(--panel2)}
 .links a.on{box-shadow:inset 0 -2px var(--red)}
 .burger{display:none;margin-left:auto;background:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
@@ -178,6 +184,31 @@ footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-under
   .count b{font-size:24px}.count div{min-width:60px}
   .drv-head .big{font-size:56px}
 }
+.cls{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;font-family:var(--fd);font-weight:700;font-size:14px;color:#0b0b0d;background:var(--c,#888)}
+.cls.lg{width:48px;height:48px;font-size:26px;border-radius:11px}
+.ovr{font-family:var(--fd);font-size:20px}
+.wage{color:#5fcf8a;font-family:var(--fd);white-space:nowrap}
+.nota{display:inline-block;min-width:44px;text-align:center;padding:2px 8px;border-radius:6px;font-family:var(--fd);font-size:15px;color:#0b0b0d;background:var(--c,#888)}
+.rec{padding:18px}
+.rec h3{font-size:15px;margin-bottom:8px}
+.rec .ri{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+.rec .ri:hover{background:var(--panel2)}
+.rec .rk{width:16px;color:var(--muted);font-size:13px}
+.rec .rn{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec .rt{font-size:11px;color:var(--muted);font-weight:400}
+.rec .rv{font-family:var(--fd);font-size:20px;color:var(--red2);white-space:nowrap}
+.rec .rv small{font-size:10px;color:var(--muted);letter-spacing:.1em;margin-left:3px;text-transform:uppercase}
+.rec .thumb{margin-right:0;width:32px;height:32px}
+.rec .tlogo{margin-right:0}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.filters>*{width:auto;min-width:170px}
+.team-card{border-top:3px solid var(--tc,var(--red))}
+details.card summary{cursor:pointer;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em}
+@media (max-width:1180px){
+  .burger{display:block}
+  .links{display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 20px;margin:0}
+  .links.open{display:flex}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -208,13 +239,13 @@ const OWNER_NAME = 'haraguchi9020';
 
 const FONTS = ['Oswald', 'Rajdhani', 'Orbitron', 'Teko', 'Barlow Condensed'];
 const DEFS = {
-  site_name: 'Minha Liga', site_subtitle: '', accent: '#b5322c',
+  site_name: 'Minha Liga', site_subtitle: '', site_description: 'Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.', accent: '#b5322c',
   color_bg: '#0e0f10', color_panel: '#16181a', color_text: '#e9e6e0', font_display: 'Oswald',
   logo_url: '', hero_image: '', track_image: '',
   partner_banner: '', partner_logo: '', partner_name: '',
   welcome_title: '', welcome_text: '',
   footer_text: '', discord_url: '', instagram_url: '', youtube_url: '',
-  nav_home: 'Início', nav_calendar: 'Calendário', nav_standings: 'Classificações', nav_drivers: 'Pilotos', nav_news: 'Anúncios',
+  nav_home: 'Início', nav_calendar: 'Calendário', nav_standings: 'Classificações', nav_drivers: 'Pilotos', nav_players: 'Players', nav_teams: 'Equipes', nav_transfers: 'Transferências', nav_records: 'Recordes', nav_news: 'Anúncios',
   show_banner: '1', show_last: '1', show_next: '1', show_drivers: '1', show_teams: '1', show_news: '1', custom_css: ''
 };
 
@@ -268,7 +299,7 @@ function calcPoints(r, c) {
   return Math.max(0, b - (r.penalty_points || 0));
 }
 function buildDemo() {
-  return { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
+  return { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [] };
 }
 
 /* =====================================================================
@@ -285,6 +316,7 @@ function makeLocal() {
     try { db = await idbGet(KEY); } catch {}
     if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
     if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
+    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
     try { await idbSet(KEY, db); ls.del(KEY); } catch {}
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
   };
@@ -300,7 +332,7 @@ function makeLocal() {
   const stf = () => { const p = P(); return !!p && ['admin', 'staff'].includes(p.role) && p.status === 'active'; };
   const isOwnerL = () => adm() && P().username.toLowerCase() === OWNER_NAME;
   const allow = (t, row) => adm() || (stf() && ['races', 'results', 'news'].includes(t)) || (t === 'teams' && !!sess() && row && row.principal_id === sess()) || (t === 'profiles' && row && row.id === sess());
-  const AUD = ['profiles', 'teams', 'drivers', 'seasons', 'championships', 'races', 'results', 'news', 'settings'];
+  const AUD = ['profiles', 'teams', 'drivers', 'seasons', 'championships', 'races', 'results', 'news', 'settings', 'entries', 'team_entries'];
   const slim = o => o && Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'string' && v.length > 200 ? '(imagem)' : v]));
   const aud = (op, t, o, n) => {
     if (!AUD.includes(t)) return; const r = n || o;
@@ -309,16 +341,16 @@ function makeLocal() {
   };
   const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming', kind: 'race', format: 'f3' }, results: { session: 'RACE', status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
   const calcRow = r => {
-    if (!r.team_id) r.team_id = db.drivers.find(d => d.id === r.driver_id)?.team_id || null;
     const race = db.races.find(x => x.id === r.race_id), ch = race && db.championships.find(c => c.id === race.championship_id);
+    if (!r.team_id) r.team_id = db.entries.find(e => race && e.championship_id === race.championship_id && e.driver_id === r.driver_id)?.team_id || db.drivers.find(d => d.id === r.driver_id)?.team_id || null;
     r.points = calcPoints(r, ch);
   };
   const casc = (t, id) => {
-    if (t === 'championships') { db.races.filter(r => r.championship_id === id).forEach(r => casc('races', r.id)); db.races = db.races.filter(r => r.championship_id !== id);
+    if (t === 'championships') { db.races.filter(r => r.championship_id === id).forEach(r => casc('races', r.id)); db.races = db.races.filter(r => r.championship_id !== id); db.entries = db.entries.filter(e => e.championship_id !== id); db.team_entries = db.team_entries.filter(e => e.championship_id !== id);
       db.teams.forEach(x => { if (x.championship_id === id) x.championship_id = null; }); db.drivers.forEach(x => { if (x.championship_id === id) x.championship_id = null; }); }
     if (t === 'races') db.results = db.results.filter(r => r.race_id !== id);
-    if (t === 'drivers') db.results = db.results.filter(r => r.driver_id !== id);
-    if (t === 'teams') { db.drivers.forEach(x => { if (x.team_id === id) x.team_id = null; }); db.results.forEach(x => { if (x.team_id === id) x.team_id = null; }); }
+    if (t === 'drivers') { db.results = db.results.filter(r => r.driver_id !== id); db.entries = db.entries.filter(e => e.driver_id !== id); }
+    if (t === 'teams') { db.team_entries = db.team_entries.filter(e => e.team_id !== id); db.entries.forEach(x => { if (x.team_id === id) x.team_id = null; }); db.drivers.forEach(x => { if (x.team_id === id) x.team_id = null; }); db.results.forEach(x => { if (x.team_id === id) x.team_id = null; }); }
     if (t === 'seasons') db.championships.filter(c => c.season_id === id).forEach(c => { casc('championships', c.id); db.championships = db.championships.filter(x => x.id !== c.id); });
   };
   const guardProfile = (old, nw) => {
@@ -450,8 +482,10 @@ const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) :
 const isLocal = !configured;
 
 /* ---------- estado ---------- */
-let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
+let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [] };
 let me = { user: null, profile: null };
+let STC = {}, L = null;
+const standings = cid => (STC[cid] ||= standingsCalc(cid));
 const S = { champ: null, calMonth: new Date(), calChamp: 'all', calFilter: 'all', calKind: 'all', sess: {}, adminTab: null, resRace: null, admCat: 'all' };
 
 const isAdmin = () => me.profile?.role === 'admin' && me.profile?.status === 'active';
@@ -471,11 +505,13 @@ async function loadData() {
   ]);
   const err = [teams, drivers, seasons, championships, races, results, news].find(x => x.error);
   if (err) toast('Erro ao carregar dados: ' + err.error.message, true);
+  const [ents, tents] = await Promise.all([q('entries'), q('team_entries')]);
+  if (ents.error || tents.error) toast('Tabelas novas não encontradas: rode o schema.sql atualizado no Supabase. (' + (ents.error || tents.error).message + ')', true);
   const set = {}; (settings.data || []).forEach(r => { if (r.value) set[r.key] = r.value; });
   D = { teams: teams.data || [], drivers: drivers.data || [], seasons: seasons.data || [], championships: championships.data || [],
-        races: races.data || [], results: results.data || [], news: news.data || [], profiles: [], settings: set };
+        races: races.data || [], results: results.data || [], news: news.data || [], profiles: [], settings: set, entries: ents.data || [], team_entries: tents.data || [] };
   if (isStaff()) { const p = await sb.from('profiles').select('*').order('created_at', { ascending: false }); D.profiles = p.data || []; }
-  pickChamp(); applySettings();
+  STC = {}; L = null; pickChamp(); applySettings();
 }
 function pickChamp() {
   if (S.champ && champOf(S.champ)) return;
@@ -506,6 +542,11 @@ function applySettings() {
   const lg = safeUrl(cfg('logo_url'));
   $('#logo').innerHTML = `${lg ? `<img src="${lg}" alt="">` : ''}<b>${esc(cfg('site_name'))}<small>${esc(cfg('site_subtitle'))}</small></b>`;
   $('#favicon').href = lg || '';
+  { const setM = (sel, v) => { const m = document.querySelector(sel); if (m) m.setAttribute('content', v); };
+    const desc = cfg('site_description'), ttl = cfg('site_subtitle') ? `${cfg('site_name')} — ${cfg('site_subtitle')}` : cfg('site_name'),
+      img = (safeUrl(cfg('hero_image')) || safeUrl(cfg('logo_url'))).replace(/&amp;/g, '&');
+    setM('meta[name=description]', desc); setM('meta[property="og:title"]', ttl); setM('meta[property="og:description"]', desc);
+    setM('meta[property="og:image"]', img); setM('meta[name="twitter:image"]', img); }
   document.title = cfg('site_subtitle') ? `${cfg('site_name')} — ${cfg('site_subtitle')}` : cfg('site_name');
   { const u = safeUrl(cfg('logo_url')); let l = document.querySelector('link[rel=icon]'); if (u) { if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); } l.href = u.replace(/&amp;/g, '&'); } }
   const links = [['discord_url', 'Discord'], ['instagram_url', 'Instagram'], ['youtube_url', 'YouTube']].filter(([k]) => /^https?:\/\//.test(cfg(k)))
@@ -518,7 +559,7 @@ function applySettings() {
 }
 
 /* ---------- classificações ---------- */
-function standings(cid) {
+function standingsCalc(cid) {
   const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) === 'race').map(r => r.id));
   const allRes = D.results.filter(r => raceIds.has(r.race_id));
   
@@ -547,8 +588,12 @@ function standings(cid) {
   };
   
   const sort = (a, b) => b.pts - a.pts || b.wins - a.wins || b.pod - a.pod;
-  const drivers = D.drivers.filter(d => d.active !== false && inCat(d)).map(d => ({ d, ...agg(d.id) })).sort(sort);
-  const teams = D.teams.filter(inCat).map(t => {
+  const ents = D.entries.filter(e => e.championship_id === cid), entIds = new Set(ents.map(e => e.driver_id));
+  const extra = [...new Set(allRes.map(r => r.driver_id))].filter(i => !entIds.has(i)).map(i => ({ driver_id: i, team_id: (allRes.find(r => r.driver_id === i && r.team_id) || {}).team_id || null, number: null }));
+  const drivers = [...ents, ...extra].map(e => { const d0 = driverOf(e.driver_id); if (!d0) return null; const d = { ...d0, team_id: e.team_id, number: e.number, championship_id: cid }; return { d, ...agg(d.id) }; })
+    .filter(x => x && (x.d.active !== false || x.n > 0)).sort(sort);
+  const tset = new Set(D.team_entries.filter(e => e.championship_id === cid).map(e => e.team_id)); ents.forEach(e => e.team_id && tset.add(e.team_id)); allRes.forEach(r => r.team_id && tset.add(r.team_id));
+  const teams = D.teams.filter(t => tset.has(t.id)).map(t => {
     const tRaceRes = allRes.filter(r => r.team_id === t.id && sx(r).startsWith('RACE'));
     return {
       t,
@@ -561,7 +606,7 @@ function standings(cid) {
   
   return { drivers, teams };
 }
-const champSel = (key = 'champ') => D.championships.length > 1 ? `<select data-change="${key}" style="width:auto;min-width:220px" aria-label="Categoria">${D.championships.map(c => `<option value="${c.id}" ${c.id === S.champ ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
+const champSel = (key = 'champ') => D.championships.length > 1 ? `<select data-change="${key}" style="width:auto;min-width:220px" aria-label="Categoria">${D.championships.map(c => `<option value="${c.id}" ${c.id === S.champ ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
 const sortedNews = () => [...D.news].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.created_at) - new Date(a.created_at));
 
 /* ---------- componentes ---------- */
@@ -615,6 +660,370 @@ function resultTableTop(raceId, n) {
 
 /* ---------- páginas ---------- */
 const PAGES = {};
+
+/* =====================================================================
+   MOTOR DE ANÁLISE — idade, nota por fim de semana, overall, classe, preço
+   ===================================================================== */
+const AGE0 = 17;
+const CLASSES = [['X', 94], ['S', 88], ['A', 82], ['B', 75], ['C', 68], ['D', 0]];
+const CLS_COL = { X: '#a78bfa', S: '#f5b73b', A: '#3ddc97', B: '#38bdf8', C: '#9aa4b2', D: '#8a7f78' };
+const classOf = o => (CLASSES.find(c => o >= c[1]) || CLASSES[5])[0];
+const clsBadge = (o, big) => o == null ? '<span class="muted">—</span>' : `<span class="cls ${big ? 'lg' : ''}" style="--c:${CLS_COL[classOf(o)]}">${classOf(o)}</span>`;
+const wageOf = o => Math.max(10000, Math.round(30000 * Math.pow(550000 / 30000, ((o || 0) - 60) / 35) / 5000) * 5000);
+const money = n => '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const notaCol = v => v >= 8 ? '#3ddc97' : v >= 6.5 ? '#a3e635' : v >= 5 ? '#facc15' : v >= 3.5 ? '#fb923c' : '#f87171';
+const notaHTML = v => v == null ? '<span class="muted">—</span>' : `<span class="nota" style="--c:${notaCol(v)}">${v.toFixed(1)}</span>`;
+const champLbl = c => c.name + (D.seasons.length > 1 ? ' · ' + (D.seasons.find(s => s.id === c.season_id)?.name || '') : '');
+const seasonsAsc = () => [...D.seasons].sort((a, b) => a.year - b.year || String(a.name).localeCompare(String(b.name)));
+const seasonIdxOf = cid => { const c = champOf(cid), i = seasonsAsc().findIndex(s => s.id === c?.season_id); return i < 0 ? 0 : i; };
+const latestEntry = did => D.entries.filter(e => e.driver_id === did).sort((a, b) => seasonIdxOf(b.championship_id) - seasonIdxOf(a.championship_id))[0];
+const entryTeam = (did, raceId) => { const r = D.races.find(x => x.id === raceId), e = r && D.entries.find(x => x.championship_id === r.championship_id && x.driver_id === did); return e ? e.team_id : (driverOf(did)?.team_id || null); };
+const drvsOf = cid => D.entries.filter(e => e.championship_id === cid).map(e => { const d = driverOf(e.driver_id); return d && { ...d, team_id: e.team_id, number: e.number, championship_id: cid }; }).filter(Boolean);
+const teamInCat = (tid, cid) => D.team_entries.some(e => e.team_id === tid && e.championship_id === cid) || D.entries.some(e => e.team_id === tid && e.championship_id === cid);
+const teamCats = tid => { const ids = new Set(D.team_entries.filter(e => e.team_id === tid).map(e => e.championship_id)); D.entries.filter(e => e.team_id === tid).forEach(e => ids.add(e.championship_id)); return [...ids].map(champOf).filter(Boolean).map(c => esc(champLbl(c))).join(', ') || '—'; };
+const getL = () => L || (L = buildLeague());
+const tName = tid => { const t = teamOf(tid); return t ? `${teamLogo(t, 20)}${esc(t.name)}` : '<span class="muted">Sem equipe</span>'; };
+
+function buildLeague() {
+  const seasons = seasonsAsc(), sIdx = Object.fromEntries(seasons.map((s, i) => [s.id, i]));
+  const chOf = Object.fromEntries(D.championships.map(c => [c.id, c]));
+  const siOf = cid => sIdx[chOf[cid]?.season_id] ?? 0;
+  const byRace = {}; D.results.forEach(r => (byRace[r.race_id] ||= []).push(r));
+  const byDriver = {};
+  const P = did => (byDriver[did] ||= { d: driverOf(did), wk: [], entries: [], seasons: new Set() });
+  D.entries.forEach(e => { if (!driverOf(e.driver_id)) return; const p = P(e.driver_id), si = siOf(e.championship_id); p.entries.push({ ...e, si }); p.seasons.add(si); });
+
+  /* ---- um registro por piloto por fim de semana (com a nota) ---- */
+  D.races.filter(r => sessOf(r) === 'race').forEach(race => {
+    const rs = byRace[race.id]; if (!rs || !rs.length) return;
+    const si = siOf(race.championship_id), main = mainSess(race), bs = {};
+    rs.forEach(x => (bs[sx(x)] ||= []).push(x));
+    const qnames = Object.keys(bs).filter(n => n.startsWith('QUALI')), rnames = Object.keys(bs).filter(n => n.startsWith('RACE'));
+    const qFor = n => (n === 'RACE SPRINT' ? ['QUALI SPRINT', 'QUALI'] : ['QUALI FEATURE', 'QUALI', 'QUALI SPRINT']).find(q => qnames.includes(q));
+    const dids = new Set(); rnames.forEach(n => bs[n].forEach(x => dids.add(x.driver_id)));
+    dids.forEach(did => {
+      if (!driverOf(did)) return;
+      const ss = rnames.map(n => {
+        const me = bs[n].find(x => x.driver_id === did); if (!me) return null;
+        const q = qFor(n), qr = q ? bs[q].find(x => x.driver_id === did) : null;
+        return { n, me, qr, grid: me.grid ?? (qr && qr.status === 'FIN' ? qr.position : null), field: Math.max(bs[n].length, 6) };
+      }).filter(Boolean);
+      if (!ss.length) return;
+      const rate = s => {
+        const r = s.me, n = s.field;
+        if (r.status === 'DNS') return null;
+        if (r.status === 'DSQ') return 1;
+        const fin = r.status === 'FIN' && r.position;
+        let raw = fin ? 5 * Math.max(0.05, 1 - (r.position - 1) / n) : 0.3;
+        if (s.grid) {
+          raw += Math.max(0, 1 - (s.grid - 1) / n);
+          if (fin) { const g = s.grid - r.position; raw += g > 0 ? Math.min(1.5, g * 0.12) : Math.max(-1, g * 0.06); }
+        }
+        if (fin) raw += r.position === 1 ? 1 : r.position <= 3 ? 0.5 : 0;
+        if (r.pole || (s.qr && s.qr.pole) || s.grid === 1) raw += 0.5;
+        if (r.fastest_lap) raw += 0.5;
+        raw -= Math.min(1, (r.penalty_points || 0) * 0.1) + Math.min(0.6, (r.penalty_seconds || 0) * 0.02);
+        return Math.max(0, Math.min(10, 2.5 + raw));
+      };
+      const rated = ss.map(s => ({ s, v: rate(s) })).filter(x => x.v !== null);
+      const avg = a => a.reduce((t, x) => t + x.v, 0) / a.length;
+      const m = rated.find(x => x.s.n === main), oth = rated.filter(x => x !== m);
+      const rating = !rated.length ? null : m && oth.length ? m.v * 0.7 + avg(oth) * 0.3 : m ? m.v : avg(rated);
+      const ms = ss.find(s => s.n === main), mr = ms && ms.me, fin = !!mr && mr.status === 'FIN' && !!mr.position;
+      const mine = rs.filter(x => x.driver_id === did);
+      P(did).wk.push({
+        did, race, raceId: race.id, cid: race.championship_id, si, date: race.race_date,
+        team: (mr && mr.team_id) || ss[0].me.team_id || null,
+        raced: !!mr && mr.status !== 'DNS', fin, pos: fin ? mr.position : null, grid: ms ? ms.grid : null, status: mr ? mr.status : null,
+        win: fin && mr.position === 1, pod: fin && mr.position <= 3, pole: mine.some(x => x.pole) || (!!ms && ms.grid === 1),
+        fl: !!mr && !!mr.fastest_lap, dnf: !!mr && mr.status === 'DNF',
+        pts: mine.filter(x => sx(x).startsWith('RACE')).reduce((a, x) => a + Number(x.points || 0), 0),
+        gain: fin && ms.grid ? ms.grid - mr.position : null, rating
+      });
+      byDriver[did].seasons.add(si);
+    });
+  });
+  Object.values(byDriver).forEach(p => { p.debut = p.seasons.size ? Math.min(...p.seasons) : 0; });
+
+  /* ---- campeões (só categorias com todas as corridas finalizadas) ---- */
+  const champs = [];
+  D.championships.forEach(c => {
+    const rc = D.races.filter(r => r.championship_id === c.id && sessOf(r) === 'race');
+    if (!rc.length || !rc.every(r => r.status === 'finished')) return;
+    const st = standings(c.id), dr = st.drivers[0], tm = st.teams[0];
+    if (!dr || !(dr.pts > 0)) return;
+    const si = siOf(c.id);
+    champs.push({ cid: c.id, name: c.name, si, season: seasons[si] ? seasons[si].name : '', driverId: dr.d.id, driverTeam: dr.d.team_id, driverPts: dr.pts, teamId: tm && tm.pts > 0 ? tm.t.id : null, teamPts: tm ? tm.pts : 0 });
+  });
+  champs.sort((a, b) => a.si - b.si);
+
+  const act = seasons.findIndex(s => s.is_active), curSi = act >= 0 ? act : Math.max(0, seasons.length - 1);
+  const debut = did => (byDriver[did] ? byDriver[did].debut : 0);
+  const ageAt = (did, si) => AGE0 + Math.max(0, si - debut(did));
+  const titlesOf = did => champs.filter(c => c.driverId === did).length + ((driverOf(did) && driverOf(did).titles) || 0);
+
+  const stats = (did, f) => {
+    const p = byDriver[did], w = (p ? p.wk : []).filter(x => !f || f(x)), rated = w.filter(x => x.rating !== null);
+    return { races: w.filter(x => x.raced).length, wins: w.filter(x => x.win).length, pod: w.filter(x => x.pod).length, poles: w.filter(x => x.pole).length,
+      fl: w.filter(x => x.fl).length, dnf: w.filter(x => x.dnf).length, pts: w.reduce((a, x) => a + x.pts, 0),
+      avg: rated.length ? rated.reduce((a, x) => a + x.rating, 0) / rated.length : null, n: rated.length };
+  };
+
+  /* Overall: experiência (temporadas) define o patamar; desempenho (notas) ajusta */
+  const ovr = (did, upto = curSi) => {
+    const p = byDriver[did]; if (!p) return null;
+    const ss = [...p.seasons].filter(i => i <= upto).sort((a, b) => a - b); if (!ss.length) return null;
+    const s = ss.length, w = p.wk.filter(x => x.si <= upto && x.rating !== null), k = 3;
+    const mean = a => (a.reduce((t, x) => t + x.rating, 0) + 5.5 * k) / (a.length + k);
+    const career = mean(w), lw = w.filter(x => x.si === ss[ss.length - 1]), last = lw.length ? mean(lw) : career;
+    const form = s > 1 ? 0.6 * last + 0.4 * career : career;
+    const tt = champs.filter(c => c.driverId === did && c.si <= upto).length + ((driverOf(did) && driverOf(did).titles) || 0);
+    const mod = Math.max(-9, Math.min(s === 1 ? 8 : 10, (form - 5.5) * 2.2 + Math.min(6, tt * 2)));
+    const base = 94 - 32 * Math.exp(-0.75 * (s - 1));
+    return Math.max(45, Math.min(99, Math.round(base + mod)));
+  };
+
+  const teamStats = tid => {
+    const w = []; Object.values(byDriver).forEach(p => p.wk.forEach(x => { if (x.team === tid) w.push(x); }));
+    return { w, races: new Set(w.filter(x => x.raced).map(x => x.raceId)).size, wins: w.filter(x => x.win).length, pod: w.filter(x => x.pod).length,
+      poles: w.filter(x => x.pole).length, fl: w.filter(x => x.fl).length, pts: w.reduce((a, x) => a + x.pts, 0), seasons: new Set(w.map(x => x.si)) };
+  };
+
+  /* ---- transferências: comparação da equipe principal de cada temporada ---- */
+  const transfers = [];
+  Object.entries(byDriver).forEach(([did, p]) => {
+    const per = {};
+    p.entries.forEach(e => { const n = p.wk.filter(x => x.cid === e.championship_id).length; if (!per[e.si] || n > per[e.si].n) per[e.si] = { ...e, n }; });
+    let prev = null;
+    Object.keys(per).map(Number).sort((a, b) => a - b).forEach(si => {
+      const e = per[si];
+      if (!prev) transfers.push({ did, si, type: 'debut', from: null, to: e.team_id, number: e.number, cid: e.championship_id });
+      else if ((prev.team_id || null) !== (e.team_id || null)) transfers.push({ did, si, type: 'move', from: prev.team_id, to: e.team_id, number: e.number, cid: e.championship_id });
+      prev = e;
+    });
+  });
+
+  return { seasons, sIdx, curSi, byDriver, champs, transfers, siOf, debut, ageAt, ageNow: did => ageAt(did, curSi), titlesOf, stats, ovr, teamStats };
+}
+
+/* =====================================================================
+   PÁGINAS NOVAS
+   ===================================================================== */
+const seasonOpts = (Lg, cur, allLabel) => `<option value="all">${allLabel}</option>${[...Lg.seasons.keys()].reverse().map(i => `<option value="${i}" ${String(cur) === String(i) ? 'selected' : ''}>${esc(Lg.seasons[i].name)}</option>`).join('')}`;
+
+PAGES.players = () => {
+  const Lg = getL(), sel = S.plSeason ?? 'all', cf = S.plCls ?? 'all', sort = S.plSort ?? 'ovr', upto = sel === 'all' ? Lg.curSi : Number(sel);
+  let rows = Object.keys(Lg.byDriver).map(did => {
+    const p = Lg.byDriver[did]; if (!p.d) return null;
+    if (sel !== 'all' && !p.seasons.has(upto)) return null;
+    const ent = [...p.entries].filter(e => sel === 'all' || e.si === upto).sort((a, b) => b.si - a.si)[0], o = Lg.ovr(did, upto);
+    if (o == null) return null;
+    return { did, d: p.d, ent, team: teamOf(ent && ent.team_id), o, st: Lg.stats(did, sel === 'all' ? null : x => x.si === upto), age: Lg.ageAt(did, upto),
+      ns: [...p.seasons].filter(i => i <= upto).length, titles: sel === 'all' ? Lg.titlesOf(did) : Lg.champs.filter(c => c.driverId === did && c.si === upto).length };
+  }).filter(Boolean).filter(x => cf === 'all' || classOf(x.o) === cf);
+  const SORTS = { ovr: (a, b) => b.o - a.o || b.st.wins - a.st.wins, wins: (a, b) => b.st.wins - a.st.wins || b.o - a.o, pod: (a, b) => b.st.pod - a.st.pod || b.o - a.o,
+    age: (a, b) => b.age - a.age, name: (a, b) => a.d.name.localeCompare(b.d.name) };
+  rows.sort(SORTS[sort] || SORTS.ovr);
+  const sOpt = (v, l) => `<option value="${v}" ${sort === v ? 'selected' : ''}>${l}</option>`;
+  const filters = `<div class="filters"><select data-change="plSeason" aria-label="Temporada">${seasonOpts(Lg, sel, 'Carreira completa (todas as temporadas)')}</select>
+    <select data-change="plCls" aria-label="Classe"><option value="all">Todas as classes</option>${CLASSES.map(c => `<option value="${c[0]}" ${cf === c[0] ? 'selected' : ''}>Classe ${c[0]}</option>`).join('')}</select>
+    <select data-change="plSort" aria-label="Ordenar">${sOpt('ovr', 'Ordenar: Overall')}${sOpt('wins', 'Ordenar: Vitórias')}${sOpt('pod', 'Ordenar: Pódios')}${sOpt('age', 'Ordenar: Idade')}${sOpt('name', 'Ordenar: Nome')}</select>
+    <input type="search" id="plSearch" placeholder="Buscar piloto ou equipe…" aria-label="Buscar piloto"></div>`;
+  return `${pageHead('Players', 'Todos os pilotos que já correram na liga: classe, overall, salário e carreira completa. Clique em um nome para ver os dados.')}
+  ${filters}
+  <div class="card scroll"><table class="tbl"><thead><tr><th>Classe</th><th>Piloto</th><th>Equipe</th><th>Idade</th><th>Temp.</th><th>OVR</th><th style="text-align:right">Salário</th><th>V</th><th>P</th><th>Poles</th><th>Títulos</th></tr></thead>
+  <tbody id="plRows">${rows.map(x => `<tr class="click" data-act="playerCard" data-id="${x.did}" data-q="${esc((x.d.name + ' ' + (x.team ? x.team.name : '')).toLowerCase())}">
+    <td>${clsBadge(x.o)}</td><td style="white-space:nowrap">${avatarHTML(x.d, 'thumb')}${flag(x.d.country_code)} <b>${esc(x.d.name)}</b></td>
+    <td class="muted" style="white-space:nowrap">${x.team ? teamLogo(x.team, 20) + esc(x.team.name) : 'Sem equipe'}</td><td>${x.age}</td><td>${x.ns}</td><td class="ovr">${x.o}</td>
+    <td style="text-align:right" class="wage">${money(wageOf(x.o))}</td><td>${x.st.wins}</td><td>${x.st.pod}</td><td>${x.st.poles}</td><td>${x.titles}</td></tr>`).join('') || '<tr><td colspan="11" class="empty">Nenhum piloto encontrado.</td></tr>'}</tbody></table></div>
+  <p class="muted" style="margin-top:12px;font-size:13px">Classes: ${CLASSES.map(c => `<b>${c[0]}</b> ${c[0] === 'D' ? '&lt; 68' : '≥ ' + c[1]}`).join(' · ')}. O overall depende da experiência (temporadas na liga) e da nota média nos fins de semana. Todos estreiam com ${AGE0} anos e ganham +1 a cada temporada.</p>`;
+};
+
+PAGES.driver = id => {
+  const d = driverOf(id);
+  if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
+  const Lg = getL(), p = Lg.byDriver[id] || { wk: [], entries: [], seasons: new Set() }, st = Lg.stats(id), o = Lg.ovr(id);
+  const le = [...p.entries].sort((a, b) => b.si - a.si)[0], t = teamOf(le && le.team_id), col = safeColor(t && t.color);
+  const sRows = [...p.seasons].sort((a, b) => b - a).map(si => {
+    const es = p.entries.filter(e => e.si === si), teams = [...new Set(es.map(e => e.team_id).filter(Boolean))].map(teamOf).filter(Boolean);
+    return { si, es, teams, s: Lg.stats(id, x => x.si === si), o: Lg.ovr(id, si) };
+  });
+  const wk = [...p.wk].sort((a, b) => new Date(b.date) - new Date(a.date)), myTitles = Lg.champs.filter(c => c.driverId === id);
+  const S1 = (l, v) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`;
+  return `<a href="#/players" class="muted">← Players</a>
+  <section class="card" style="margin-top:12px;border-left:4px solid ${col}"><div class="drv-head">
+    ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
+    <div class="big" style="color:${col}">${le && le.number != null ? le.number : ''}</div>
+    <div style="flex:1"><h1 style="font-size:38px">${esc(d.name)}</h1><p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 24)}${esc(t ? t.name : 'Sem equipe')}</p>
+    <p style="margin-top:8px"><span class="wage" style="font-size:20px">${o != null ? money(wageOf(o)) : '—'}</span></p>
+    ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar piloto</button></p>` : ''}</div>
+    <div style="text-align:center">${clsBadge(o, true)}<div class="ovr" style="font-size:34px;margin-top:6px">${o ?? '—'}</div><small class="muted">OVERALL</small></div></div></section>
+  <section class="sec"><div class="stats">${S1('Idade', o != null ? Lg.ageNow(id) : '—')}${S1('Temporadas', p.seasons.size)}${S1('Corridas', st.races)}${S1('Vitórias', st.wins)}${S1('Pódios', st.pod)}${S1('Voltas rápidas', st.fl)}${S1('Poles', st.poles)}${S1('Campeonatos', Lg.titlesOf(id))}${S1('Abandonos', st.dnf)}${S1('Nota média', st.avg != null ? st.avg.toFixed(1) : '—')}</div>
+  ${myTitles.length ? `<p class="muted" style="margin-top:12px">🏆 ${myTitles.map(c => `${esc(c.season)} · ${esc(c.name)}`).join(' &nbsp;|&nbsp; ')}</p>` : ''}</section>
+  <section class="sec"><h2>Nota média por temporada</h2><div class="card scroll">${sRows.length ? `<table class="tbl"><thead><tr><th>Temporada</th><th>Categoria</th><th>Equipe</th><th>Nº</th><th>Idade</th><th>Corridas</th><th>V</th><th>P</th><th>Pts</th><th>Nota</th><th>OVR</th></tr></thead><tbody>
+  ${sRows.map(r => `<tr><td>${esc(Lg.seasons[r.si] ? Lg.seasons[r.si].name : '—')}</td><td class="muted">${r.es.map(e => esc(champOf(e.championship_id) ? champOf(e.championship_id).name : '')).join(', ')}</td>
+  <td class="muted" style="white-space:nowrap">${r.teams.map(x => teamLogo(x, 18) + esc(x.name)).join(', ') || '—'}</td><td>${r.es.map(e => e.number ?? '—').join(', ')}</td><td>${Lg.ageAt(id, r.si)}</td><td>${r.s.races}</td><td>${r.s.wins}</td><td>${r.s.pod}</td><td>${r.s.pts}</td><td>${notaHTML(r.s.avg)}</td><td class="ovr">${r.o ?? '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sem temporadas.</div>'}</div></section>
+  <section class="sec"><h2>Nota por fim de semana</h2><div class="card scroll">${wk.length ? `<table class="tbl"><thead><tr><th>Corrida</th><th>Temporada</th><th>Grid</th><th>Final</th><th></th><th style="text-align:right">Nota</th></tr></thead><tbody>
+  ${wk.map(x => `<tr class="click" data-go="#/race/${x.raceId}"><td>${flag(x.race.country_code)} ${esc(x.race.name)}</td><td class="muted">${esc(Lg.seasons[x.si] ? Lg.seasons[x.si].name : '')}</td><td>${x.grid ?? '—'}</td><td>${x.fin ? 'P' + x.pos : (x.status || '—')}</td>
+  <td>${x.win ? '<span class="tag finished">Vitória</span> ' : x.pod ? '<span class="tag">Pódio</span> ' : ''}${x.pole ? '<span class="tag">Pole</span> ' : ''}${x.fl ? '<span class="tag">VR</span> ' : ''}${x.gain > 0 ? `<span class="tag">+${x.gain} pos</span>` : ''}</td><td style="text-align:right">${notaHTML(x.rating)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sem corridas.</div>'}</div></section>
+  <details class="card sec"><summary>Como a nota e o overall são calculados</summary><p class="muted" style="margin-top:10px;font-size:14px">A nota do fim de semana (0 a 10) soma: posição final, posição de largada, posições ganhas/perdidas (ultrapassagens), vitória, pódio, pole, volta mais rápida, e desconta penalizações. Abandono rende pouco; desclassificação, quase nada. Em fins de semana com sprint, a corrida principal vale 70% e a sprint 30%. O overall parte da experiência (1 temporada ≈ 62, 2 ≈ 79, 3 ≈ 87 …) e sobe ou desce conforme a nota média (a forma recente pesa mais) e os títulos. A classe e o salário vêm do overall.</p></details>`;
+};
+
+PAGES.transfers = () => {
+  const Lg = getL(), f = S.trSeason ?? 'all', list = Lg.transfers.filter(t => f === 'all' || String(t.si) === String(f));
+  const sis = [...new Set(list.map(t => t.si))].sort((a, b) => b - a);
+  const moves = list.filter(t => t.type === 'move').length, debuts = list.length - moves;
+  return `${pageHead('Janela de transferências', 'Todas as movimentações de pilotos entre as temporadas: estreias e trocas de equipe.', `<select data-change="trSeason" style="width:auto;min-width:200px">${seasonOpts(Lg, f, 'Todas as temporadas')}</select>`)}
+  <div class="stats" style="margin-bottom:8px"><div class="stat"><b>${moves}</b><small>Transferências</small></div><div class="stat"><b>${debuts}</b><small>Estreias</small></div></div>
+  ${sis.map(si => `<section class="sec"><h2>Janela · ${esc(Lg.seasons[si] ? Lg.seasons[si].name : '')}</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Classe</th><th>Piloto</th><th>Movimento</th><th>Nº</th><th>Categoria</th></tr></thead><tbody>
+  ${list.filter(t => t.si === si).sort((a, b) => (Lg.ovr(b.did, si) || 0) - (Lg.ovr(a.did, si) || 0)).map(t => { const d = driverOf(t.did); return `<tr class="click" data-go="#/driver/${t.did}"><td>${clsBadge(Lg.ovr(t.did, si))}</td>
+  <td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : '?')}</b></td>
+  <td style="white-space:nowrap">${t.type === 'debut' ? `<span class="tag upcoming">Estreia</span> → ${tName(t.to)}` : `<span class="tag live" style="animation:none">Transferência</span> ${tName(t.from)} → ${tName(t.to)}`}</td>
+  <td>${t.number ?? '—'}</td><td class="muted">${esc(champOf(t.cid) ? champOf(t.cid).name : '')}</td></tr>`; }).join('')}</tbody></table></div></section>`).join('') || '<div class="card empty" style="margin-top:16px">Nenhuma transferência registrada ainda.</div>'}`;
+};
+
+PAGES.teams = () => {
+  const Lg = getL();
+  const rows = D.teams.map(t => { const st = Lg.teamStats(t.id), ss = new Set(st.seasons); D.team_entries.filter(e => e.team_id === t.id).forEach(e => ss.add(Lg.siOf(e.championship_id))); D.entries.filter(e => e.team_id === t.id).forEach(e => ss.add(Lg.siOf(e.championship_id)));
+    const per = {}; st.w.forEach(x => { if (x.win) per[x.did] = (per[x.did] || 0) + 1; }); const star = Object.entries(per).sort((a, b) => b[1] - a[1])[0];
+    return { t, st, ns: ss.size, wcc: Lg.champs.filter(c => c.teamId === t.id).length, wdc: Lg.champs.filter(c => c.driverTeam === t.id).length, star }; })
+    .sort((a, b) => b.wcc - a.wcc || b.wdc - a.wdc || b.st.wins - a.st.wins || a.t.name.localeCompare(b.t.name));
+  return `${pageHead('Equipes', 'Histórico de todas as equipes da liga: títulos, vitórias e pilotos.', isAdmin() ? '<button class="btn red" data-act="entNew" data-v="teams">+ Nova equipe</button>' : '')}
+  <div class="cols3">${rows.map(x => `<a href="#/team/${x.t.id}" class="card hover team-card" style="--tc:${safeColor(x.t.color)}"><div class="row" style="gap:10px;margin-bottom:10px">${teamLogo(x.t, 34)}<h3>${esc(x.t.name)}</h3></div>
+  <div class="stats" style="grid-template-columns:repeat(4,1fr)"><div class="stat"><b>${x.wcc}</b><small>WCC</small></div><div class="stat"><b>${x.wdc}</b><small>WDC</small></div><div class="stat"><b>${x.st.wins}</b><small>Vit.</small></div><div class="stat"><b>${x.st.pod}</b><small>Pód.</small></div></div>
+  <p class="muted" style="margin-top:10px;font-size:13px">${x.ns} temporada(s)${x.star ? ` · Mais vitorioso: <b style="color:var(--text)">${esc(driverOf(x.star[0]) ? driverOf(x.star[0]).name : '?')}</b> (${x.star[1]})` : ''}</p></a>`).join('') || '<div class="card empty">Sem equipes cadastradas.</div>'}</div>`;
+};
+
+PAGES.team = id => {
+  const t = teamOf(id);
+  if (!t) return '<div class="card empty">Equipe não encontrada.</div>';
+  const Lg = getL(), ts = Lg.teamStats(id), wcc = Lg.champs.filter(c => c.teamId === id), wdc = Lg.champs.filter(c => c.driverTeam === id), col = safeColor(t.color);
+  const per = {};
+  ts.w.forEach(x => { const r = (per[x.did] ||= { did: x.did, wins: 0, pod: 0, poles: 0, races: 0, pts: 0, seasons: new Set() }); if (x.raced) r.races++; if (x.win) r.wins++; if (x.pod) r.pod++; if (x.pole) r.poles++; r.pts += x.pts; r.seasons.add(x.si); });
+  const drivers = Object.values(per).sort((a, b) => b.wins - a.wins || b.pod - a.pod || b.pts - a.pts), star = drivers[0];
+  const cids = new Set(D.team_entries.filter(e => e.team_id === id).map(e => e.championship_id)); D.entries.filter(e => e.team_id === id).forEach(e => cids.add(e.championship_id)); ts.w.forEach(x => cids.add(x.cid));
+  const hist = [...cids].map(champOf).filter(Boolean).sort((a, b) => Lg.siOf(b.id) - Lg.siOf(a.id)).map(c => { const s = standings(c.id), pos = s.teams.findIndex(x => x.t.id === id); return { c, pos: pos + 1, row: s.teams[pos], ds: s.drivers.filter(x => x.d.team_id === id) }; });
+  const S1 = (l, v) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`;
+  return `<a href="#/teams" class="muted">← Equipes</a>
+  <section class="card" style="margin-top:12px;border-left:4px solid ${col}"><div class="drv-head">${teamLogo(t, 80)}<div style="flex:1"><h1 style="font-size:38px">${esc(t.name)}</h1><p class="muted">${esc(t.short_name || '')} · ${hist.length} participação(ões)</p>
+  ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="teams" data-id="${t.id}">Editar equipe</button></p>` : ''}</div></div></section>
+  <section class="sec"><div class="stats">${S1('Títulos de construtores (WCC)', wcc.length)}${S1('Títulos de pilotos (WDC)', wdc.length)}${S1('Vitórias', ts.wins)}${S1('Pódios', ts.pod)}${S1('Poles', ts.poles)}${S1('Voltas rápidas', ts.fl)}${S1('Corridas', ts.races)}${S1('Pontos', ts.pts)}</div></section>
+  ${star && star.wins > 0 ? `<section class="sec"><h2>Piloto mais vencedor</h2><a href="#/driver/${star.did}" class="card hover race-card">${avatarHTML(driverOf(star.did) || {}, 'avatar')}<div><h3 style="font-size:22px">${esc(driverOf(star.did) ? driverOf(star.did).name : '?')}</h3><p class="muted">${star.wins} vitórias · ${star.pod} pódios · ${star.poles} poles pela equipe</p></div></a></section>` : ''}
+  <div class="cols sec"><div><h2 class="sec-h"><span>Campeonatos de construtores</span></h2><div class="card">${wcc.length ? `<table class="tbl"><tbody>${wcc.map(c => `<tr><td class="pos">🏆</td><td>${esc(c.season)}</td><td class="muted">${esc(c.name)}</td><td class="pts">${c.teamPts} pts</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Ainda sem títulos.</div>'}</div></div>
+  <div><h2 class="sec-h"><span>Campeonatos de pilotos</span></h2><div class="card">${wdc.length ? `<table class="tbl"><tbody>${wdc.map(c => `<tr class="click" data-go="#/driver/${c.driverId}"><td class="pos">🏆</td><td>${esc(c.season)}</td><td><b>${esc(driverOf(c.driverId) ? driverOf(c.driverId).name : '?')}</b></td><td class="muted">${esc(c.name)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Ainda sem títulos de pilotos.</div>'}</div></div></div>
+  <section class="sec"><h2>Pilotos pela equipe</h2><div class="card scroll">${drivers.length ? `<table class="tbl"><thead><tr><th>Piloto</th><th>Temp.</th><th>Corridas</th><th>V</th><th>P</th><th>Poles</th><th style="text-align:right">Pts</th></tr></thead><tbody>
+  ${drivers.map(r => { const d = driverOf(r.did); return `<tr class="click" data-go="#/driver/${r.did}"><td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : '?')}</b></td><td>${r.seasons.size}</td><td>${r.races}</td><td>${r.wins}</td><td>${r.pod}</td><td>${r.poles}</td><td class="pts">${r.pts}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">Sem resultados.</div>'}</div></section>
+  <section class="sec"><h2>Histórico por temporada</h2><div class="card scroll">${hist.length ? `<table class="tbl"><thead><tr><th>Temporada</th><th>Categoria</th><th>Pos. WCC</th><th>Pts</th><th>Pilotos</th></tr></thead><tbody>
+  ${hist.map(h => `<tr><td>${esc(Lg.seasons[Lg.siOf(h.c.id)] ? Lg.seasons[Lg.siOf(h.c.id)].name : '')}</td><td class="muted">${esc(h.c.name)}</td><td class="pos">${h.pos || '—'}</td><td>${h.row ? h.row.pts : 0}</td><td class="muted">${h.ds.map(x => esc(x.d.name) + ' (' + x.pts + ')').join(', ') || '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sem temporadas.</div>'}</div></section>`;
+};
+
+PAGES.records = () => {
+  const Lg = getL(), W = []; Object.values(Lg.byDriver).forEach(p => p.wk.forEach(x => W.push(x)));
+  if (!W.length) return pageHead('Recordes', 'Os maiores números da história da liga.') + '<div class="card empty">Os recordes aparecem assim que houver resultados publicados.</div>';
+  const sn = si => (Lg.seasons[si] ? Lg.seasons[si].name : '—'), row = (did, val, unit, tag) => ({ did, val, unit, tag });
+  const raceTag = x => `${sn(x.si)} · ${x.race.name}`;
+  const ageList = (pred, oldest) => { const best = {};
+    W.filter(pred).forEach(x => { const a = Lg.ageAt(x.did, x.si), b = best[x.did]; if (!b || (oldest ? a > b.a : a < b.a) || (a === b.a && new Date(x.date) < new Date(b.x.date))) best[x.did] = { a, x }; });
+    return Object.entries(best).sort((p, q) => (oldest ? q[1].a - p[1].a : p[1].a - q[1].a) || new Date(p[1].x.date) - new Date(q[1].x.date)).map(([did, b]) => row(did, b.a, 'anos', raceTag(b.x))); };
+  const tally = (pred, keyFn = x => x.did) => { const m = {}; W.filter(pred).forEach(x => { const k = keyFn(x); m[k] = (m[k] || 0) + 1; }); return m; };
+  const rank = (m, unit) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([did, v]) => row(did, v, unit, ''));
+  const perSeason = (m, unit) => Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const [did, cid] = k.split('|'); return row(did, v, unit, `${sn(Lg.siOf(cid))} · ${champOf(cid) ? champOf(cid).name : ''}`); });
+  const kc = x => x.did + '|' + x.cid;
+  const ptsSeason = {}; W.forEach(x => { ptsSeason[kc(x)] = (ptsSeason[kc(x)] || 0) + x.pts; });
+  const bestPer = (items, val, tag, unit, asc) => { const m = {}; items.forEach(x => { const v = val(x); if (v == null) return; const b = m[x.did]; if (!b || (asc ? v < b.v : v > b.v)) m[x.did] = { v, x }; });
+    return Object.entries(m).sort((a, b) => asc ? a[1].v - b[1].v : b[1].v - a[1].v).map(([did, b]) => row(did, b.v, unit, tag(b.x))); };
+  const doneRaces = new Set(W.map(x => x.raceId)), wmap = {}, byRaceW = {}; W.forEach(x => { wmap[x.raceId + '|' + x.did] = x; (byRaceW[x.raceId] ||= []).push(x.did); });
+  const groups = {}; D.races.filter(r => sessOf(r) === 'race' && doneRaces.has(r.id)).forEach(r => { const k = (champOf(r.championship_id) ? champOf(r.championship_id).name : '').toLowerCase(); (groups[k] ||= []).push(r); });
+  const streaks = (pred, unit) => { const best = {};
+    Object.values(groups).forEach(rs => { rs.sort((a, b) => new Date(a.race_date) - new Date(b.race_date)); const dids = new Set(); rs.forEach(r => byRaceW[r.id].forEach(d => dids.add(d)));
+      dids.forEach(did => { let cur = 0; rs.forEach(r => { const x = wmap[r.id + '|' + did]; if (x && pred(x)) { cur++; if (cur > ((best[did] && best[did].v) || 0)) best[did] = { v: cur, x }; } else cur = 0; }); }); });
+    return Object.entries(best).filter(([, b]) => b.v >= 2).sort((a, b) => b[1].v - a[1].v).map(([did, b]) => row(did, b.v, unit, 'até ' + raceTag(b.x))); };
+  const sAvg = {}; W.filter(x => x.rating != null).forEach(x => { (sAvg[kc(x)] ||= []).push(x.rating); });
+  const bestAvg = Object.entries(sAvg).filter(([, a]) => a.length >= 3).map(([k, a]) => [k, a.reduce((s, v) => s + v, 0) / a.length]).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const [did, cid] = k.split('|'); return row(did, v.toFixed(1), 'nota', `${sn(Lg.siOf(cid))} · ${champOf(cid) ? champOf(cid).name : ''}`); });
+  const tt = (pred, unit) => { const m = {}; W.filter(x => x.team && pred(x)).forEach(x => { m[x.team] = (m[x.team] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([tid, v]) => ({ tid, val: v, unit, tag: '' })); };
+  const wccT = {}; Lg.champs.forEach(c => { if (c.teamId) wccT[c.teamId] = (wccT[c.teamId] || 0) + 1; });
+  const wdcL = Object.entries(Lg.byDriver).map(([did]) => [did, Lg.titlesOf(did)]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).map(([did, n]) => row(did, n, 'títulos', ''));
+  const recRow = (r, i) => { let name, img, go;
+    if (r.tid) { const t = teamOf(r.tid); name = esc(t ? t.name : '?'); img = teamLogo(t, 26); go = '#/team/' + r.tid; }
+    else { const d = driverOf(r.did); name = esc(d ? d.name : '?'); img = avatarHTML(d || {}, 'thumb'); go = '#/driver/' + r.did; }
+    return `<div class="ri" data-go="${go}"><span class="rk">${i + 1}</span>${img}<span class="rn">${name}${r.tag ? `<br><span class="rt">${esc(r.tag)}</span>` : ''}</span><span class="rv">${esc(r.val)}${r.unit ? `<small>${esc(r.unit)}</small>` : ''}</span></div>`; };
+  const card = (title, rows) => `<div class="card rec"><h3>${title}</h3>${rows.slice(0, 5).map(recRow).join('') || '<div class="muted" style="padding:8px 0;font-size:13px">Sem registros ainda.</div>'}</div>`;
+  const sec = (h, cs) => `<section class="sec"><h2>${h}</h2><div class="cols3">${cs.join('')}</div></section>`;
+  const hall = [...Lg.champs].sort((a, b) => b.si - a.si || a.name.localeCompare(b.name));
+  return `${pageHead('Recordes', 'Os extremos da liga: mais jovens, mais velhos, carreira, temporada, sequências e equipes.')}
+  ${sec('Idade', [card('Mais novo a vencer uma corrida', ageList(x => x.win)), card('Mais novo a fazer uma pole', ageList(x => x.pole)), card('Mais novo a subir no pódio', ageList(x => x.pod)),
+    card('Mais novo campeão', Lg.champs.map(c => ({ c, a: Lg.ageAt(c.driverId, c.si) })).sort((a, b) => a.a - b.a || a.c.si - b.c.si).map(({ c, a }) => row(c.driverId, a, 'anos', `${c.season} · ${c.name}`))),
+    card('Mais velho a vencer uma corrida', ageList(x => x.win, true)), card('Mais velho campeão', Lg.champs.map(c => ({ c, a: Lg.ageAt(c.driverId, c.si) })).sort((a, b) => b.a - a.a || a.c.si - b.c.si).map(({ c, a }) => row(c.driverId, a, 'anos', `${c.season} · ${c.name}`))) ])}
+  ${sec('Carreira', [card('Mais vitórias', rank(tally(x => x.win), 'vitórias')), card('Mais poles', rank(tally(x => x.pole), 'poles')), card('Mais pódios', rank(tally(x => x.pod), 'pódios')),
+    card('Mais voltas rápidas', rank(tally(x => x.fl), 'VR')), card('Mais corridas disputadas', rank(tally(x => x.raced), 'corridas')), card('Mais títulos de pilotos', wdcL),
+    card('Mais abandonos', rank(tally(x => x.dnf), 'DNF')), card('Mais temporadas', Object.entries(Lg.byDriver).map(([did, p]) => [did, p.seasons.size]).sort((a, b) => b[1] - a[1]).map(([did, n]) => row(did, n, 'temporadas', '')))])}
+  ${sec('Numa temporada', [card('Mais vitórias numa temporada', perSeason(tally(x => x.win, kc), 'vitórias')), card('Mais poles numa temporada', perSeason(tally(x => x.pole, kc), 'poles')), card('Mais pódios numa temporada', perSeason(tally(x => x.pod, kc), 'pódios')),
+    card('Mais pontos numa temporada', perSeason(ptsSeason, 'pts')), card('Melhor nota média numa temporada', bestAvg)])}
+  ${sec('Corridas e sequências', [card('Mais vitórias consecutivas', streaks(x => x.win, 'seguidas')), card('Mais pódios consecutivos', streaks(x => x.pod, 'seguidos')), card('Mais posições ganhas numa corrida', bestPer(W.filter(x => x.gain > 0), x => x.gain, raceTag, 'posições')),
+    card('Vitória largando mais atrás', bestPer(W.filter(x => x.win && x.grid), x => x.grid, raceTag, 'grid')), card('Melhor nota num fim de semana', bestPer(W.filter(x => x.rating != null), x => +x.rating.toFixed(1), raceTag, 'nota'))])}
+  ${sec('Equipes', [card('Mais títulos de construtores', Object.entries(wccT).sort((a, b) => b[1] - a[1]).map(([tid, v]) => ({ tid, val: v, unit: 'WCC', tag: '' }))), card('Mais vitórias', tt(x => x.win, 'vitórias')), card('Mais pódios', tt(x => x.pod, 'pódios')), card('Mais poles', tt(x => x.pole, 'poles'))])}
+  <section class="sec"><h2>Campeões por temporada</h2><div class="card scroll">${hall.length ? `<table class="tbl"><thead><tr><th>Temporada</th><th>Categoria</th><th>Campeão de pilotos</th><th>Campeão de construtores</th></tr></thead><tbody>
+  ${hall.map(c => `<tr><td>${esc(c.season)}</td><td class="muted">${esc(c.name)}</td><td class="click" data-go="#/driver/${c.driverId}"><b>${esc(driverOf(c.driverId) ? driverOf(c.driverId).name : '?')}</b> <span class="muted">(${c.driverPts} pts)</span></td><td>${c.teamId ? `<a href="#/team/${c.teamId}">${tName(c.teamId)}</a>` : '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Os campeões aparecem quando todas as corridas de uma categoria estiverem finalizadas.</div>'}</div></section>`;
+};
+
+/* =====================================================================
+   ADMIN — pilotos e equipes únicos + virada de temporada
+   ===================================================================== */
+function teamOpts(cat, sel) {
+  const inCat = new Set(D.team_entries.filter(e => e.championship_id === cat).map(e => e.team_id)); D.entries.filter(e => e.championship_id === cat && e.team_id).forEach(e => inCat.add(e.team_id));
+  const opt = t => `<option value="${t.id}" ${t.id === sel ? 'selected' : ''}>${esc(t.name)}</option>`, a = D.teams.filter(t => inCat.has(t.id)), b = D.teams.filter(t => !inCat.has(t.id));
+  return `<option value="">— Sem equipe —</option>${a.length ? `<optgroup label="Nesta categoria">${a.map(opt).join('')}</optgroup>` : ''}${b.length ? `<optgroup label="Outras equipes da liga">${b.map(opt).join('')}</optgroup>` : ''}<option value="__new">➕ Criar nova equipe…</option>`;
+}
+function openDriver(id, cat) {
+  if (!D.championships.length) { toast('Crie uma categoria antes de adicionar pilotos.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
+  const d = id ? driverOf(id) : { active: true, titles: 0 };
+  cat = cat || (id && latestEntry(id) && latestEntry(id).championship_id) || (S.admCat !== 'all' ? S.admCat : S.champ);
+  const e = id ? (D.entries.find(x => x.driver_id === id && x.championship_id === cat) || latestEntry(id)) : null, t = teamOf(e && e.team_id);
+  $('#dlg').innerHTML = `<form data-form="driver" data-id="${id || ''}"><h3>${id ? 'Editar piloto' : 'Inscrever piloto na categoria'}</h3>
+  ${id ? '' : `<label>Piloto já existente na liga (para reinscrever em outra temporada)</label><select name="pick" data-change="drvPick"><option value="">— Novo piloto —</option>${[...D.drivers].sort((a, b) => a.name.localeCompare(b.name)).map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>`}
+  <label>Categoria / temporada</label><select name="championship_id" data-change="drvCat" required><option value="">—</option>${optC().map(([v, l]) => `<option value="${v}" ${v === cat ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
+  ${fieldHTML({ k: 'photo_url', l: 'Foto do piloto', t: 'image' }, d.photo_url)}
+  <div class="grid2"><div><label>Nome</label><input name="name" value="${esc(d.name || '')}" required></div><div><label>Número (nesta categoria)</label><input type="number" name="number" min="0" max="999" value="${e && e.number != null ? e.number : ''}"></div></div>
+  ${fieldHTML({ k: 'country', k2: 'country_code', l: 'Nacionalidade', t: 'country', cur: d.country_code }, '')}
+  <label>Equipe (nesta categoria)</label><select name="team_id" id="drvTeam" data-change="drvTeam">${teamOpts(cat, e && e.team_id)}</select>
+  <div id="newTeam" hidden><label>Nome da nova equipe</label><input name="new_team_name" placeholder="Ex.: Aurora Racing"></div>
+  <label>Cor da equipe</label><input type="color" name="team_color" id="drvColor" value="${safeColor(t && t.color)}">
+  ${fieldHTML({ k: 'team_logo', l: 'Logo da equipe', t: 'image' }, (t && t.logo_url) || '')}
+  <div class="hint">O piloto e a equipe são únicos na liga. Trocar a equipe aqui registra uma transferência automaticamente. Mudar cor/logo altera a equipe inteira.</div>
+  <div class="grid2"><div><label>Campeonatos extras (antes do site)</label><input type="number" name="titles" min="0" value="${d.titles || 0}"></div>
+  <div><label>Conta associada (opcional)</label><select name="profile_id"><option value="">—</option>${optP().map(([v, l]) => `<option value="${v}" ${v === d.profile_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div>
+  <label class="chk"><input type="checkbox" name="active" ${d.active === false ? '' : 'checked'}> Piloto ativo</label>
+  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar piloto</button></div></form>`;
+  $('#dlg').showModal();
+}
+function driversPanel() {
+  let rows = D.entries.map(e => ({ e, d: driverOf(e.driver_id) })).filter(x => x.d);
+  if (S.admCat !== 'all') rows = rows.filter(x => x.e.championship_id === S.admCat);
+  rows.sort((a, b) => seasonIdxOf(b.e.championship_id) - seasonIdxOf(a.e.championship_id) || (a.e.number ?? 999) - (b.e.number ?? 999));
+  const orphans = S.admCat === 'all' ? D.drivers.filter(d => !D.entries.some(e => e.driver_id === d.id)) : [];
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Pilotos</h2><div class="row">${catFilter()}<button class="btn red" data-act="entNew" data-v="drivers">+ Inscrever piloto</button></div></div>
+  <p class="muted" style="margin-bottom:12px;font-size:13px">Cada piloto existe uma única vez na liga; aqui você vê as inscrições dele por categoria/temporada. Para levar todo mundo para a próxima temporada use <b>Temporadas → Virada de temporada</b>.</p>
+  <div class="card scroll">${rows.length || orphans.length ? `<table class="tbl"><thead><tr><th>Piloto</th><th>Nº</th><th>País</th><th>Equipe</th><th>Categoria</th><th></th></tr></thead><tbody>
+  ${rows.map(({ e, d }) => { const t = teamOf(e.team_id), c = champOf(e.championship_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inativo</span>' : ''}</td><td class="display">${e.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
+  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t && t.color)}"></span>${teamLogo(t, 20)}${esc(t ? t.name : '—')}</td><td class="muted">${esc(c ? champLbl(c) : '—')}</td>
+  <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}" data-cat="${e.championship_id}">Editar</button> <button class="btn sm" data-act="entryDel" data-id="${e.id}">Tirar da categoria</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Excluir piloto</button></td></tr>`; }).join('')}
+  ${orphans.map(d => `<tr><td>${avatarHTML(d)}<b>${esc(d.name)}</b></td><td>—</td><td>${flag(d.country_code)}</td><td class="muted">—</td><td class="muted">Sem inscrição</td><td style="text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}">Inscrever</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Excluir piloto</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhum piloto nesta categoria. Use “+ Inscrever piloto”.</div>'}</div>`;
+}
+function openRoll() {
+  const asc = seasonsAsc(), last = asc[asc.length - 1], y = last ? last.year + 1 : new Date().getFullYear();
+  if (!asc.length) { toast('Crie a primeira temporada antes de fazer uma virada.', true); return; }
+  $('#dlg').innerHTML = `<form data-form="roll"><h3>Virada de temporada</h3>
+  <p class="muted" style="font-size:13px">Cria a nova temporada com as mesmas categorias (nome, pontuação, cor). Pilotos e equipes <b>não são copiados</b>: continuam sendo os mesmos e apenas são reinscritos com a equipe e o número da temporada anterior. Depois, é só editar quem mudou de equipe — isso aparece em Transferências.</p>
+  <label>Nome da nova temporada</label><input name="name" value="Temporada ${y}" required>
+  <label>Ano</label><input type="number" name="year" value="${y}" required>
+  <label>Temporada de origem</label><select name="from">${[...asc].reverse().map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select>
+  <label class="chk"><input type="checkbox" name="drivers" checked> Reinscrever pilotos ativos (mesma equipe e número)</label>
+  <label class="chk"><input type="checkbox" name="teams" checked> Reinscrever as equipes</label>
+  <label class="chk"><input type="checkbox" name="active" checked> Tornar a nova temporada a ativa</label>
+  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Criar temporada</button></div></form>`;
+  $('#dlg').showModal();
+}
+
 const nextRace = () => D.races.filter(r => r.status !== 'finished').sort((a, b) => new Date(a.race_date) - new Date(b.race_date))[0];
 const on = k => cfg(k) !== '0';
 
@@ -658,7 +1067,7 @@ PAGES.calendar = () => {
   }
   const f = S.calFilter;
   const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
-  const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
+  const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
   return `${pageHead('Calendário da temporada', 'Todas as etapas, horários e circuitos.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Adicionar sessão</button>' : ''))}
   <div class="cols"><div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px">
     <button class="btn sm" data-act="calPrev">←</button><h3>${m.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3><button class="btn sm" data-act="calNext">→</button></div>
@@ -701,54 +1110,6 @@ PAGES.drivers = () => {
   ${avatarHTML(x.d, 'avatar')}<h3>${esc(x.d.name)}</h3><p class="muted">${flag(x.d.country_code)} #${x.d.number ?? '—'}</p><p class="muted">${teamLogo(t, 20)}${esc(t?.name || 'Sem equipe')}</p><p class="display" style="font-size:22px;margin-top:6px">${x.pts} pts</p></a>`; }).join('') || '<div class="card empty">Sem pilotos.</div>'}</div>`;
 };
 
-PAGES.driver = id => {
-  const d = driverOf(id);
-  if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
-  
-  const t = teamOf(d.team_id);
-  
-  const rs = D.results.filter(r => {
-    if (r.driver_id !== id) return false;
-    const race = D.races.find(x => x.id === r.race_id);
-    return race && sessOf(race) === 'race' && sx(r).startsWith('RACE');
-  });
-  
-  const allDriverResults = D.results.filter(r => r.driver_id === id);
-  const driverRaceIds = [...new Set(allDriverResults.map(r => r.race_id))];
-
-  let polesCount = 0;
-  driverRaceIds.forEach(rId => {
-    const rResults = allDriverResults.filter(r => r.race_id === rId);
-    const hasPole = rResults.some(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1));
-    if (hasPole) polesCount++;
-  });
-
-  const fin = rs.filter(r => r.status === 'FIN');
-  const flCount = allDriverResults.filter(r => r.fastest_lap).length;
-
-  const hist = D.results.filter(r => r.driver_id === id)
-    .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
-    .filter(x => x.race && sx(x.r) === mainSess(x.race))
-    .sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
-
-  return `<a href="#/drivers" class="muted">← Pilotos</a>
-  <section class="card" style="margin-top:12px;border-left:4px solid ${safeColor(t?.color)}"><div class="drv-head">
-    ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
-    <div class="big" style="color:${safeColor(t?.color)}">${d.number ?? ''}</div>
-    <div><h1 style="font-size:38px">${esc(d.name)}</h1><p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 24)}${esc(t?.name || 'Sem equipe')}</p>
-    ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar piloto</button></p>` : ''}</div></div></section>
-  <section class="sec"><div class="stats">
-    <div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Pontos</small></div>
-    <div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Vitórias</small></div>
-    <div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Pódios</small></div>
-    <div class="stat"><b>${polesCount}</b><small>Pole Positions</small></div>
-    <div class="stat"><b>${flCount}</b><small>Voltas Rápidas</small></div>
-    <div class="stat"><b>${d.titles || 0}</b><small>Campeonatos</small></div>
-    <div class="stat"><b>${rs.length}</b><small>Corridas</small></div></div></section>
-  <section class="sec"><h2>Histórico de resultados</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Grid</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.grid ?? '—'}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem resultados.</div>'}</div></section>`;
-};
-
 PAGES.news = () => `${pageHead('Anúncios e comunicados', 'Avisos oficiais da direção da liga.', isStaff() ? '<button class="btn red" data-act="entNew" data-v="news">+ Novo anúncio</button>' : '')}
   <div class="cols3">${sortedNews().map(n => newsCard(n, true)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div>`;
 
@@ -769,7 +1130,7 @@ PAGES.register = () => `<div class="card auth"><h2>Criar conta</h2>${localNote()
 
 PAGES.profile = () => {
   if (!me.user) return '<div class="card empty">Entre para ver o seu perfil. <a href="#/login" style="color:var(--red2)">Entrar</a></div>';
-  const p = me.profile || {}, d = D.drivers.find(x => x.profile_id === me.user.id), t = d && teamOf(d.team_id);
+  const p = me.profile || {}, d0 = D.drivers.find(x => x.profile_id === me.user.id), le = d0 && latestEntry(d0.id), d = d0 && { ...d0, team_id: le && le.team_id, number: le && le.number }, t = d && teamOf(d.team_id);
   const rs = d ? D.results.filter(r => r.driver_id === d.id) : [], fin = rs.filter(r => r.status === 'FIN');
   const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race && sx(x.r) === mainSess(x.race)).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
   const myTeam = D.teams.find(x => x.principal_id === me.user.id);
@@ -793,11 +1154,12 @@ PAGES.profile = () => {
 const optT = () => D.teams.map(t => [t.id, t.name + (t.championship_id ? ' — ' + (champOf(t.championship_id)?.name || '') : '')]);
 const optP = () => D.profiles.map(p => [p.id, p.username || p.id.slice(0, 8)]);
 const optS = () => D.seasons.map(s => [s.id, s.name + (s.is_active ? ' (ativa)' : '')]);
-const optC = () => D.championships.map(c => [c.id, c.name]);
+const optC = () => D.championships.map(c => [c.id, champLbl(c)]);
 const ENT = {
   drivers: { label: 'Pilotos', cols: ['number', 'name', 'team_id', 'championship_id'], fields: [] },
-  teams: { label: 'Equipes', cols: ['name', 'short_name', 'championship_id', 'principal_id', 'color'], fields: [
-    { k: 'name', l: 'Nome da equipe', t: 'text', req: 1 }, { k: 'short_name', l: 'Sigla (3 letras)', t: 'text' }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC },
+  teams: { label: 'Equipes', cols: ['name', 'short_name', 'cats', 'principal_id', 'color'], fields: [
+    { k: 'name', l: 'Nome da equipe', t: 'text', req: 1 }, { k: 'short_name', l: 'Sigla (3 letras)', t: 'text' },
+    { k: 'add_cat', l: 'Inscrever em uma categoria (opcional)', t: 'select', o: optC, virtual: 1, help: 'A equipe é única na liga. Aqui você só a coloca em mais uma categoria/temporada.' },
     { k: 'color', l: 'Cor da equipe', t: 'color' }, { k: 'logo_url', l: 'Logo da equipe', t: 'image' }, { k: 'principal_id', l: 'Chefe de equipe (conta)', t: 'select', o: optP }] },
   seasons: { label: 'Temporadas', cols: ['name', 'year', 'is_active'], fields: [{ k: 'name', l: 'Nome', t: 'text', req: 1 }, { k: 'year', l: 'Ano', t: 'number', req: 1 }, { k: 'is_active', l: 'Temporada ativa', t: 'bool' }] },
   championships: { label: 'Categorias', one: 'Categoria', add: '+ Nova categoria', cols: ['name', 'category', 'season_id', 'points_scale'], fields: [
@@ -820,7 +1182,7 @@ const ENT = {
 };
 const SET_FIELDS = [
   ['Identidade', [
-    { k: 'site_name', l: 'Nome da liga (sigla)', t: 'text' }, { k: 'site_subtitle', l: 'Subtítulo', t: 'text' }, { k: 'logo_url', l: 'Logo principal', t: 'image' }]],
+    { k: 'site_name', l: 'Nome da liga (sigla)', t: 'text' }, { k: 'site_subtitle', l: 'Subtítulo', t: 'text' }, { k: 'site_description', l: 'Descrição (texto ao compartilhar o link)', t: 'text' }, { k: 'logo_url', l: 'Logo principal', t: 'image' }]],
   ['Cores e fonte', [
     { k: 'accent', l: 'Cor de destaque', t: 'color' }, { k: 'color_bg', l: 'Cor de fundo', t: 'color' }, { k: 'color_panel', l: 'Cor dos cartões', t: 'color' }, { k: 'color_text', l: 'Cor do texto', t: 'color' },
     { k: 'font_display', l: 'Fonte dos títulos', t: 'select', o: () => FONTS.map(f => [f, f]), noblank: 1 }]],
@@ -830,7 +1192,7 @@ const SET_FIELDS = [
     { k: 'partner_banner', l: 'Banner do parceiro (página inicial)', t: 'image' }, { k: 'partner_logo', l: 'Logo do parceiro (rodapé)', t: 'image' }, { k: 'partner_name', l: 'Nome do parceiro', t: 'text' }]],
   ['Menu', [
     { k: 'nav_home', l: 'Nome do botão: Início', t: 'text' }, { k: 'nav_calendar', l: 'Nome do botão: Calendário', t: 'text' }, { k: 'nav_standings', l: 'Nome do botão: Classificações', t: 'text' },
-    { k: 'nav_drivers', l: 'Nome do botão: Pilotos', t: 'text' }, { k: 'nav_news', l: 'Nome do botão: Anúncios', t: 'text' }]],
+    { k: 'nav_drivers', l: 'Nome do botão: Pilotos', t: 'text' }, { k: 'nav_players', l: 'Nome do botão: Players', t: 'text' }, { k: 'nav_teams', l: 'Nome do botão: Equipes', t: 'text' }, { k: 'nav_transfers', l: 'Nome do botão: Transferências', t: 'text' }, { k: 'nav_records', l: 'Nome do botão: Recordes', t: 'text' }, { k: 'nav_news', l: 'Nome do botão: Anúncios', t: 'text' }]],
   ['Seções da página inicial', [
     { k: 'show_banner', l: 'Mostrar banner do parceiro', t: 'bool' }, { k: 'show_last', l: 'Mostrar últimos resultados', t: 'bool' }, { k: 'show_next', l: 'Mostrar próximas corridas', t: 'bool' },
     { k: 'show_drivers', l: 'Mostrar classificação de pilotos', t: 'bool' }, { k: 'show_teams', l: 'Mostrar classificação de construtores', t: 'bool' }, { k: 'show_news', l: 'Mostrar anúncios', t: 'bool' }]],
@@ -850,7 +1212,7 @@ const TABS = () => {
 function cellVal(k, v) {
   if (v === null || v === undefined || v === '') return '—';
   if (k === 'team_id') return esc(teamOf(v)?.name || '—');
-  if (k === 'championship_id') return esc(champOf(v)?.name || '—');
+  if (k === 'championship_id') return esc(champOf(v) ? champLbl(champOf(v)) : '—');
   if (k === 'principal_id') return esc(D.profiles.find(p => p.id === v)?.username || '—');
   if (k === 'season_id') return esc(D.seasons.find(s => s.id === v)?.name || '—');
   if (k === 'race_date') return fmtDate(v) + ' ' + fmtTime(v);
@@ -878,27 +1240,19 @@ PAGES.admin = async () => {
   <div class="tabs">${tabs.map(([key, l]) => `<button class="chip ${key === k ? 'on' : ''}" data-act="adminTab" data-v="${key}">${l}</button>`).join('')}</div>${body}`;
 };
 
-const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
+const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
 
 function entPanel(key) {
   const E = ENT[key]; let rows = D[key] || [];
-  if (['teams', 'races'].includes(key) && S.admCat !== 'all') rows = rows.filter(r => r.championship_id === S.admCat);
+  if (key === 'races' && S.admCat !== 'all') rows = rows.filter(r => r.championship_id === S.admCat);
+  if (key === 'teams' && S.admCat !== 'all') rows = rows.filter(r => teamInCat(r.id, S.admCat));
   if (key === 'races') rows = [...rows].sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   if (key === 'news') rows = sortedNews();
-  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Resultados</button> ` : '';
-  const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumerar rodadas por data</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Adicionar'}</button></div></div>`;
-  const H = { number: 'Nº', name: 'Nome', team_id: 'Equipe', championship_id: 'Categoria', short_name: 'Sigla', principal_id: 'Chefe', color: 'Cor', year: 'Ano', is_active: 'Ativa', category: 'Divisão', season_id: 'Temporada', points_scale: 'Pontos', round: 'Rodada', circuit: 'Circuito', race_date: 'Data', status: 'Estado', title: 'Título', kind: 'Tipo', pinned: 'Fixado', created_at: 'Criado', published: 'Publicado' };
+  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Resultados</button> ` : (key === 'teams' && S.admCat !== 'all' ? `<button class="btn sm" data-act="teamLeave" data-id="${r.id}">Tirar da categoria</button> ` : '');
+  const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumerar rodadas por data</button>' : ''}${key === 'seasons' ? '<button class="btn" data-act="rollNew">Virada de temporada</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Adicionar'}</button></div></div>`;
+  const H = { cats: 'Categorias', number: 'Nº', name: 'Nome', team_id: 'Equipe', championship_id: 'Categoria', short_name: 'Sigla', principal_id: 'Chefe', color: 'Cor', year: 'Ano', is_active: 'Ativa', category: 'Divisão', season_id: 'Temporada', points_scale: 'Pontos', round: 'Rodada', circuit: 'Circuito', race_date: 'Data', status: 'Estado', title: 'Título', kind: 'Tipo', pinned: 'Fixado', created_at: 'Criado', published: 'Publicado' };
   return head + `<div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr>${key === 'teams' ? '<th>Logo</th>' : ''}${E.cols.map(c => `<th>${H[c] || c}</th>`).join('')}<th></th></tr></thead><tbody>
-  ${rows.map(r => `<tr>${key === 'teams' ? `<td>${teamLogo(r, 28) || '<span class="muted">—</span>'}</td>` : ''}${E.cols.map(c => `<td>${cellVal(c, r[c])}</td>`).join('')}<td style="white-space:nowrap;text-align:right">${extra(r)}<button class="btn sm" data-act="entEdit" data-v="${key}" data-id="${r.id}">Editar</button> <button class="btn sm danger" data-act="entDel" data-v="${key}" data-id="${r.id}">Excluir</button></td></tr>`).join('')}</tbody></table>` : `<div class="empty">Nada por aqui ainda. Use “${E.add || '+ Adicionar'}”.</div>`}</div>`;
-}
-function driversPanel() {
-  let rows = D.drivers; if (S.admCat !== 'all') rows = rows.filter(d => d.championship_id === S.admCat);
-  rows = [...rows].sort((a, b) => (a.number ?? 999) - (b.number ?? 999));
-  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Pilotos</h2><div class="row">${catFilter()}<button class="btn red" data-act="entNew" data-v="drivers">+ Adicionar piloto</button></div></div>
-  <div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr><th>Piloto</th><th>Nº</th><th>País</th><th>Equipe</th><th>Categoria</th><th></th></tr></thead><tbody>
-  ${rows.map(d => { const t = teamOf(d.team_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inativo</span>' : ''}</td><td class="display">${d.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
-  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span>${teamLogo(t, 20)}${esc(t?.name || '—')}</td><td class="muted">${esc(champOf(d.championship_id)?.name || '—')}</td>
-  <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Excluir</button></td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">Nenhum piloto nesta categoria. Use “+ Adicionar piloto”.</div>'}</div>`;
+  ${rows.map(r => `<tr>${key === 'teams' ? `<td>${teamLogo(r, 28) || '<span class="muted">—</span>'}</td>` : ''}${E.cols.map(c => `<td>${c === 'cats' ? teamCats(r.id) : cellVal(c, r[c])}</td>`).join('')}<td style="white-space:nowrap;text-align:right">${extra(r)}<button class="btn sm" data-act="entEdit" data-v="${key}" data-id="${r.id}">Editar</button> <button class="btn sm danger" data-act="entDel" data-v="${key}" data-id="${r.id}">Excluir</button></td></tr>`).join('')}</tbody></table>` : `<div class="empty">Nada por aqui ainda. Use “${E.add || '+ Adicionar'}”.</div>`}</div>`;
 }
 function sitePanel() {
   return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Personalizar o site</h2><button class="btn danger" data-act="resetSite">Restaurar padrão</button></div>
@@ -927,50 +1281,13 @@ function openEnt(key, id) {
   if (key === 'drivers') return openDriver(id);
   const E = ENT[key], row = id ? { ...D[key].find(x => x.id === id) } : {};
   if (!id && key === 'races') { row.championship_id = S.calChamp !== 'all' ? S.calChamp : (S.admCat !== 'all' ? S.admCat : S.champ); row.status = 'upcoming'; }
-  if (!id && key === 'teams' && S.admCat !== 'all') row.championship_id = S.admCat;
+  if (!id && key === 'teams' && S.admCat !== 'all') row.add_cat = S.admCat;
   if (!id && key === 'championships') { row.points_scale = '25,18,15,12,10,8,6,4,2,1'; row.fl_bonus = 1; row.color = DEFS.accent; }
   if (!id && key === 'news') row.kind = 'anuncio';
   if (!id && key === 'races' && !D.championships.length) { toast('Crie uma categoria antes de adicionar corridas.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
   
-  let extraImport = '';
-  if (key === 'championships' && D.championships.length > 0) {
-    extraImport = `<div style="margin-top:16px;background:var(--panel2);padding:12px;border-radius:8px;border:1px solid var(--line)">
-      <label>Importar equipes e pilotos de outra categoria existente</label>
-      <div class="row" style="gap:8px">
-        <select id="importSourceCat" style="flex:1"><option value="">— Selecionar categoria origem —</option>${D.championships.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
-        <button type="button" class="btn sm" data-act="importData" data-dest-id="${id || ''}">Importar</button>
-      </div>
-      <div class="hint">Copia todas as equipes e pilotos da categoria selecionada para esta.</div>
-    </div>`;
-  }
-
-  $('#dlg').innerHTML = `<form data-form="ent" data-key="${key}" data-id="${id || ''}"><h3>${id ? 'Editar' : 'Adicionar'} — ${E.one || E.label}</h3>${E.fields.map(f => fieldHTML(f.t === 'country' ? { ...f, cur: row[f.k2] } : f, row[f.k])).join('')}${extraImport}
+  $('#dlg').innerHTML = `<form data-form="ent" data-key="${key}" data-id="${id || ''}"><h3>${id ? 'Editar' : 'Adicionar'} — ${E.one || E.label}</h3>${E.fields.map(f => fieldHTML(f.t === 'country' ? { ...f, cur: row[f.k2] } : f, row[f.k])).join('')}
   <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar</button></div></form>`;
-  $('#dlg').showModal();
-}
-
-function teamOpts(cat, sel) {
-  const ts = D.teams.filter(t => !cat || !t.championship_id || t.championship_id === cat);
-  return `<option value="">— Sem equipe —</option>${ts.map(t => `<option value="${t.id}" ${t.id === sel ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}<option value="__new">➕ Criar nova equipe…</option>`;
-}
-function openDriver(id) {
-  if (!D.championships.length) { toast('Crie uma categoria antes de adicionar pilotos.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
-  const d = id ? driverOf(id) : { active: true, titles: 0, championship_id: S.admCat !== 'all' ? S.admCat : S.champ };
-  const t = teamOf(d.team_id);
-  $('#dlg').innerHTML = `<form data-form="driver" data-id="${id || ''}"><h3>${id ? 'Editar piloto' : 'Adicionar piloto à categoria'}</h3>
-  <label>Categoria</label><select name="championship_id" data-change="drvCat" required><option value="">—</option>${optC().map(([v, l]) => `<option value="${v}" ${v === d.championship_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
-  ${fieldHTML({ k: 'photo_url', l: 'Foto do piloto', t: 'image' }, d.photo_url)}
-  <div class="grid2"><div><label>Nome</label><input name="name" value="${esc(d.name || '')}" required></div><div><label>Número</label><input type="number" name="number" min="0" max="999" value="${d.number ?? ''}"></div></div>
-  ${fieldHTML({ k: 'country', k2: 'country_code', l: 'Nacionalidade', t: 'country', cur: d.country_code }, '')}
-  <label>Equipe</label><select name="team_id" id="drvTeam" data-change="drvTeam">${teamOpts(d.championship_id, d.team_id)}</select>
-  <div id="newTeam" hidden><label>Nome da nova equipe</label><input name="new_team_name" placeholder="Ex.: Aurora Racing"></div>
-  <label>Cor da equipe</label><input type="color" name="team_color" id="drvColor" value="${safeColor(t?.color)}">
-  ${fieldHTML({ k: 'team_logo', l: 'Logo da equipe', t: 'image' }, t?.logo_url || '')}
-  <div class="hint">Ao escolher uma equipe existente, mudar a cor ou o logo altera a equipe inteira.</div>
-  <div class="grid2"><div><label>Campeonatos conquistados</label><input type="number" name="titles" min="0" value="${d.titles || 0}"></div>
-  <div><label>Conta associada (opcional)</label><select name="profile_id"><option value="">—</option>${optP().map(([v, l]) => `<option value="${v}" ${v === d.profile_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div>
-  <label class="chk"><input type="checkbox" name="active" ${d.active === false ? '' : 'checked'}> Piloto ativo</label>
-  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar piloto</button></div></form>`;
   $('#dlg').showModal();
 }
 
@@ -978,7 +1295,7 @@ function resultsPanel() {
   const races = [...D.races].sort((a, b) => new Date(b.race_date) - new Date(a.race_date));
   if ((!S.resRace || !D.races.find(r => r.id === S.resRace)) && races.length) S.resRace = races[0].id;
   const race = D.races.find(r => r.id === S.resRace);
-  const ds = race ? D.drivers.filter(d => d.active !== false && (!d.championship_id || d.championship_id === race.championship_id)).sort((a, b) => (a.number ?? 999) - (b.number ?? 999)) : [];
+  const ds = race ? drvsOf(race.championship_id).filter(d => d.active !== false).sort((a, b) => (a.number ?? 999) - (b.number ?? 999)) : [];
   const cs = race ? curSess(race) : 'RACE';
   const ex = id => D.results.find(r => r.race_id === S.resRace && r.driver_id === id && sx(r) === cs) || {};
   const ch = race && champOf(race.championship_id);
@@ -1020,8 +1337,8 @@ async function auditPanel() {
 /* ---------- router ---------- */
 function renderNav() {
   const h = location.hash || '#/';
-  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/drivers', 'nav_drivers'], ['#/news', 'nav_news']];
-  const l = NAVL.map(([href, k]) => `<a href="${href}" class="${h === href ? 'on' : ''}">${esc(cfg(k))}</a>`);
+  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/drivers', 'nav_drivers'], ['#/players', 'nav_players'], ['#/teams', 'nav_teams'], ['#/transfers', 'nav_transfers'], ['#/records', 'nav_records'], ['#/news', 'nav_news']];
+  const l = NAVL.map(([href, k]) => `<a href="${href}" class="${h === href || (href !== '#/' && h.startsWith(href + '/')) ? 'on' : ''}">${esc(cfg(k))}</a>`);
   if (isStaff()) l.push(`<a href="#/admin" class="${h.startsWith('#/admin') ? 'on' : ''}">Admin</a>`);
   l.push(me.user ? `<a href="#/profile" class="${h === '#/profile' ? 'on' : ''}">${esc(me.profile?.username || 'Perfil')}</a>` : `<a href="#/login" class="${h === '#/login' ? 'on' : ''}" style="color:#fff;background:var(--red)">Entrar</a>`);
   $('#links').innerHTML = l.join(''); $('#links').classList.remove('open');
@@ -1035,7 +1352,7 @@ async function route() {
   renderNav();
   const fn = PAGES[page] || PAGES.home;
   const app = $('#app'); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = '';
-  app.innerHTML = await fn(h[1]);
+  try { app.innerHTML = await fn(h[1]); } catch (err) { console.error(err); app.innerHTML = '<div class="card empty"><h3>Erro ao abrir esta página</h3><p class="muted" style="margin-top:8px">' + esc(err.message) + '</p></div>'; }
   const c = $('#count');
   if (c) { const tick = () => {
     const t = new Date(c.dataset.t) - Date.now();
@@ -1077,53 +1394,6 @@ const ACT = {
   entNew: el => openEnt(el.dataset.v),
   entEdit: el => openEnt(el.dataset.v, el.dataset.id),
   goResults: el => { S.resRace = el.dataset.id; goAdmin('results'); },
-  importData: async el => {
-    const sourceCatId = $('#importSourceCat').value;
-    if (!sourceCatId) return toast('Selecione uma categoria de origem para importar.', true);
-    
-    // Recolher equipes e pilotos da categoria de origem
-    const srcTeams = D.teams.filter(t => t.championship_id === sourceCatId);
-    const srcDrivers = D.drivers.filter(d => d.championship_id === sourceCatId);
-    
-    if (!srcTeams.length && !srcDrivers.length) return toast('A categoria selecionada não possui equipes nem pilotos.', true);
-    
-    const teamIdMap = {};
-    let importedTeams = 0, importedDrivers = 0;
-    
-    // Importar equipes temporariamente em memória / banco para inserir ao salvar o formulário principal
-    for (const st of srcTeams) {
-      const newTeamId = crypto.randomUUID ? crypto.randomUUID() : 't' + Math.random().toString(36).slice(2);
-      teamIdMap[st.id] = newTeamId;
-      const res = await sb.from('teams').insert({
-        id: newTeamId,
-        name: st.name + ' (Cópia)',
-        short_name: st.short_name,
-        color: st.color,
-        logo_url: st.logo_url,
-        championship_id: null // Ficará vinculado à nova categoria ao salvar
-      });
-      if (!res.error) importedTeams++;
-    }
-    
-    for (const sd of srcDrivers) {
-      const res = await sb.from('drivers').insert({
-        name: sd.name,
-        number: sd.number,
-        nationality: sd.nationality,
-        country_code: sd.country_code,
-        team_id: sd.team_id ? (teamIdMap[sd.team_id] || null) : null,
-        photo_url: sd.photo_url,
-        titles: sd.titles || 0,
-        active: sd.active,
-        championship_id: null
-      });
-      if (!res.error) importedDrivers++;
-    }
-    
-    toast(`Importação concluída: ${importedTeams} equipes e ${importedDrivers} pilotos copiados! Salve a categoria para finalizar.`);
-    $('#dlg').close();
-    await refresh();
-  },
   entDel: async el => {
     const k = el.dataset.v;
     const warn = k === 'championships' ? 'Isto também exclui as corridas e resultados desta categoria. ' : k === 'races' ? 'Isto também exclui os resultados da corrida. ' : '';
@@ -1160,6 +1430,39 @@ const ACT = {
     toast('Site restaurado ao padrão.'); refresh();
   }
 };
+Object.assign(ACT, {
+  playerCard: el => {
+    const did = el.dataset.id, Lg = getL(), p = Lg.byDriver[did]; if (!p) return;
+    const d = p.d, st = Lg.stats(did), o = Lg.ovr(did), le = [...p.entries].sort((a, b) => b.si - a.si)[0], t = teamOf(le && le.team_id);
+    const R = (l, v) => `<tr><td class="muted">${l}</td><td style="text-align:right"><b>${v}</b></td></tr>`;
+    $('#dlg').innerHTML = `<div class="row" style="gap:16px;margin-bottom:14px;flex-wrap:nowrap">${avatarHTML(d, 'avatar')}<div style="flex:1;min-width:0"><h3 style="font-size:24px">${esc(d.name)}</h3>
+      <p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 20)}${esc(t ? t.name : 'Sem equipe')}${le && le.number != null ? ' · #' + le.number : ''}</p><p style="margin-top:6px"><span class="wage" style="font-size:20px">${money(wageOf(o))}</span></p></div>${clsBadge(o, true)}</div>
+      <table class="tbl"><tbody>${R('Idade', Lg.ageNow(did))}${R('Overall', o)}${R('Temporadas', p.seasons.size)}${R('Corridas', st.races)}${R('Vitórias', st.wins)}${R('Pódios', st.pod)}${R('Voltas rápidas', st.fl)}${R('Poles', st.poles)}${R('Campeonatos', Lg.titlesOf(did))}${R('Abandonos', st.dnf)}${R('Nota média', st.avg != null ? st.avg.toFixed(1) : '—')}</tbody></table>
+      <div class="row end" style="margin-top:18px"><button type="button" class="btn" data-act="closeDlg">Fechar</button><button type="button" class="btn red" data-act="goDriver" data-id="${did}">Ver perfil completo →</button></div>`;
+    $('#dlg').showModal();
+  },
+  goDriver: el => { $('#dlg').close(); location.hash = '#/driver/' + el.dataset.id; },
+  rollNew: () => openRoll(),
+  drvEdit: el => openDriver(el.dataset.id, el.dataset.cat || undefined),
+  entryDel: async el => {
+    if (!confirm('Tirar este piloto da categoria? O piloto e os resultados antigos continuam salvos na liga.')) return;
+    const { error } = await sb.from('entries').delete().eq('id', el.dataset.id);
+    if (error) return toast(error.message, true);
+    toast('Piloto removido da categoria.'); refresh();
+  },
+  teamLeave: async el => {
+    if (S.admCat === 'all' || !confirm('Tirar esta equipe da categoria selecionada? A equipe continua existindo na liga.')) return;
+    let r = await sb.from('team_entries').delete().eq('championship_id', S.admCat).eq('team_id', el.dataset.id);
+    if (!r.error) r = await sb.from('entries').update({ team_id: null }).eq('championship_id', S.admCat).eq('team_id', el.dataset.id);
+    if (r.error) return toast(r.error.message, true);
+    toast('Equipe removida da categoria.'); refresh();
+  }
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'plSearch') return;
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#plRows [data-q]').forEach(r => r.hidden = !!q && !r.dataset.q.includes(q));
+});
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-act]');
   if (a && ACT[a.dataset.act]) { e.preventDefault(); ACT[a.dataset.act](a); return; }
@@ -1177,6 +1480,18 @@ document.addEventListener('change', async e => {
   if (k === 'champ') { S.champ = el.value; route(); }
   else if (k === 'calChamp') { S.calChamp = el.value; route(); }
   else if (k === 'admCat') { S.admCat = el.value; route(); }
+  else if (k === 'plSeason') { S.plSeason = el.value; route(); }
+  else if (k === 'plCls') { S.plCls = el.value; route(); }
+  else if (k === 'plSort') { S.plSort = el.value; route(); }
+  else if (k === 'trSeason') { S.trSeason = el.value; route(); }
+  else if (k === 'drvPick') {
+    const d = driverOf(el.value), fm = el.form; if (!d) return;
+    const set = (n, v) => { const x = fm.elements[n]; if (x) x.value = v ?? ''; };
+    set('name', d.name); set('titles', d.titles || 0); set('country', d.country_code || ''); set('photo_url', (d.photo_url || '').startsWith('data:') ? '' : d.photo_url); set('profile_id', d.profile_id || '');
+    fm.elements.active.checked = d.active !== false;
+    const le = latestEntry(d.id);
+    if (le) { set('number', le.number); $('#drvTeam').innerHTML = teamOpts(fm.elements.championship_id.value, le.team_id); const t = teamOf(le.team_id); if (t) { set('team_color', safeColor(t.color)); set('team_logo', (t.logo_url || '').startsWith('data:') ? '' : t.logo_url); } }
+  }
   else if (k === 'resRace') { S.resRace = el.value; route(); }
   else if (k === 'drvCat') { $('#drvTeam').innerHTML = teamOpts(el.value, ''); $('#newTeam').hidden = true; }
   else if (k === 'drvTeam') {
@@ -1249,9 +1564,10 @@ document.addEventListener('submit', async e => {
       const { error } = await sb.from('teams').update({ name: fd.get('name'), color: fd.get('color'), logo_url: await imgVal(fd, 'logo_url', 'teams') }).eq('id', f.dataset.id);
       if (error) throw error; toast('Equipe atualizada.'); await refresh();
     } else if (type === 'ent') {
-      const key = f.dataset.key, E = ENT[key], row = {}, id = f.dataset.id;
+      const key = f.dataset.key, E = ENT[key], row = {}, virt = {}, id = f.dataset.id;
       for (const fl of E.fields) {
         let v = fd.get(fl.k);
+        if (fl.virtual) { virt[fl.k] = v || null; continue; }
         if (fl.t === 'bool') v = f.elements[fl.k].checked;
         else if (fl.t === 'image') v = await imgVal(fd, fl.k, key);
         else if (fl.t === 'country') { row[fl.k2] = v || null; v = v ? countryName(v) : null; }
@@ -1276,22 +1592,20 @@ document.addEventListener('submit', async e => {
       if (res.error) throw res.error;
       
       const newId = id || res.data?.id;
-      if (key === 'championships' && newId) {
-        // Se houver equipes ou pilotos importados sem championship_id, associar a esta nova categoria recém criada/editada
-        await sb.from('teams').update({ championship_id: newId }).is('championship_id', null);
-        await sb.from('drivers').update({ championship_id: newId }).is('championship_id', null);
-        if (!id) { S.champ = newId; S.admCat = 'all'; }
-      }
-
+      if (key === 'championships' && newId && !id) { S.champ = newId; S.admCat = 'all'; }
+      if (key === 'teams' && virt.add_cat) { const r2 = await sb.from('team_entries').upsert({ championship_id: virt.add_cat, team_id: newId }, { onConflict: 'championship_id,team_id' }); if (r2.error) throw r2.error; }
       $('#dlg').close(); toast(id ? 'Salvo.' : 'Adicionado com sucesso!'); await refresh();
     } else if (type === 'driver') {
-      const cat = fd.get('championship_id'), id = f.dataset.id;
+      const cat = fd.get('championship_id'), id = f.dataset.id || fd.get('pick') || '';
+      if (!cat) throw new Error('Escolha a categoria.');
+      const name = (fd.get('name') || '').trim();
+      if (D.drivers.some(d => d.id !== id && d.name.trim().toLowerCase() === name.toLowerCase())) throw new Error('Já existe um piloto com esse nome. Use "Piloto já existente" para inscrevê-lo nesta categoria.');
       const num = fd.get('number') === '' ? null : Number(fd.get('number'));
-      if (num !== null && D.drivers.some(d => d.id !== id && d.championship_id === cat && d.number === num)) throw new Error(`O número ${num} já está em uso nesta categoria.`);
+      if (num !== null && D.entries.some(e => e.driver_id !== id && e.championship_id === cat && e.number === num)) throw new Error(`O número ${num} já está em uso nesta categoria.`);
       let teamId = fd.get('team_id') || null; const color = fd.get('team_color'), logo = await imgVal(fd, 'team_logo', 'teams');
       if (teamId === '__new') {
-        const name = (fd.get('new_team_name') || '').trim(); if (!name) throw new Error('Informe o nome da nova equipe.');
-        const r = await sb.from('teams').insert({ name, short_name: name.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase(), color, logo_url: logo, championship_id: cat }).select().single();
+        const tn = (fd.get('new_team_name') || '').trim(); if (!tn) throw new Error('Informe o nome da nova equipe.');
+        const r = await sb.from('teams').insert({ name: tn, short_name: tn.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase(), color, logo_url: logo }).select().single();
         if (r.error) throw r.error; teamId = r.data.id;
       } else if (teamId) {
         const t = teamOf(teamId), up = {};
@@ -1300,11 +1614,37 @@ document.addEventListener('submit', async e => {
         if (Object.keys(up).length) { const r = await sb.from('teams').update(up).eq('id', teamId); if (r.error) throw r.error; }
       }
       const cc = fd.get('country') || null;
-      const row = { championship_id: cat, name: fd.get('name').trim(), number: num, nationality: cc ? countryName(cc) : null, country_code: cc, team_id: teamId,
-        photo_url: await imgVal(fd, 'photo_url', 'drivers'), titles: Number(fd.get('titles') || 0), profile_id: fd.get('profile_id') || null, active: f.elements.active.checked };
-      const { error } = await (id ? sb.from('drivers').update(row).eq('id', id) : sb.from('drivers').insert(row));
-      if (error) throw error;
-      $('#dlg').close(); toast(id ? 'Piloto atualizado.' : 'Piloto adicionado à categoria.'); await refresh();
+      const row = { name, nationality: cc ? countryName(cc) : null, country_code: cc, photo_url: await imgVal(fd, 'photo_url', 'drivers'),
+        titles: Number(fd.get('titles') || 0), profile_id: fd.get('profile_id') || null, active: f.elements.active.checked };
+      let did = id;
+      if (id) { const r = await sb.from('drivers').update(row).eq('id', id); if (r.error) throw r.error; }
+      else { const r = await sb.from('drivers').insert(row).select().single(); if (r.error) throw r.error; did = r.data.id; }
+      const er = await sb.from('entries').upsert({ championship_id: cat, driver_id: did, team_id: teamId, number: num }, { onConflict: 'championship_id,driver_id' });
+      if (er.error) throw er.error;
+      if (teamId) { const tr = await sb.from('team_entries').upsert({ championship_id: cat, team_id: teamId }, { onConflict: 'championship_id,team_id' }); if (tr.error) throw tr.error; }
+      $('#dlg').close(); toast(id ? 'Piloto atualizado.' : 'Piloto inscrito na categoria.'); await refresh();
+    } else if (type === 'roll') {
+      const from = fd.get('from'), cs = D.championships.filter(c => c.season_id === from);
+      if (!cs.length) throw new Error('A temporada de origem não tem categorias.');
+      const year = Number(fd.get('year')), sr = await sb.from('seasons').insert({ name: (fd.get('name') || '').trim(), year, is_active: false }).select().single();
+      if (sr.error) throw sr.error;
+      if (fd.get('active')) { await sb.from('seasons').update({ is_active: false }).neq('id', sr.data.id); const r = await sb.from('seasons').update({ is_active: true }).eq('id', sr.data.id); if (r.error) throw r.error; }
+      let nd = 0, nt = 0, first = null;
+      for (const c of cs) {
+        const cr = await sb.from('championships').insert({ season_id: sr.data.id, name: c.name, category: c.category || null, description: c.description || null, image_url: c.image_url || null, color: c.color || null, points_scale: c.points_scale, fl_bonus: c.fl_bonus }).select().single();
+        if (cr.error) throw cr.error; const nid = cr.data.id; first = first || nid;
+        const ents = D.entries.filter(e => e.championship_id === c.id);
+        if (fd.get('drivers')) {
+          const es = ents.filter(e => driverOf(e.driver_id) && driverOf(e.driver_id).active !== false).map(e => ({ championship_id: nid, driver_id: e.driver_id, team_id: e.team_id, number: e.number }));
+          if (es.length) { const r = await sb.from('entries').insert(es); if (r.error) throw r.error; nd += es.length; }
+        }
+        if (fd.get('teams')) {
+          const tids = new Set(D.team_entries.filter(e => e.championship_id === c.id).map(e => e.team_id)); ents.forEach(e => e.team_id && tids.add(e.team_id));
+          const ts = [...tids].map(t => ({ championship_id: nid, team_id: t }));
+          if (ts.length) { const r = await sb.from('team_entries').insert(ts); if (r.error) throw r.error; nt += ts.length; }
+        }
+      }
+      $('#dlg').close(); S.champ = first; S.admCat = 'all'; toast(`Temporada criada: ${cs.length} categoria(s), ${nd} pilotos e ${nt} equipes reinscritos.`); await refresh();
     } else if (type === 'settings') {
       const up = [], del = [];
       for (const [, fs] of SET_FIELDS) for (const fl of fs) {
@@ -1328,7 +1668,7 @@ document.addEventListener('submit', async e => {
         const lap = timed ? (g('lap').value || '').trim() : '';
         if (lap && !/^(\d{1,2}:)?\d{1,2}[.,]\d{1,3}$/.test(lap)) throw new Error(`Tempo inválido para ${d?.name || 'piloto'}. Use o formato 1:32.456`);
         rows.api = true;
-        rows.push({ race_id: S.resRace, session: sNow, driver_id: did, team_id: d?.team_id || null,
+        rows.push({ race_id: S.resRace, session: sNow, driver_id: did, team_id: entryTeam(did, S.resRace) || null,
           ...(timed ? { lap_time: lap ? lap.replace(',', '.') : null } : { grid: g('grid').value ? Number(g('grid').value) : null }),
           position: pos ? Number(pos) : null, status, penalty_seconds: Number(g('ps').value || 0), penalty_points: Number(g('pp').value || 0),
           pole: g('pole').checked, fastest_lap: g('fl').checked });
