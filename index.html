@@ -14,7 +14,7 @@
 <link rel="icon" id="favicon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@500;600;700&family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&family=Teko:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -210,6 +210,101 @@ details.card summary{cursor:pointer;font-family:var(--fd);text-transform:upperca
   .links.open{display:flex}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== TEMA PRSTRACKER (override) ===== */
+:root{--bg:#2b2c31;--panel:#25262b;--panel2:#323339;--line:rgba(255,255,255,.09);--text:#f2f2f5;--muted:#9b9da8;
+ --red:#5a5df0;--red2:#8f93ff;--fd:'Barlow Condensed','Inter',sans-serif;--fm:'Inter',system-ui,sans-serif;--r:16px}
+body{font-family:'Inter',system-ui,sans-serif;font-size:15px;background-image:none}
+h1,h2,h3,h4,.display{text-transform:none;letter-spacing:-.01em;font-family:'Inter',sans-serif;font-weight:700}
+.display,.pts,.tbl .pos,.stat b,.ovr,.count b,.drv-head .big,.num,.wage,.nota,.cls,.rec .rv{font-family:var(--fd)}
+header.nav{background:#1e1f23;border-bottom:1px solid var(--line);backdrop-filter:none}
+.nav .wrap{max-width:none;padding:0 26px;height:56px;gap:18px}
+.logo b{font-family:'Inter',sans-serif;font-size:21px;letter-spacing:-.02em;text-transform:none}
+.logo b small{font-size:9px;letter-spacing:.18em;text-transform:uppercase}
+.logo img{height:34px}
+.links{flex:1;margin-left:14px;gap:2px}
+.links a{font-family:'Inter',sans-serif;text-transform:none;letter-spacing:0;font-size:13.5px;font-weight:600;color:#e4e4ea;padding:8px 13px;border-radius:99px}
+.links a:hover{background:var(--panel2)}
+.links a.on{background:#fff;color:#1e1f23;box-shadow:none}
+.links a.loginbtn{background:var(--red);color:#fff;padding:9px 18px;margin-left:8px}
+.links a.loginbtn:hover{background:#6e71f5}
+.gsearch{margin-left:auto}
+.gsearch input{width:210px;border-radius:99px;background:#2b2c31;border:1px solid var(--line);padding:9px 14px 9px 34px;font-size:13px;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%239b9da8' stroke-width='2'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath d='M10 10l3.5 3.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center}
+.ticker{display:flex;align-items:stretch;background:#222328;border-bottom:1px solid var(--line);height:68px}
+.tk-a{width:30px;flex:none;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
+.tk-a:hover{color:#fff}
+.tk-s{display:flex;flex:1;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth}
+.tk-s::-webkit-scrollbar{display:none}
+.tk-c{flex:none;width:146px;padding:9px 12px;border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;gap:2px;cursor:pointer}
+.tk-c:hover{background:#2a2b31}
+.tk-c small{font-size:9.5px;font-weight:600;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-c small.live{color:#ff6b6b}
+.tk-r{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.35}
+.tk-r i{width:13px;height:13px;border-radius:50%;flex:none}
+.tk-r span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tk-r b{font-weight:600}
+main.wrap{max-width:1140px;padding-top:34px}
+.card,.stat,dialog{border-radius:16px;background:var(--panel)}
+.btn{border-radius:10px;font-family:'Inter',sans-serif;text-transform:none;letter-spacing:0;font-weight:600;font-size:13px}
+.btn.red{background:var(--red)}
+.sec>h2::before,.sec-h span::before{display:none}
+.sec>h2,.sec-h{font-size:20px}
+.tbl th{font-family:'Inter',sans-serif;font-size:10.5px;letter-spacing:.1em}
+label,.chip,details.card summary{font-family:'Inter',sans-serif}
+.tag{font-family:'Inter',sans-serif;font-size:10px}
+.pagehead,.hero{border-radius:16px}
+.eyebrow{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.16em;font-size:10.5px}
+.gear{background:var(--red);font-family:'Inter',sans-serif;text-transform:none;letter-spacing:0;font-weight:700}
+/* hub */
+.hub-h{display:flex;align-items:center;gap:14px;margin:10px 0 14px;font:700 12.5px/1 'Inter',sans-serif;letter-spacing:.14em;color:#c3c5ff;text-transform:uppercase}
+.hub-h i{flex:1;height:1px;background:linear-gradient(90deg,rgba(143,147,255,.55),transparent)}
+.hub{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:160px;gap:15px}
+.hub-card{position:relative;overflow:hidden;border-radius:16px;border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(135deg,#34353c,#232428);transition:.25s}
+.hub-card:hover{transform:translateY(-3px);border-color:rgba(143,147,255,.55)}
+.hub-card::after{content:attr(data-ic);position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:84px;opacity:.15;pointer-events:none}
+.hub-card.wide{grid-column:span 2}
+.hub-card small{font:700 10.5px 'Inter',sans-serif;letter-spacing:.16em;color:var(--red2);text-transform:uppercase;position:relative;z-index:1}
+.hub-card h3{font:700 26px/1.05 var(--fd);letter-spacing:0;margin:5px 0 3px;position:relative;z-index:1}
+.hub-card p{font-size:13px;color:#c9cad2;max-width:62%;position:relative;z-index:1;line-height:1.35}
+.hub-big{grid-column:span 2;grid-row:span 2;justify-content:center;background:linear-gradient(145deg,#5a5df0,#3d3fb8 62%,#2c2d7c);border-color:rgba(160,164,255,.55);padding:34px}
+.hub-big::after{content:"";left:42%;right:0;top:0;bottom:0;transform:none;opacity:1;background:var(--img) right center/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent,#000 45%);mask-image:linear-gradient(90deg,transparent,#000 45%)}
+.hub-big:not([style*="--img"])::after{content:"🏁";left:auto;right:34px;top:50%;transform:translateY(-50%);font-size:170px;opacity:.16;background:none;-webkit-mask-image:none;mask-image:none}
+.hub-big h2{font:700 clamp(36px,4.4vw,56px)/.95 var(--fd);letter-spacing:0;margin:8px 0 10px;position:relative;z-index:1}
+.hub-big p{font-size:14px;color:#dfe0ff;max-width:58%}
+.hub-big .count{margin:16px 0}
+.hub-big .count div{background:rgba(10,10,40,.35);min-width:62px}
+.hub-big .count b{font-size:26px}
+.hub-big .btn{position:relative;z-index:1;background:#6e71f5;border-color:#6e71f5;color:#fff;align-self:flex-start}
+.hub-big .inner{position:relative;z-index:1}
+/* top10 */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;margin-top:22px;overflow:hidden}
+.panel .ph{display:flex;justify-content:space-between;align-items:flex-end;padding:22px 22px 16px;gap:12px;flex-wrap:wrap}
+.panel .ph small{font:600 11px 'Inter',sans-serif;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.panel .ph h2{font-size:22px;margin-top:6px}
+.panel .ph a{color:var(--red2);font-size:13px;font-weight:600}
+.panel .ph>span{display:flex;gap:14px;align-items:center}
+.t10g{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.t10g>div:first-child{border-right:1px solid var(--line)}
+.t10r{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);cursor:pointer;transition:.15s}
+.t10r:hover{background:var(--panel2)}
+.t10n{width:16px;font-size:12px;font-weight:700;color:var(--red2)}
+.t10r .thumb{margin:0;width:38px;height:38px}
+.t10m{flex:1;min-width:0}
+.t10m b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t10m small{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.t10m .tlogo{margin:0}
+.t10p{text-align:right}
+.t10p b{display:block;font:700 19px var(--fd);color:var(--red2)}
+.t10p small{font-size:10px;color:var(--muted)}
+@media (max-width:860px){
+ .hub{grid-template-columns:1fr 1fr;grid-auto-rows:150px}
+ .hub-big,.hub-card.wide{grid-column:span 2}
+ .hub-big{grid-row:auto;min-height:340px}.hub-big p{max-width:80%}
+ .t10g{grid-template-columns:1fr}.t10g>div:first-child{border-right:none}
+ .gsearch input{width:100%}.gsearch{margin-left:0}
+}
+@media (max-width:1180px){.links{position:absolute;top:56px;margin:0}.links a.loginbtn{margin:6px 0 0;text-align:center}.gsearch{margin:6px 0}.gsearch input{width:100%}}
 </style>
 </head>
 <body>
@@ -222,6 +317,7 @@ details.card summary{cursor:pointer;font-family:var(--fd);text-transform:upperca
     <nav class="links" id="links"></nav>
   </div>
 </header>
+<div class="ticker" id="ticker"><button class="tk-a" data-tk="-1" aria-label="Anterior">‹</button><div class="tk-s" id="tkS"></div><button class="tk-a" data-tk="1" aria-label="Seguinte">›</button></div>
 <main class="wrap" id="app"><div class="skel"></div><div class="skel"></div></main>
 <footer><div class="wrap foot" id="foot"></div></footer>
 <button class="gear" id="gear" data-act="openSite" hidden>⚙ Personalizar site</button>
@@ -253,7 +349,7 @@ const DEFS = {
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 127397 + c.charCodeAt(0))) : '🏁';
-const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#b5322c';
+const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#5a5df0';
 const safeUrl = u => /^(https?:\/\/|data:image\/)/i.test(u || '') ? esc(u) : '';
 const fmtDate = (d, o) => new Date(d).toLocaleDateString('pt-BR', o || { day: '2-digit', month: 'short', year: 'numeric' });
 const fmtTime = d => new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -1038,17 +1134,30 @@ PAGES.home = () => {
       <div style="display:grid;gap:10px">${upcoming.length ? upcoming.map(raceCard).join('') : '<div class="card empty">Sem corridas agendadas.</div>'}</div></div>`;
   const blockDrv = `<div><h2 class="sec-h"><span>Pilotos</span><span>${champSel()}<a class="btn sm ghost" href="#/standings">Completa</a></span></h2><div class="card">${driverTable(st.drivers, 8)}</div></div>`;
   const blockTeams = `<div><h2 class="sec-h"><span>Construtores</span><a class="btn sm ghost" href="#/standings">Completa</a></h2><div class="card">${teamTable(st.teams)}</div></div>`;
+  const t10r = (x, i) => { const t = teamOf(x.d.team_id); return `<div class="t10r" data-go="#/driver/${x.d.id}"><span class="t10n">${i + 1}</span>${avatarHTML(x.d, 'thumb')}<div class="t10m"><b>${flag(x.d.country_code)} ${esc(x.d.name)}</b><small>${teamLogo(t, 14)}${esc(t?.name || '—')}</small></div><div class="t10p"><b>${x.pts}</b><small>Pts</small></div></div>`; };
+  const tp = st.drivers.slice(0, 10);
+  const top10 = `<section class="panel"><div class="ph"><div><small>Temporada · classificação</small><h2>Top 10 pilotos</h2></div><span>${champSel()}<a href="#/standings">Ver classificação completa →</a></span></div>
+    ${tp.length ? `<div class="t10g"><div>${tp.slice(0, 5).map((x, i) => t10r(x, i)).join('')}</div><div>${tp.slice(5).map((x, i) => t10r(x, i + 5)).join('')}</div></div>` : '<div class="empty" style="border-top:1px solid var(--line)">Sem pilotos cadastrados.</div>'}</section>`;
   const row = (a, b) => (a || b) ? `<section class="sec"><div class="cols">${a || ''}${b || ''}</div></section>` : '';
   return `
-  <section class="hero" style="background-image:url('${safeUrl(cfg('hero_image'))}')"><div class="inner">
-    <div class="eyebrow">${nr ? (nr.status === 'live' ? 'Acontecendo agora' : 'Próximo Grand Prix') : esc(cfg('site_name'))}</div>
-    ${nr ? `<h1>${flag(nr.country_code)} ${esc(nr.name)}</h1><p>${esc(nr.circuit || '')} · ${esc(nr.country || '')} · ${fmtDate(nr.race_date, { weekday: 'long', day: '2-digit', month: 'long' })} às ${fmtTime(nr.race_date)}</p>
-    <div class="count" id="count" data-t="${nr.race_date}" data-live="${nr.status === 'live'}"></div>
-    <a class="btn red" href="#/race/${nr.id}">Detalhes da corrida →</a>` : `<h1>${esc(cfg('welcome_title'))}</h1><p>${esc(cfg('welcome_text'))}</p><p style="margin-top:12px" class="muted">Nenhuma corrida agendada no momento.</p>`}
-  </div></section>
+  <div class="hub-h"><span>${esc(cfg('site_name'))} · Hub da liga</span><i></i></div>
+  <section class="hub">
+    <div class="hub-card hub-big" ${safeUrl(cfg('hero_image')) ? `style="--img:url('${safeUrl(cfg('hero_image'))}')"` : ''}><div class="inner">
+      <small>${nr ? (nr.status === 'live' ? 'Acontecendo agora' : 'Próximo Grand Prix') : 'Temporada'}</small>
+      ${nr ? `<h2>${flag(nr.country_code)} ${esc(nr.name)}</h2><p>${esc(nr.circuit || '')} · ${esc(nr.country || '')} · ${fmtDate(nr.race_date, { weekday: 'long', day: '2-digit', month: 'long' })} às ${fmtTime(nr.race_date)}</p>
+      <div class="count" id="count" data-t="${nr.race_date}" data-live="${nr.status === 'live'}"></div>
+      <a class="btn" href="#/race/${nr.id}">Detalhes da corrida →</a>` : `<h2>${esc(cfg('welcome_title'))}</h2><p>${esc(cfg('welcome_text'))}</p><p style="margin-top:10px">Nenhuma corrida agendada no momento.</p>`}
+    </div></div>
+    <a href="#/calendar" class="hub-card wide" data-ic="🗓"><small>Temporada</small><h3>Calendário</h3><p>Corridas, sessões e datas da temporada.</p></a>
+    <a href="#/drivers" class="hub-card" data-ic="👤"><small>Todos os pilotos</small><h3>Pilotos</h3></a>
+    <a href="#/teams" class="hub-card" data-ic="🛡"><small>Grelha</small><h3>Equipes</h3></a>
+    <a href="#/records" class="hub-card wide" data-ic="🏆"><small>Histórico</small><h3>Recordes</h3><p>Maiores vencedores, pódios, poles e campeões.</p></a>
+    <a href="#/transfers" class="hub-card wide" data-ic="🔁"><small>Mercado</small><h3>Transferências</h3><p>Movimentos de pilotos e equipes entre temporadas.</p></a>
+  </section>
+  ${on('show_drivers') ? top10 : ''}
   ${banner && on('show_banner') ? `<div class="partner"><img src="${banner}" alt="Parceiro oficial"></div>` : ''}
   ${row(on('show_last') && blockLast, on('show_next') && blockNext)}
-  ${row(on('show_drivers') && blockDrv, on('show_teams') && blockTeams)}
+  ${on('show_teams') ? `<section class="sec">${blockTeams}</section>` : ''}
   ${on('show_news') ? `<section class="sec"><h2 class="sec-h"><span>Anúncios oficiais</span><a class="btn sm ghost" href="#/news">Todos</a></h2>
     <div class="cols3">${sortedNews().slice(0, 3).map(n => newsCard(n)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div></section>` : ''}`;
 };
@@ -1340,19 +1449,37 @@ function renderNav() {
   const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/drivers', 'nav_drivers'], ['#/players', 'nav_players'], ['#/teams', 'nav_teams'], ['#/transfers', 'nav_transfers'], ['#/records', 'nav_records'], ['#/news', 'nav_news']];
   const l = NAVL.map(([href, k]) => `<a href="${href}" class="${h === href || (href !== '#/' && h.startsWith(href + '/')) ? 'on' : ''}">${esc(cfg(k))}</a>`);
   if (isStaff()) l.push(`<a href="#/admin" class="${h.startsWith('#/admin') ? 'on' : ''}">Admin</a>`);
-  l.push(me.user ? `<a href="#/profile" class="${h === '#/profile' ? 'on' : ''}">${esc(me.profile?.username || 'Perfil')}</a>` : `<a href="#/login" class="${h === '#/login' ? 'on' : ''}" style="color:#fff;background:var(--red)">Entrar</a>`);
+  l.push('<div class="gsearch"><input id="gSearch" type="search" placeholder="Pesquisar pilotos ou equipes…" autocomplete="off"></div>');
+  l.push(me.user ? `<a href="#/profile" class="${h === '#/profile' ? 'on' : ''}">${esc(me.profile?.username || 'Perfil')}</a>` : `<a href="#/login" class="loginbtn">Entrar</a>`);
   $('#links').innerHTML = l.join(''); $('#links').classList.remove('open');
   $('#gear').hidden = !isAdmin();
 }
+
+function renderTicker() {
+  const el = $('#tkS'); if (!el || !D || !D.races) return;
+  const rs = D.races.filter(r => sessOf(r) === 'race');
+  const cell = (r, lab, a, b, cls) => `<div class="tk-c" data-go="#/race/${r.id}"><small class="${cls || ''}">${lab}</small>${a}${b}</div>`;
+  const rowH = (c, n, v) => `<div class="tk-r"><i style="background:${c}"></i><span>${n}</span><b>${v}</b></div>`;
+  const live = rs.filter(r => r.status !== 'finished').sort((a, b) => new Date(a.race_date) - new Date(b.race_date)).slice(0, 5);
+  const fin = rs.filter(r => r.status === 'finished' && D.results.some(x => x.race_id === r.id)).sort((a, b) => new Date(b.race_date) - new Date(a.race_date)).slice(0, 12);
+  const pos = (r, p) => D.results.find(y => y.race_id === r.id && y.position === p && y.status === 'FIN' && String(sx(y)).startsWith('RACE'));
+  const line = (r, p) => { const x = pos(r, p); if (!x) return rowH('#555', '—', ''); const d = driverOf(x.driver_id), t = teamOf(x.team_id || (d && d.team_id)); return rowH(safeColor(t && t.color), esc(d ? d.name : '?'), p); };
+  const html = live.map(r => cell(r, r.status === 'live' ? 'AO VIVO' : fmtDate(r.race_date, { day: '2-digit', month: 'short' }).toUpperCase() + ' · ' + fmtTime(r.race_date), rowH('#5a5df0', flag(r.country_code) + ' ' + esc(r.name.replace('Grande Prêmio ', 'GP ')), ''), rowH('#555', esc(r.circuit || r.country || ''), ''), r.status === 'live' ? 'live' : ''))
+    .concat(fin.map(r => cell(r, 'FIM · ' + esc(r.name.replace('Grande Prêmio ', 'GP ')), line(r, 1), line(r, 2)))).join('');
+  el.innerHTML = html || '<div class="tk-c"><small>Sem corridas</small></div>';
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-tk]'); if (b) $('#tkS').scrollBy({ left: 300 * Number(b.dataset.tk) }); });
+document.addEventListener('keydown', e => { if (e.target.id !== 'gSearch' || e.key !== 'Enter') return; window.__q = e.target.value.trim(); if (location.hash === '#/drivers') route(); else location.hash = '#/drivers'; });
 let countTimer;
 async function route() {
   clearInterval(countTimer);
   const rawHash = location.hash || '#/';
   const h = rawHash.slice(2).split('/'), page = h[0] || 'home';
-  renderNav();
+  renderNav(); try { renderTicker(); } catch (e) { console.error(e); }
   const fn = PAGES[page] || PAGES.home;
   const app = $('#app'); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = '';
   try { app.innerHTML = await fn(h[1]); } catch (err) { console.error(err); app.innerHTML = '<div class="card empty"><h3>Erro ao abrir esta página</h3><p class="muted" style="margin-top:8px">' + esc(err.message) + '</p></div>'; }
+  if (window.__q != null) { const sb = $('#drvSearch'); if (sb) { sb.value = window.__q; sb.dispatchEvent(new Event('input', { bubbles: true })); } window.__q = null; }
   const c = $('#count');
   if (c) { const tick = () => {
     const t = new Date(c.dataset.t) - Date.now();
