@@ -394,3 +394,120 @@ alter table results add constraint results_race_session_driver_key unique (race_
 
 -- Melhor tempo de volta (treinos livres e qualificações), ex.: 1:32.456
 alter table results add column if not exists lap_time text;
+
+-- =====================================================================
+-- v4 — PILOTOS E EQUIPES ÚNICOS + INSCRIÇÕES POR TEMPORADA
+-- Piloto e equipe existem uma vez só na liga. Cada temporada/categoria
+-- tem suas "inscrições" (piloto + equipe + número). A virada de
+-- temporada só cria novas inscrições — nada é copiado.
+-- =====================================================================
+create table if not exists entries (
+  id uuid primary key default gen_random_uuid(),
+  championship_id uuid not null references championships(id) on delete cascade,
+  driver_id uuid not null references drivers(id) on delete cascade,
+  team_id uuid references teams(id) on delete set null,
+  number int,
+  created_at timestamptz not null default now(),
+  unique (championship_id, driver_id)
+);
+create table if not exists team_entries (
+  id uuid primary key default gen_random_uuid(),
+  championship_id uuid not null references championships(id) on delete cascade,
+  team_id uuid not null references teams(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (championship_id, team_id)
+);
+
+-- Pontos: a equipe do resultado vem da inscrição da categoria
+create or replace function public.calc_points() returns trigger
+language plpgsql as $$
+declare
+  base numeric := 0; sc text; bonus int := 1; scale int[]; n int; cid uuid;
+begin
+  select r.championship_id into cid from races r where r.id = new.race_id;
+  if new.team_id is null then
+    select e.team_id into new.team_id from entries e where e.championship_id = cid and e.driver_id = new.driver_id;
+    if new.team_id is null then select team_id into new.team_id from drivers where id = new.driver_id; end if;
+  end if;
+  select c.points_scale, coalesce(c.fl_bonus, 1) into sc, bonus from championships c where c.id = cid;
+  scale := string_to_array(coalesce(nullif(sc, ''), '25,18,15,12,10,8,6,4,2,1'), ',')::int[];
+  n := coalesce(array_length(scale, 1), 0);
+  if new.session = 'RACE SPRINT' then scale := array[8,7,6,5,4,3,2,1]; n := 8; bonus := 0; end if;
+  if new.session like 'RACE%' and new.status = 'FIN' and new.position between 1 and n then
+    base := scale[new.position];
+    if new.fastest_lap then base := base + bonus; end if;
+  end if;
+  new.points := greatest(0, base - coalesce(new.penalty_points, 0));
+  return new;
+end $$;
+
+-- ---------- MIGRAÇÃO (roda uma única vez, só se entries estiver vazia) ----------
+-- Junta pilotos e equipes duplicados (mesmo nome em categorias/temporadas
+-- diferentes) em um só e cria as inscrições a partir dos dados antigos.
+do $$
+declare r record;
+begin
+  if exists (select 1 from entries) then return; end if;
+
+  -- 1) inscrições de pilotos a partir das linhas antigas
+  insert into entries (championship_id, driver_id, team_id, number)
+  select distinct on (championship_id, id) championship_id, id, team_id, number
+    from drivers where championship_id is not null
+  on conflict do nothing;
+  -- pilotos que só aparecem nos resultados
+  insert into entries (championship_id, driver_id, team_id)
+  select distinct on (ra.championship_id, re.driver_id) ra.championship_id, re.driver_id, re.team_id
+    from results re join races ra on ra.id = re.race_id
+   where ra.championship_id is not null
+  on conflict do nothing;
+
+  -- 2) inscrições de equipes
+  insert into team_entries (championship_id, team_id)
+  select championship_id, id from teams where championship_id is not null on conflict do nothing;
+  insert into team_entries (championship_id, team_id)
+  select distinct championship_id, team_id from entries where team_id is not null on conflict do nothing;
+
+  -- 3) junta equipes duplicadas (mesmo nome)
+  for r in select (array_agg(id order by created_at, id::text))[1] as keep, array_agg(id order by created_at, id::text) as ids
+             from teams group by lower(trim(name)) having count(*) > 1 loop
+    update entries set team_id = r.keep where team_id = any(r.ids);
+    update results set team_id = r.keep where team_id = any(r.ids);
+    update drivers set team_id = r.keep where team_id = any(r.ids);
+    insert into team_entries (championship_id, team_id)
+      select championship_id, r.keep from team_entries where team_id = any(r.ids) on conflict do nothing;
+    delete from teams where id = any(r.ids) and id <> r.keep;
+  end loop;
+
+  -- 4) junta pilotos duplicados (mesmo nome)
+  for r in select (array_agg(id order by (profile_id is null), created_at, id::text))[1] as keep, array_agg(id) as ids,
+                  (array_agg(profile_id) filter (where profile_id is not null))[1] as prof,
+                  max(titles) as titles, bool_or(active) as active
+             from drivers group by lower(trim(name)) having count(*) > 1 loop
+    update drivers set profile_id = null where id = any(r.ids) and id <> r.keep;
+    update results set driver_id = r.keep where driver_id = any(r.ids) and driver_id <> r.keep;
+    insert into entries (championship_id, driver_id, team_id, number)
+      select championship_id, r.keep, team_id, number from entries where driver_id = any(r.ids) and driver_id <> r.keep
+    on conflict do nothing;
+    delete from drivers where id = any(r.ids) and id <> r.keep;
+    update drivers set profile_id = coalesce(profile_id, r.prof), titles = r.titles, active = r.active where id = r.keep;
+  end loop;
+end $$;
+
+-- ---------- Segurança das tabelas novas ----------
+alter table entries      enable row level security;
+alter table team_entries enable row level security;
+drop policy if exists "public_read_entries"      on entries;
+drop policy if exists "admin_entries"            on entries;
+drop policy if exists "public_read_team_entries" on team_entries;
+drop policy if exists "admin_team_entries"       on team_entries;
+create policy "public_read_entries"      on entries      for select using (true);
+create policy "admin_entries"            on entries      for all using (is_admin()) with check (is_admin());
+create policy "public_read_team_entries" on team_entries for select using (true);
+create policy "admin_team_entries"       on team_entries for all using (is_admin()) with check (is_admin());
+
+do $$ declare t text; begin
+  foreach t in array array['entries','team_entries'] loop
+    execute format('drop trigger if exists trg_audit on %I', t);
+    execute format('create trigger trg_audit after insert or update or delete on %I for each row execute function public.audit()', t);
+  end loop;
+end $$;
