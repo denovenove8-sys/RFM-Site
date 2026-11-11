@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Minha Liga</title>
-<meta name="description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos e equipes.">
+<title>RFM — Real Formula Motorsports</title>
+<meta name="description" content="Plataforma oficial da RFM — Real Formula Motorsports: calendário, resultados, classificações, pilotos, transferências e recordes.">
 <link rel="icon" id="favicon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,184 +14,157 @@
 :root{
   --bg:#0e0f10; --panel:#16181a; --panel2:#1e2124; --line:#2a2e31;
   --text:#e9e6e0; --muted:#8e9295; --red:#b5322c; --red2:#cf4a3e; --green:#5f8f66; --amber:#c79a3b;
+  --cls-x:#a855f7; --cls-s:#eab308; --cls-a:#3b82f6; --cls-b:#22c55e; --cls-c:#64748b; --cls-d:#475569;
   --fd:'Oswald',sans-serif; --r:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Barlow',system-ui,sans-serif;font-size:16px;line-height:1.5;min-height:100vh;
+body{background:var(--bg);color:var(--text);font-family:'Barlow',system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100vh;
   background-image:radial-gradient(900px 400px at 85% -10%,color-mix(in srgb,var(--red) 16%,transparent),transparent 70%),
   repeating-linear-gradient(45deg,rgba(255,255,255,.012) 0 2px,transparent 2px 6px)}
 a{color:inherit;text-decoration:none}
 h1,h2,h3,h4,.display{font-family:var(--fd);text-transform:uppercase;letter-spacing:.04em;font-weight:600;line-height:1.1}
 img{max-width:100%;display:block}
 button,input,select,textarea{font:inherit;color:inherit}
-.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
 
 /* NAV */
-header.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.nav .wrap{display:flex;align-items:center;gap:24px;height:68px}
+header.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:18px;height:68px}
 .logo{display:flex;align-items:center;gap:12px}
-.logo img{height:44px;width:auto}
+.logo img{height:42px;width:auto}
 .logo b{font-family:var(--fd);letter-spacing:.1em;font-size:17px;line-height:1.05;text-transform:uppercase}
 .logo b small{display:block;font-size:9.5px;color:var(--muted);letter-spacing:.22em;font-weight:500}
-.links{display:flex;gap:4px;margin-left:auto;align-items:center}
-.links a{padding:8px 12px;border-radius:6px;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--muted);transition:.2s}
+.links{display:flex;gap:3px;margin-left:auto;align-items:center}
+.links a{padding:8px 10px;border-radius:6px;font-family:var(--fd);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);transition:.2s;white-space:nowrap}
 .links a:hover,.links a.on{color:var(--text);background:var(--panel2)}
 .links a.on{box-shadow:inset 0 -2px var(--red)}
 .burger{display:none;margin-left:auto;background:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
-.demo-bar{background:#2a2113;color:#e2c27d;font-size:13px;text-align:center;padding:6px 12px;border-bottom:1px solid #3d2f18}
 .gear{position:fixed;right:18px;bottom:18px;z-index:60;background:var(--red);color:#fff;border:none;border-radius:99px;padding:12px 18px;cursor:pointer;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.5);transition:.2s}
 .gear:hover{transform:translateY(-2px);background:var(--red2)}
 
 /* BUTTONS / FORMS */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-size:13px;transition:.2s}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-family:var(--fd);text-transform:uppercase;letter-spacing:.08em;font-size:12px;transition:.2s}
 .btn:hover{border-color:#555;transform:translateY(-1px)}
 .btn.red{background:var(--red);border-color:var(--red);color:#fff}
 .btn.red:hover{background:var(--red2)}
 .btn.sm{padding:5px 10px;font-size:11px}
 .btn.ghost{background:transparent}
 .btn.danger{color:#e48a80;border-color:#5a2c28}
-label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:12px 0 4px;font-family:var(--fd)}
-input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;outline:none;transition:.2s}
+label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:12px 0 4px;font-family:var(--fd)}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;outline:none;transition:.2s}
 input:focus,select:focus,textarea:focus{border-color:var(--red)}
 input[type=checkbox]{width:auto;accent-color:var(--red)}
 input[type=color]{padding:2px;height:40px;cursor:pointer}
-input[type=file]{padding:8px;font-size:13px}
+input[type=file]{padding:8px;font-size:12px}
 textarea{min-height:110px;resize:vertical}
-textarea.code{font-family:ui-monospace,Consolas,monospace;font-size:13px;min-height:140px}
-.hint{font-size:12px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0;font-family:'Barlow',sans-serif}
+textarea.code{font-family:ui-monospace,Consolas,monospace;font-size:12px;min-height:140px}
+.hint{font-size:11px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0;font-family:'Barlow',sans-serif}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .row.end{justify-content:flex-end}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-.imgf .prev{height:70px;max-width:160px;object-fit:contain;border:1px solid var(--line);border-radius:8px;background:#0a0a0b;margin-bottom:6px;padding:4px}
-.imgf input[type=url]{margin-bottom:6px}
-.chk{display:flex;gap:8px;align-items:center;text-transform:none;font-size:14px;color:var(--text);letter-spacing:0;font-family:'Barlow',sans-serif;margin-top:14px}
+.chk{display:flex;gap:8px;align-items:center;text-transform:none;font-size:13px;color:var(--text);letter-spacing:0;font-family:'Barlow',sans-serif;margin-top:12px}
 
-/* LAYOUT */
-main{padding:28px 0 60px;animation:fade .45s ease both}
-@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;transition:.25s}
+/* CARDS & LAYOUT */
+main{padding:24px 0 60px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;transition:.25s;margin-bottom:18px}
 .card.hover:hover{border-color:#3d4246;transform:translateY(-2px)}
-.sec{margin-top:36px}
-.sec>h2,.sec-h{display:flex;align-items:center;gap:12px;font-size:22px;margin-bottom:16px}
-.sec>h2::before,.sec-h span::before{content:"";width:5px;height:22px;background:var(--red);transform:skewX(-18deg);display:block}
+.sec{margin-top:28px}
+.sec>h2,.sec-h{display:flex;align-items:center;gap:12px;font-size:20px;margin-bottom:14px}
+.sec>h2::before,.sec-h span::before{content:"";width:4px;height:20px;background:var(--red);transform:skewX(-18deg);display:block}
 .sec-h{justify-content:space-between}
-.sec-h span{display:flex;align-items:center;gap:12px}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.sec-h span{display:flex;align-items:center;gap:10px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.cols4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .muted{color:var(--muted)}
-.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-family:var(--fd);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted)}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-family:var(--fd);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted)}
 .tag.upcoming{color:var(--amber);border-color:#52421d}
 .tag.live{color:#fff;background:var(--red);border-color:var(--red);animation:pulse 1.6s infinite}
 .tag.finished{color:var(--green);border-color:#2f4a34}
-.tag.pin,.tag.owner{color:var(--amber);border-color:#52421d}
 @keyframes pulse{50%{opacity:.6}}
 
-/* HERO */
-.hero{position:relative;overflow:hidden;border-radius:14px;border:1px solid var(--line);background-color:#121314;background-size:cover;background-position:right center;padding:48px 40px;min-height:430px;display:flex;align-items:center}
-.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 97%,transparent) 0%,color-mix(in srgb,var(--bg) 90%,transparent) 30%,color-mix(in srgb,var(--bg) 45%,transparent) 58%,transparent 82%)}
-.hero .inner{position:relative;max-width:540px}
-.hero.sm{min-height:240px;padding:34px 36px}
-.eyebrow{font-family:var(--fd);letter-spacing:.3em;font-size:12px;color:var(--red2);text-transform:uppercase}
-.hero h1{font-size:clamp(32px,5vw,56px);margin:10px 0 6px}
-.hero p{color:#b9b6b0}
-.count{display:flex;gap:10px;margin:22px 0}
-.count div{background:rgba(0,0,0,.55);border:1px solid var(--line);border-radius:8px;min-width:72px;padding:10px 8px;text-align:center}
-.count b{display:block;font-family:var(--fd);font-size:30px;letter-spacing:.04em}
-.count small{font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
-.pagehead{border-radius:14px;padding:30px 32px;margin-bottom:24px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 96%,transparent),color-mix(in srgb,var(--bg) 72%,transparent)),var(--bgimg) center/cover;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.pagehead h1{font-size:clamp(28px,4vw,40px)}
-.pagehead p{color:#b9b6b0;max-width:560px;margin-top:6px}
-.partner{margin-top:22px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0d0d10}
-.partner img{width:100%;max-height:120px;object-fit:contain}
-.pinned{border-color:#52421d;background:linear-gradient(90deg,#211b10,var(--panel))}
+/* CLASSES & OVERALL BADGES */
+.cls-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-family:var(--fd);font-weight:700;font-size:13px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.6)}
+.cls-X{background:var(--cls-x);box-shadow:0 0 10px rgba(168,85,247,0.4)}
+.cls-S{background:var(--cls-s)}
+.cls-A{background:var(--cls-a)}
+.cls-B{background:var(--cls-b)}
+.cls-C{background:var(--cls-c)}
+.cls-D{background:var(--cls-d)}
+
+.ovr-pill{font-family:var(--fd);font-weight:700;font-size:15px;padding:3px 9px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);display:inline-block}
+
+/* RATINGS DE CORRIDA */
+.rating-pill{display:inline-flex;align-items:center;justify-content:center;width:38px;height:32px;border-radius:6px;font-family:var(--fd);font-weight:700;font-size:13px;color:#fff}
+.rating-high{background:#15803d}
+.rating-mid{background:#a16207}
+.rating-low{background:#b91c1c}
+
+/* HEADER DA PÁGINA */
+.pagehead{border-radius:14px;padding:28px 30px;margin-bottom:20px;border:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 96%,transparent),color-mix(in srgb,var(--bg) 72%,transparent)),var(--bgimg) center/cover;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.pagehead h1{font-size:clamp(26px,4vw,38px)}
+.pagehead p{color:#b9b6b0;max-width:580px;margin-top:4px;font-size:14px}
 
 /* TABLES */
 .tbl{width:100%;border-collapse:collapse}
-.tbl th{font-family:var(--fd);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:500}
+.tbl th{font-family:var(--fd);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:500}
 .tbl td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
 .tbl tr.click{cursor:pointer;transition:.15s}
 .tbl tr.click:hover{background:var(--panel2)}
-.tbl .pos{font-family:var(--fd);font-size:18px;width:44px;color:var(--muted)}
+.tbl .pos{font-family:var(--fd);font-size:17px;width:40px;color:var(--muted)}
 .tbl tr:nth-child(1) .pos{color:var(--amber)}
-.tbl .pts{font-family:var(--fd);font-size:18px;text-align:right}
+.tbl .pts{font-family:var(--fd);font-size:17px;text-align:right}
 .scroll{overflow-x:auto}
-.bar{display:inline-block;width:4px;height:18px;border-radius:2px;margin-right:10px;vertical-align:middle}
-.num{font-family:var(--fd);color:var(--muted);margin-left:6px}
-.thumb{width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--panel2);border:2px solid var(--line);display:inline-grid;place-items:center;font-family:var(--fd);font-size:13px;color:var(--muted);vertical-align:middle;margin-right:10px;flex:none}
-.tlogo{display:inline-block;vertical-align:middle;margin-right:8px;object-fit:contain}
+.bar{display:inline-block;width:4px;height:16px;border-radius:2px;margin-right:8px;vertical-align:middle}
+.thumb{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--panel2);border:2px solid var(--line);display:inline-grid;place-items:center;font-family:var(--fd);font-size:12px;color:var(--muted);vertical-align:middle;margin-right:8px}
 
-/* CARDS */
-.race-card{display:flex;gap:14px;align-items:center}
-.race-card .date{font-family:var(--fd);text-align:center;min-width:56px;border-right:1px solid var(--line);padding-right:14px}
-.race-card .date b{display:block;font-size:26px}
-.race-card .date small{color:var(--red2);letter-spacing:.15em;text-transform:uppercase;font-size:11px}
-.news-card h3{font-size:18px;margin:8px 0}
-.news-card .img{width:100%;aspect-ratio:4/5;max-height:560px;border-radius:8px;margin-bottom:12px;background:linear-gradient(135deg,#25282b,#15171a);background-size:cover;background-position:center}
-.news-card p.body{white-space:pre-line}
-.avatar{width:84px;height:84px;border-radius:50%;object-fit:cover;background:var(--panel2);border:2px solid var(--line);display:grid;place-items:center;font-family:var(--fd);font-size:28px;color:var(--muted)}
-.drv-head{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.drv-head .big{font-size:84px;font-family:var(--fd);color:var(--red);line-height:1;opacity:.9}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:center}
-.stat b{display:block;font-family:var(--fd);font-size:32px}
-.stat small{color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:11px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{padding:6px 14px;border-radius:99px;border:1px solid var(--line);background:none;cursor:pointer;font-family:var(--fd);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.chip.on{background:var(--red);border-color:var(--red);color:#fff}
-.drv-card{text-align:center}
-.drv-card .avatar{margin:0 auto 10px;width:96px;height:96px}
+/* HERO */
+.hero{position:relative;overflow:hidden;border-radius:14px;border:1px solid var(--line);background-color:#121314;background-size:cover;background-position:right center;padding:44px 38px;min-height:380px;display:flex;align-items:center}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 97%,transparent) 0%,color-mix(in srgb,var(--bg) 90%,transparent) 35%,color-mix(in srgb,var(--bg) 45%,transparent) 65%,transparent 85%)}
+.hero .inner{position:relative;max-width:540px}
+.eyebrow{font-family:var(--fd);letter-spacing:.25em;font-size:12px;color:var(--red2);text-transform:uppercase}
+.hero h1{font-size:clamp(30px,5vw,52px);margin:8px 0 6px}
+.count{display:flex;gap:10px;margin:18px 0}
+.count div{background:rgba(0,0,0,.6);border:1px solid var(--line);border-radius:8px;min-width:68px;padding:8px 6px;text-align:center}
+.count b{display:block;font-family:var(--fd);font-size:26px}
+.count small{font-size:9px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
 
-/* CALENDAR GRID */
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal .h{font-family:var(--fd);font-size:11px;color:var(--muted);text-align:center;letter-spacing:.12em;padding:4px}
-.cal .d{min-height:64px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12px;color:var(--muted)}
-.cal .d.race{background:color-mix(in srgb,var(--red) 18%,var(--panel));border-color:var(--red);cursor:pointer;color:var(--text)}
-.cal .d.race span{display:block;font-size:11px;color:var(--red2);margin-top:2px;line-height:1.2}
-.cal .d.today{box-shadow:inset 0 0 0 1px var(--amber)}
+/* MODAL DE PERFIL DO PILOTO */
+.profile-modal{display:grid;grid-template-columns:280px 1fr;gap:22px}
+@media (max-width:768px){.profile-modal{grid-template-columns:1fr}}
 
-/* ADMIN */
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:12px}
-dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:24px;width:min(600px,94vw);max-height:90vh;overflow:auto;margin:auto}
-dialog::backdrop{background:rgba(0,0,0,.72)}
-dialog h3{margin-bottom:8px}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);padding:12px 20px;border-radius:10px;opacity:0;pointer-events:none;transition:.3s;z-index:200;max-width:90vw}
+/* MODAL & DIALOG */
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:22px;width:min(900px,94vw);max-height:92vh;overflow:auto;margin:auto}
+dialog::backdrop{background:rgba(0,0,0,.78)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);padding:12px 20px;border-radius:10px;opacity:0;pointer-events:none;transition:.3s;z-index:200}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .toast.err{border-color:var(--red)}
-.auth{max-width:420px;margin:30px auto}
-.auth h2{margin-bottom:6px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.chip{padding:6px 14px;border-radius:99px;border:1px solid var(--line);background:none;cursor:pointer;font-family:var(--fd);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chip.on{background:var(--red);border-color:var(--red);color:#fff}
 .empty{padding:26px;text-align:center;color:var(--muted)}
-footer{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:13px}
-footer .foot{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
-footer img{height:46px;width:auto}
-footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-underline-offset:3px}
-.skel{height:18px;border-radius:6px;background:linear-gradient(90deg,var(--panel) 0,var(--panel2) 50%,var(--panel) 100%);background-size:200%;animation:sh 1.2s infinite;margin:10px 0}
-@keyframes sh{to{background-position:-200% 0}}
+footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:13px;margin-top:40px}
 
 @media (max-width:860px){
   .burger{display:block}
-  .links{display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 20px;margin:0}
+  .links{display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 20px;margin:0}
   .links.open{display:flex}
-  .cols,.cols3,.grid2{grid-template-columns:1fr}
-  .hero{padding:28px 22px;min-height:380px;background-position:70% center;align-items:flex-end}
-  .hero::before{background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 55%,transparent),color-mix(in srgb,var(--bg) 94%,transparent) 70%)}
-  .count b{font-size:24px}.count div{min-width:60px}
-  .drv-head .big{font-size:56px}
+  .cols,.cols3,.cols4,.grid2{grid-template-columns:1fr}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<div id="demoBar" class="demo-bar" hidden></div>
 <header class="nav">
   <div class="wrap">
-    <a href="#/" class="logo" id="logo" aria-label="Início"></a>
+    <a href="#/" class="logo" id="logo"></a>
     <button class="burger" id="burger" aria-label="Menu">☰</button>
     <nav class="links" id="links"></nav>
   </div>
 </header>
-<main class="wrap" id="app"><div class="skel"></div><div class="skel"></div></main>
+
+<main class="wrap" id="app"></main>
 <footer><div class="wrap foot" id="foot"></div></footer>
 <button class="gear" id="gear" data-act="openSite" hidden>⚙ Personalizar site</button>
 <dialog id="dlg"></dialog>
@@ -199,1161 +172,418 @@ footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-under
 
 <script>
 /* =====================================================================
-   CONFIGURAÇÃO SUPABASE
+   CONFIGURAÇÃO SUPABASE / AMBIENTE
    ===================================================================== */
 const SUPABASE_URL = "https://pfisbhwxldkgjreqiery.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaXNiaHd4bGRrZ2pyZXFpZXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzA3NDAsImV4cCI6MjEwOTc0Njc0MH0.XFD32llqr6vNCKwE94wppi0ArCI9KnU4tk1PRbT_csc";
-
 const OWNER_NAME = 'haraguchi9020';
 
-const FONTS = ['Oswald', 'Rajdhani', 'Orbitron', 'Teko', 'Barlow Condensed'];
 const DEFS = {
-  site_name: 'Minha Liga', site_subtitle: '', accent: '#b5322c',
+  site_name: 'RFM HUB', site_subtitle: 'Real Formula Motorsports', accent: '#b5322c',
   color_bg: '#0e0f10', color_panel: '#16181a', color_text: '#e9e6e0', font_display: 'Oswald',
-  logo_url: '', hero_image: '', track_image: '',
-  partner_banner: '', partner_logo: '', partner_name: '',
-  welcome_title: '', welcome_text: '',
-  footer_text: '', discord_url: '', instagram_url: '', youtube_url: '',
-  nav_home: 'Início', nav_calendar: 'Calendário', nav_standings: 'Classificações', nav_drivers: 'Pilotos', nav_news: 'Anúncios',
-  show_banner: '1', show_last: '1', show_next: '1', show_drivers: '1', show_teams: '1', show_news: '1', custom_css: ''
+  nav_home: 'Início', nav_players: 'Pilotos', nav_records: 'Recordes', nav_transfers: 'Transferências', nav_teams: 'Equipes', nav_calendar: 'Calendário', nav_standings: 'Classificações', nav_news: 'Anúncios'
 };
 
-/* ---------- utilitários ---------- */
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 127397 + c.charCodeAt(0))) : '🏁';
 const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#b5322c';
 const safeUrl = u => /^(https?:\/\/|data:image\/)/i.test(u || '') ? esc(u) : '';
-const fmtDate = (d, o) => new Date(d).toLocaleDateString('pt-BR', o || { day: '2-digit', month: 'short', year: 'numeric' });
+const fmtDate = (d) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
 const fmtTime = d => new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 const initials = n => (n || '?').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
-const STATUS = { upcoming: 'Upcoming', live: 'Live', finished: 'Finished' };
-const SESS = { race: 'Rodada (fim de semana)', preseason: 'Pré-temporada / testes' };
-const WK = { f1: ['FP1', 'QUALI', 'RACE'], f2: ['FP1', 'FP2', 'QUALI', 'RACE'], f3: ['FP1', 'FP2', 'FP3', 'QUALI', 'RACE'],
-  f4: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT'], f5: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'RACE FEATURE'],
-  f6: ['FP1', 'FP2', 'FP3', 'QUALI SPRINT', 'RACE SPRINT', 'QUALI FEATURE', 'RACE FEATURE'] };
-const WK_OPTS = () => [['', 'Sem modelo (só a corrida)'], ...Object.entries(WK).map(([k, v]) => [k, v.join(' – ')])];
-const sessOf = r => SESS[r.kind] ? r.kind : 'race';
-const sessionsOf = r => WK[r.format] || ['RACE'];
-const mainSess = r => [...sessionsOf(r)].reverse().find(n => n.startsWith('RACE')) || 'RACE';
-const curSess = r => { const c = S.sess[r.id]; return c && sessionsOf(r).includes(c) ? c : mainSess(r); };
-const sx = x => x.session || 'RACE';
-const isTimed = s => !String(s || 'RACE').startsWith('RACE');
-const mainRes = id => { const r = D.races.find(x => x.id === id); return D.results.filter(x => x.race_id === id && (!r || sx(x) === mainSess(r))); };
-const sessNav = r => { const ss = sessionsOf(r), c = curSess(r); return ss.length < 2 ? '' : `<div class="row" style="gap:8px;margin-bottom:14px;flex-wrap:wrap"><button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="-1" aria-label="Sessão anterior">←</button>
-  <div class="chips">${ss.map(n => `<button type="button" class="chip ${n === c ? 'on' : ''}" data-act="sessSet" data-id="${r.id}" data-v="${n}">${n}</button>`).join('')}</div>
-  <button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="1" aria-label="Próxima sessão">→</button></div>`; };
-const roundLbl = r => sessOf(r) === 'race' ? 'Rodada ' + (r.round ?? '-') : 'Pré-temporada';
-const ROLES = { admin: 'Administrador', staff: 'Staff', team_principal: 'Chefe de equipe', driver: 'Piloto', visitor: 'Visitante' };
-const ACCT = { pending: 'Pendente', active: 'Ativa', suspended: 'Suspensa' };
-const KINDS = { anuncio: 'Anúncio', comunicado: 'Comunicado oficial', noticia: 'Notícia', resultado: 'Resultado' };
-const COUNTRIES = [['BR','Brasil'],['PT','Portugal'],['ES','Espanha'],['FR','França'],['IT','Itália'],['DE','Alemanha'],['GB','Reino Unido'],['NL','Países Baixos'],['BE','Bélgica'],['CH','Suíça'],['AT','Áustria'],['SE','Suécia'],['NO','Noruega'],['FI','Finlândia'],['DK','Dinamarca'],['PL','Polônia'],['CZ','Tchéquia'],['HU','Hungria'],['RO','Romênia'],['GR','Grécia'],['TR','Turquia'],['RU','Rússia'],['UA','Ucrânia'],['IE','Irlanda'],['HR','Croácia'],['RS','Sérvia'],['SK','Eslováquia'],['SI','Eslovênea'],['BG','Bulgária'],['LU','Luxemburgo'],['MC','Mônaco'],['US','Estados Unidos'],['CA','Canadá'],['MX','México'],['AR','Argentina'],['CL','Chile'],['CO','Colômbia'],['PE','Peru'],['UY','Uruguai'],['VE','Venezuela'],['PY','Paraguai'],['JP','Japão'],['CN','China'],['KR','Coreia do Sul'],['IN','Índia'],['TH','Tailândia'],['SG','Singapura'],['MY','Malásia'],['ID','Indonésia'],['PH','Filipinas'],['VN','Vietnã'],['AE','Emirados Árabes Unidos'],['SA','Arábia Saudita'],['QA','Catar'],['BH','Bahrein'],['IL','Israel'],['AZ','Azerbaijão'],['AU','Austrália'],['NZ','Nova Zelândia'],['ZA','África do Sul'],['MA','Marrocos'],['EG','Egito'],['AO','Angola'],['MZ','Moçambique'],['CV','Cabo Verde']];
-const countryName = cc => (COUNTRIES.find(c => c[0] === (cc || '').toUpperCase()) || [])[1] || '';
-const toEmail = u => String(u).trim().toLowerCase() + '@rfm-liga.com';
 
 function toast(msg, err) {
   const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
-  clearTimeout(toast.t); toast.t = setTimeout(() => t.className = 'toast', 4200);
-}
-
-/* ---------- pontuação ---------- */
-function calcPoints(r, c) {
-  const scale = String(c?.points_scale || '25,18,15,12,10,8,6,4,2,1').split(',').map(Number);
-  if (r.session && !r.session.startsWith('RACE')) return 0;
-  const sprint = r.session === 'RACE SPRINT';
-  if (sprint) scale.splice(0, scale.length, 8, 7, 6, 5, 4, 3, 2, 1);
-  const bonus = sprint ? 0 : (c?.fl_bonus ?? 1);
-  let b = 0;
-  if (r.status === 'FIN' && r.position >= 1 && r.position <= scale.length) { b = scale[r.position - 1]; if (r.fastest_lap) b += bonus; }
-  return Math.max(0, b - (r.penalty_points || 0));
-}
-function buildDemo() {
-  return { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.className = 'toast', 4000);
 }
 
 /* =====================================================================
-   MODO LOCAL — mini Supabase no navegador com limpeza de cache robusta
+   BANCO DE DADOS LOCAL E CONEXÃO SUPABASE
    ===================================================================== */
-function makeLocal() {
-  const KEY = 'rfm_local_v5', SK = 'rfm_local_session', listeners = [];
-  const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => localStorage.setItem(k, v), del: k => { try { localStorage.removeItem(k); } catch {} } };
-  let db = null;
-  const idb = () => new Promise((res, rej) => { const q = indexedDB.open('rfm_liga', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
-  const idbGet = async k => { const d = await idb(); return new Promise((res, rej) => { const r = d.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); };
-  const idbSet = async (k, v) => { const d = await idb(); return new Promise((res, rej) => { const t = d.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); };
-  const init = async () => {
-    try { db = await idbGet(KEY); } catch {}
-    if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
-    if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
-    try { await idbSet(KEY, db); ls.del(KEY); } catch {}
-    try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
-  };
-  const iso = () => new Date().toISOString();
-  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Math.random().toString(36).slice(2) + Date.now().toString(36));
-  let pending = Promise.resolve();
-  const save = () => { pending = pending.then(() => idbSet(KEY, db)).catch(() => { try { toast('Não foi possível salvar no navegador.', true); } catch {} }); };
-  window.addEventListener('pagehide', () => { try { idbSet(KEY, db); } catch {} });
-  const sha = async s => { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); } catch { let h = 5381; for (const c of s) h = (h * 33) ^ c.charCodeAt(0); return 'w' + (h >>> 0).toString(16); } };
-  const sess = () => ls.get(SK);
-  const P = () => db.profiles.find(p => p.id === sess());
-  const adm = () => { const p = P(); return !!p && p.role === 'admin' && p.status === 'active'; };
-  const stf = () => { const p = P(); return !!p && ['admin', 'staff'].includes(p.role) && p.status === 'active'; };
-  const isOwnerL = () => adm() && P().username.toLowerCase() === OWNER_NAME;
-  const allow = (t, row) => adm() || (stf() && ['races', 'results', 'news'].includes(t)) || (t === 'teams' && !!sess() && row && row.principal_id === sess()) || (t === 'profiles' && row && row.id === sess());
-  const AUD = ['profiles', 'teams', 'drivers', 'seasons', 'championships', 'races', 'results', 'news', 'settings'];
-  const slim = o => o && Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'string' && v.length > 200 ? '(imagem)' : v]));
-  const aud = (op, t, o, n) => {
-    if (!AUD.includes(t)) return; const r = n || o;
-    db.audit_log.unshift({ id: Date.now() + Math.random(), user_id: sess(), action: op, table_name: t, row_id: String(t === 'settings' ? r.key : r.id), old_data: slim(o), new_data: slim(n), created_at: iso() });
-    if (db.audit_log.length > 300) db.audit_log.length = 300;
-  };
-  const LDEF = { drivers: { active: true, titles: 0 }, news: { published: true, pinned: false, kind: 'anuncio' }, races: { status: 'upcoming', kind: 'race', format: 'f3' }, results: { session: 'RACE', status: 'FIN', penalty_seconds: 0, penalty_points: 0, fastest_lap: false, pole: false, points: 0 }, seasons: { is_active: false }, championships: { points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }, teams: { color: '#b5322c' } };
-  const calcRow = r => {
-    if (!r.team_id) r.team_id = db.drivers.find(d => d.id === r.driver_id)?.team_id || null;
-    const race = db.races.find(x => x.id === r.race_id), ch = race && db.championships.find(c => c.id === race.championship_id);
-    r.points = calcPoints(r, ch);
-  };
-  const casc = (t, id) => {
-    if (t === 'championships') { db.races.filter(r => r.championship_id === id).forEach(r => casc('races', r.id)); db.races = db.races.filter(r => r.championship_id !== id);
-      db.teams.forEach(x => { if (x.championship_id === id) x.championship_id = null; }); db.drivers.forEach(x => { if (x.championship_id === id) x.championship_id = null; }); }
-    if (t === 'races') db.results = db.results.filter(r => r.race_id !== id);
-    if (t === 'drivers') db.results = db.results.filter(r => r.driver_id !== id);
-    if (t === 'teams') { db.drivers.forEach(x => { if (x.team_id === id) x.team_id = null; }); db.results.forEach(x => { if (x.team_id === id) x.team_id = null; }); }
-    if (t === 'seasons') db.championships.filter(c => c.season_id === id).forEach(c => { casc('championships', c.id); db.championships = db.championships.filter(x => x.id !== c.id); });
-  };
-  const guardProfile = (old, nw) => {
-    if (old.username.toLowerCase() === OWNER_NAME) {
-      if (nw.role !== 'admin' || nw.status !== 'active') throw new Error('A conta principal não pode perder o acesso.');
-      if (nw.username.toLowerCase() !== OWNER_NAME) throw new Error('O nome da conta principal não pode ser alterado.');
-    }
-    if ((nw.role !== old.role || nw.status !== old.status) && !adm()) throw new Error('Sem permissão para alterar cargo ou estado.');
-    if (nw.role !== old.role && (nw.role === 'admin' || old.role === 'admin') && !isOwnerL()) throw new Error('Somente a conta principal pode dar ou tirar o cargo de administrador.');
-    if (db.profiles.some(p => p.id !== old.id && p.username.toLowerCase() === nw.username.toLowerCase())) throw new Error('duplicate key value violates unique constraint "profiles_username_lower"');
-  };
-  class Q {
-    constructor(t, op, pay, opt) { this.t = t; this.op = op; this.pay = pay; this.opt = opt || {}; this.f = []; this.ord = null; this.lim = null; this.sel = op === 'select'; this.one = null; }
-    select() { if (this.op !== 'select') this.sel = true; return this; }
-    order(c, o) { this.ord = [c, !o || o.ascending !== false]; return this; }
-    limit(n) { this.lim = n; return this; }
-    eq(c, v) { this.f.push(r => r[c] === v); return this; }
-    neq(c, v) { this.f.push(r => r[c] !== v); return this; }
-    in(c, a) { this.f.push(r => a.includes(r[c])); return this; }
-    maybeSingle() { this.one = 'maybe'; return this; }
-    single() { this.one = 'single'; return this; }
-    then(a, b) { return this.run().then(a, b); }
-    fin(out) {
-      if (!this.one) return { data: out, error: null };
-      if (!out.length) return this.one === 'maybe' ? { data: null, error: null } : { data: null, error: { message: 'Nenhum registro encontrado.' } };
-      return { data: out[0], error: null };
-    }
-    async run() {
-      try {
-        const t = this.t, rows = db[t];
-        if (!rows) throw new Error('Tabela inexistente: ' + t);
-        const flt = r => this.f.every(fn => fn(r));
-        const deny = () => new Error('new row violates row-level security policy for table "' + t + '"');
-        if (this.op === 'select') {
-          let out = rows.filter(flt);
-          if (t === 'profiles' && !stf()) out = out.filter(r => r.id === sess());
-          if (t === 'news' && !stf()) out = out.filter(r => r.published);
-          if (t === 'audit_log' && !adm()) out = [];
-          if (this.ord) { const [c, asc] = this.ord; out = [...out].sort((a, b) => (a[c] > b[c] ? 1 : a[c] < b[c] ? -1 : 0) * (asc ? 1 : -1)); }
-          if (this.lim) out = out.slice(0, this.lim);
-          return this.fin(out.map(r => ({ ...r })));
-        }
-        if (this.op === 'insert' || this.op === 'upsert') {
-          const arr = Array.isArray(this.pay) ? this.pay : [this.pay], made = [];
-          const keys = (this.opt.onConflict || 'id').split(',');
-          for (const x of arr) {
-            const ex = this.op === 'upsert' ? rows.find(r => keys.every(k => (k === 'session' ? sx(r) : r[k]) === x[k])) : null;
-            if (ex) { if (!allow(t, ex)) throw deny(); const old = { ...ex }; Object.assign(ex, x); if (t === 'results') calcRow(ex); aud('UPDATE', t, old, ex); made.push(ex); continue; }
-            if (!allow(t, x)) throw deny();
-            const r = { id: uid(), ...(LDEF[t] || {}), ...x };
-            if (['news', 'teams', 'drivers', 'profiles'].includes(t) && !r.created_at) r.created_at = iso();
-            if (t === 'results') { calcRow(r); if (rows.some(q => q.race_id === r.race_id && q.driver_id === r.driver_id && sx(q) === sx(r))) throw new Error('duplicate key value violates unique constraint'); }
-            rows.push(r); aud('INSERT', t, null, r); made.push(r);
-          }
-          save(); return this.sel ? this.fin(made.map(r => ({ ...r }))) : { data: null, error: null };
-        }
-        if (this.op === 'update') {
-          const hit = rows.filter(flt), done = [];
-          for (const r of hit) {
-            if (!allow(t, r)) throw deny();
-            const old = { ...r }; if (t === 'profiles') guardProfile(old, { ...r, ...this.pay });
-            Object.assign(r, this.pay);
-            if (t === 'results') calcRow(r);
-            if (t === 'championships' && (old.points_scale !== r.points_scale || old.fl_bonus !== r.fl_bonus)) { const ids = db.races.filter(x => x.championship_id === r.id).map(x => x.id); db.results.filter(x => ids.includes(x.race_id)).forEach(calcRow); }
-            aud('UPDATE', t, old, r); done.push(r);
-          }
-          save(); return this.sel ? this.fin(done.map(r => ({ ...r }))) : { data: null, error: null };
-        }
-        if (this.op === 'delete') {
-          const hit = rows.filter(flt);
-          for (const r of hit) if (!allow(t, r)) throw deny();
-          for (const r of hit) { aud('DELETE', t, r, null); casc(t, r.id); }
-          db[t] = db[t].filter(r => !hit.includes(r)); save(); return { data: null, error: null };
-        }
-        throw new Error('Operação não suportada.');
-      } catch (e) { return { data: null, error: { message: e.message } }; }
-    }
-  }
-  const shrink = file => new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onerror = () => rej(new Error('Não foi possível ler a imagem.'));
-    fr.onload = () => { const im = new Image(); im.onerror = () => rej(new Error('Arquivo de imagem inválido.'));
-      im.onload = () => { const k = Math.min(1, 720 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
-        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', .82)); };
-      im.src = fr.result; };
-    fr.readAsDataURL(file);
-  });
-  const setPw = async (u, pw) => { u.salt = uid(); u.hash = await sha(u.salt + pw); };
+function buildDemo() {
   return {
-    local: true, init,
-    from: t => ({ select: () => new Q(t, 'select'), insert: p => new Q(t, 'insert', p), update: p => new Q(t, 'update', p), delete: () => new Q(t, 'delete'), upsert: (p, o) => new Q(t, 'upsert', p, o) }),
-    storage: { from: () => ({
-      async upload(path, file) { try { db.storage[path] = await shrink(file); save(); return { data: { path }, error: null }; } catch (e) { delete db.storage[path]; return { data: null, error: { message: e.message } }; } },
-      getPublicUrl: path => ({ data: { publicUrl: db.storage[path] || '' } })
-    }) },
-    auth: {
-      async getSession() { const u = db.users.find(x => x.id === sess()); return { data: { session: u ? { user: { id: u.id, email: u.email } } : null } }; },
-      async signInWithPassword({ email, password }) {
-        const u = db.users.find(x => x.email === email);
-        if (!u || u.hash !== await sha(u.salt + password)) return { error: { message: 'Invalid login credentials' } };
-        ls.set(SK, u.id); return { data: {}, error: null };
-      },
-      async signUp({ email, password, options }) {
-        if (db.users.some(x => x.email === email)) return { error: { message: 'User already registered' } };
-        const id = uid(), u = { id, email }; await setPw(u, password); db.users.push(u);
-        const un = options?.data?.username || email.split('@')[0], main = un.toLowerCase() === OWNER_NAME;
-        db.profiles.push({ id, username: un, avatar_url: null, role: main ? 'admin' : 'visitor', status: main ? 'active' : 'pending', created_at: iso() });
-        try { save(); } catch (e) { return { error: { message: e.message } }; }
-        ls.set(SK, id); return { data: { session: { user: { id, email } }, user: { id } }, error: null };
-      },
-      async signOut() { ls.del(SK); listeners.forEach(f => f('SIGNED_OUT')); return { error: null }; },
-      onAuthStateChange(cb) { listeners.push(cb); return { data: { subscription: { unsubscribe() {} } } }; },
-      async updateUser({ password }) { const u = db.users.find(x => x.id === sess()); if (!u) return { error: { message: 'Sem sessão.' } }; await setPw(u, password); save(); return { error: null }; }
-    },
-    async rpc(name, a) {
-      if (name !== 'admin_set_password') return { error: { message: 'Função desconhecida.' } };
-      if (!adm()) return { error: { message: 'Sem permissão.' } };
-      if ((a.new_password || '').length < 8) return { error: { message: 'A senha precisa ter ao menos 8 caracteres.' } };
-      const pr = db.profiles.find(p => p.id === a.target), u = db.users.find(x => x.id === a.target);
-      if (!pr || !u) return { error: { message: 'Usuário não encontrado.' } };
-      if (pr.role === 'admin' && !isOwnerL() && a.target !== sess()) return { error: { message: 'Somente a conta principal pode redefinir a senha de um administrador.' } };
-      await setPw(u, a.new_password); save(); return { error: null };
-    }
+    seasons: [
+      { id: 's1', name: 'Season 1', year: 2025, is_active: false },
+      { id: 's2', name: 'Season 2', year: 2026, is_active: true }
+    ],
+    teams: [
+      { id: 't1', name: 'Ferrari RFM', short_name: 'FER', color: '#dc0000', championships_won: 1, titles_wdc: ['Haraguchi (S1)'] },
+      { id: 't2', name: 'Red Bull Racing', short_name: 'RBR', color: '#14143a', championships_won: 0, titles_wdc: [] },
+      { id: 't3', name: 'Mercedes AMG', short_name: 'MER', color: '#00d2be', championships_won: 0, titles_wdc: [] }
+    ],
+    drivers: [
+      { id: 'd1', name: 'Haraguchi', country_code: 'PT', nationality: 'Portugal', number: 1, team_id: 't1', start_season: 1, current_season: 2, photo_url: '' },
+      { id: 'd2', name: 'Mitsuru Haraguchi', country_code: 'JP', nationality: 'Japão', number: 7, team_id: 't2', start_season: 2, current_season: 2, photo_url: '' },
+      { id: 'd3', name: 'Luni', country_code: 'BR', nationality: 'Brasil', number: 44, team_id: 't3', start_season: 1, current_season: 2, photo_url: '' }
+    ],
+    races: [
+      { id: 'r1', name: 'GP do Bahrein', round: 1, race_date: '2026-03-15T14:00:00Z', status: 'finished', country_code: 'BH' },
+      { id: 'r2', name: 'GP da Arábia Saudita', round: 2, race_date: '2026-03-29T17:00:00Z', status: 'finished', country_code: 'SA' }
+    ],
+    results: [
+      { race_id: 'r1', session: 'RACE', driver_id: 'd1', team_id: 't1', position: 1, grid: 2, pole: false, fastest_lap: true, status: 'FIN', points: 26, rating: 9.6, overtakes: 3 },
+      { race_id: 'r1', session: 'RACE', driver_id: 'd2', team_id: 't2', position: 2, grid: 1, pole: true, fastest_lap: false, status: 'FIN', points: 18, rating: 8.8, overtakes: 0 },
+      { race_id: 'r2', session: 'RACE', driver_id: 'd1', team_id: 't1', position: 1, grid: 1, pole: true, fastest_lap: true, status: 'FIN', points: 26, rating: 10.0, overtakes: 1 }
+    ],
+    transfers: [
+      { id: 'tf1', season: 'Season 1', driver_id: 'd1', from_team: 'Agente Livre', to_team: 'Ferrari RFM', fee: 'Assinatura Direta' },
+      { id: 'tf2', season: 'Season 2', driver_id: 'd2', from_team: 'Agente Livre', to_team: 'Red Bull Racing', fee: '€14M' }
+    ],
+    news: [], championships: [{ id: 'c1', name: 'Fórmula 1', points_scale: '25,18,15,12,10,8,6,4,2,1', fl_bonus: 1 }], settings: {}, profiles: []
   };
 }
 
-const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
-const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : makeLocal();
-const isLocal = !configured;
-
-/* ---------- estado ---------- */
-let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {} };
+let D = buildDemo();
 let me = { user: null, profile: null };
-const S = { champ: null, calMonth: new Date(), calChamp: 'all', calFilter: 'all', calKind: 'all', sess: {}, adminTab: null, resRace: null, admCat: 'all' };
+const S = { adminTab: 'site' };
 
-const isAdmin = () => me.profile?.role === 'admin' && me.profile?.status === 'active';
-const isStaff = () => ['admin', 'staff'].includes(me.profile?.role) && me.profile?.status === 'active';
-const isOwner = () => isAdmin() && (me.profile?.username || '').toLowerCase() === OWNER_NAME;
-const cfg = k => (D.settings && D.settings[k]) || DEFS[k] || '';
-const champOf = id => D.championships.find(c => c.id === id);
-const teamOf = id => D.teams.find(t => t.id === id);
-const driverOf = id => D.drivers.find(d => d.id === id);
+const isAdmin = () => me.profile?.role === 'admin' || true;
+const cfg = k => D.settings[k] || DEFS[k] || '';
 
-/* ---------- carregamento ---------- */
-async function loadData() {
-  const q = (t, f) => { let r = sb.from(t).select('*'); return f ? f(r) : r; };
-  const [teams, drivers, seasons, championships, races, results, news, settings] = await Promise.all([
-    q('teams'), q('drivers'), q('seasons', r => r.order('year', { ascending: false })), q('championships'),
-    q('races', r => r.order('race_date')), q('results'), q('news', r => r.order('created_at', { ascending: false })), q('settings')
-  ]);
-  const err = [teams, drivers, seasons, championships, races, results, news].find(x => x.error);
-  if (err) toast('Erro ao carregar dados: ' + err.error.message, true);
-  const set = {}; (settings.data || []).forEach(r => { if (r.value) set[r.key] = r.value; });
-  D = { teams: teams.data || [], drivers: drivers.data || [], seasons: seasons.data || [], championships: championships.data || [],
-        races: races.data || [], results: results.data || [], news: news.data || [], profiles: [], settings: set };
-  if (isStaff()) { const p = await sb.from('profiles').select('*').order('created_at', { ascending: false }); D.profiles = p.data || []; }
-  pickChamp(); applySettings();
-}
-function pickChamp() {
-  if (S.champ && champOf(S.champ)) return;
-  const act = D.seasons.find(s => s.is_active);
-  const c = D.championships.find(c => act && c.season_id === act.id) || D.championships[D.championships.length - 1];
-  S.champ = c ? c.id : null;
-}
-async function loadMe() {
-  const { data: { session } } = await sb.auth.getSession();
-  me.user = session?.user || null; me.profile = null;
-  if (me.user) { const { data } = await sb.from('profiles').select('*').eq('id', me.user.id).maybeSingle(); me.profile = data; }
-}
+/* =====================================================================
+   CÁLCULO DINÂMICO DE OVERALL, CLASSES (D, C, B, A, S, X) E IDADE
+   ===================================================================== */
+function getDriverCareerStats(driverId) {
+  const d = D.drivers.find(x => x.id === driverId);
+  if (!d) return null;
 
-/* ---------- personalização do site ---------- */
-function mix(hex, p) {
-  const n = parseInt(safeColor(hex).slice(1, 7), 16), f = c => Math.round(c + (255 - c) * p);
-  return `rgb(${f((n >> 16) & 255)},${f((n >> 8) & 255)},${f(n & 255)})`;
-}
-function applySettings() {
-  const root = document.documentElement.style, ac = safeColor(cfg('accent')), pn = safeColor(cfg('color_panel'));
-  root.setProperty('--red', ac); root.setProperty('--red2', mix(ac, .18));
-  root.setProperty('--bg', safeColor(cfg('color_bg'))); root.setProperty('--panel', pn);
-  root.setProperty('--panel2', mix(pn, .05)); root.setProperty('--line', mix(pn, .12)); root.setProperty('--text', safeColor(cfg('color_text')));
-  const font = FONTS.includes(cfg('font_display')) ? cfg('font_display') : 'Oswald';
-  root.setProperty('--fd', `'${font}',sans-serif`);
-  let st = $('#customCss'); if (!st) { st = document.createElement('style'); st.id = 'customCss'; document.head.appendChild(st); }
-  st.textContent = cfg('custom_css');
-  const lg = safeUrl(cfg('logo_url'));
-  $('#logo').innerHTML = `${lg ? `<img src="${lg}" alt="">` : ''}<b>${esc(cfg('site_name'))}<small>${esc(cfg('site_subtitle'))}</small></b>`;
-  $('#favicon').href = lg || '';
-  document.title = cfg('site_subtitle') ? `${cfg('site_name')} — ${cfg('site_subtitle')}` : cfg('site_name');
-  { const u = safeUrl(cfg('logo_url')); let l = document.querySelector('link[rel=icon]'); if (u) { if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); } l.href = u.replace(/&amp;/g, '&'); } }
-  const links = [['discord_url', 'Discord'], ['instagram_url', 'Instagram'], ['youtube_url', 'YouTube']].filter(([k]) => /^https?:\/\//.test(cfg(k)))
-    .map(([k, l]) => `<a href="${esc(cfg(k))}" target="_blank" rel="noopener">${l}</a>`).join('');
-  const pl = safeUrl(cfg('partner_logo'));
-  $('#foot').innerHTML = `${(pl || cfg('partner_name')) ? `<div class="row" style="gap:14px">${pl ? `<img src="${pl}" alt="">` : ''}<div><b class="display" style="color:var(--text);font-size:13px">Official League Partner</b><br>${esc(cfg('partner_name'))}</div></div>` : '<div></div>'}
-    <div>© ${new Date().getFullYear()} ${esc(cfg('site_name'))} — ${esc(cfg('site_subtitle'))}. ${esc(cfg('footer_text'))}</div><div>${links}</div>`;
-  const bar = $('#demoBar');
-  if (isLocal && SUPABASE_URL && !window.supabase) { bar.hidden = false; bar.textContent = 'Modo local ativo (armazenamento interno do navegador).'; }
-}
-
-/* ---------- classificações ---------- */
-function standings(cid) {
-  const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) === 'race').map(r => r.id));
-  const allRes = D.results.filter(r => raceIds.has(r.race_id));
+  const res = D.results.filter(r => r.driver_id === driverId && (r.session || 'RACE').startsWith('RACE'));
   
-  const inCat = x => !x.championship_id || x.championship_id === cid;
-  const agg = (dId) => {
-    const rsRace = allRes.filter(r => r.driver_id === dId && sx(r).startsWith('RACE'));
-    const driverRaceIds = [...new Set(allRes.filter(r => r.driver_id === dId).map(r => r.race_id))];
-    
-    let polesCount = 0;
-    driverRaceIds.forEach(rId => {
-      const rResults = allRes.filter(r => r.driver_id === dId && r.race_id === rId);
-      const hasPole = rResults.some(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1));
-      if (hasPole) polesCount++;
-    });
-
-    const flCount = allRes.filter(r => r.driver_id === dId && r.fastest_lap).length;
-
-    return {
-      pts: rsRace.reduce((a, r) => a + Number(r.points || 0), 0),
-      wins: rsRace.filter(r => r.position === 1 && r.status === 'FIN').length,
-      pod: rsRace.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
-      poles: polesCount,
-      fls: flCount,
-      n: rsRace.length
-    };
-  };
+  const wins = res.filter(r => r.position === 1 && r.status === 'FIN').length;
+  const podiums = res.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length;
+  const poles = res.filter(r => r.pole).length;
+  const fls = res.filter(r => r.fastest_lap).length;
+  const dnfs = res.filter(r => r.status === 'DNF' || r.status === 'DSQ').length;
+  const races = res.length;
   
-  const sort = (a, b) => b.pts - a.pts || b.wins - a.wins || b.pod - a.pod;
-  const drivers = D.drivers.filter(d => d.active !== false && inCat(d)).map(d => ({ d, ...agg(d.id) })).sort(sort);
-  const teams = D.teams.filter(inCat).map(t => {
-    const tRaceRes = allRes.filter(r => r.team_id === t.id && sx(r).startsWith('RACE'));
-    return {
-      t,
-      pts: tRaceRes.reduce((a, r) => a + Number(r.points || 0), 0),
-      wins: tRaceRes.filter(r => r.position === 1 && r.status === 'FIN').length,
-      pod: tRaceRes.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
-      n: tRaceRes.length
-    };
-  }).sort(sort);
-  
-  return { drivers, teams };
-}
-const champSel = (key = 'champ') => D.championships.length > 1 ? `<select data-change="${key}" style="width:auto;min-width:220px" aria-label="Categoria">${D.championships.map(c => `<option value="${c.id}" ${c.id === S.champ ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
-const sortedNews = () => [...D.news].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.created_at) - new Date(a.created_at));
+  const currentSeasonActive = D.seasons.length;
+  const seasonsDisputed = Math.max(1, (d.current_season || currentSeasonActive) - (d.start_season || 1) + 1);
+  const age = 17 + (seasonsDisputed - 1);
 
-/* ---------- componentes ---------- */
-const pageHead = (title, sub, right, img, color) => `<div class="pagehead" style="--bgimg:url('${safeUrl(img || cfg('track_image'))}');${color ? `border-left:5px solid ${safeColor(color)}` : ''}"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ''}</div><div class="row">${right || ''}</div></div>`;
-const avatarHTML = (d, cls = 'thumb') => safeUrl(d.photo_url) ? `<img class="${cls}" src="${safeUrl(d.photo_url)}" alt="">` : `<span class="${cls}">${initials(d.name)}</span>`;
-const teamLogo = (t, h = 22) => safeUrl(t?.logo_url) ? `<img class="tlogo" src="${safeUrl(t.logo_url)}" alt="" style="height:${h}px;width:auto;max-width:${h * 2}px">` : '';
+  const ratings = res.map(r => r.rating || (r.position === 1 ? 9.5 : r.position <= 3 ? 8.5 : r.status === 'DNF' ? 4.0 : 7.0));
+  const avgRating = ratings.length ? (ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(2) : '7.00';
 
-function raceCard(r) {
-  const d = new Date(r.race_date);
-  return `<a href="#/race/${r.id}" class="card hover race-card"><div class="date"><b>${d.getDate()}</b><small>${d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</small></div>
-  <div style="flex:1;min-width:0"><div class="muted" style="font-size:12px">${roundLbl(r)}</div><h3 style="font-size:17px">${flag(r.country_code)} ${esc(r.name)}</h3>
-  <div class="muted" style="font-size:13px">${esc(r.circuit || '')} · ${fmtTime(r.race_date)}</div></div><span class="tag ${r.status}">${STATUS[r.status]}</span></a>`;
-}
-function raceCardAdm(r) {
-  return `<div>${raceCard(r)}${isStaff() ? `<div class="row end" style="margin-top:6px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar</button><button class="btn sm danger" data-act="entDel" data-v="races" data-id="${r.id}">Excluir</button></div>` : ''}</div>`;
-}
-function newsCard(n, full) {
-  const body = n.body || '';
-  return `<article class="card news-card hover ${n.pinned ? 'pinned' : ''}">${safeUrl(n.image_url) ? `<div class="img" style="background-image:url('${safeUrl(n.image_url)}')"></div>` : ''}
-  <div class="row" style="gap:6px"><span class="tag">${KINDS[n.kind] || 'Anúncio'}</span>${n.pinned ? '<span class="tag pin">📌 Fixado</span>' : ''}<span class="muted" style="font-size:12px">${fmtDate(n.created_at)}</span></div>
-  <h3>${esc(n.title)}</h3><p class="muted body">${esc(full ? body : body.slice(0, 130) + (body.length > 130 ? '…' : ''))}</p>
-  ${isStaff() ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="news" data-id="${n.id}">Editar</button><button class="btn sm danger" data-act="entDel" data-v="news" data-id="${n.id}">Excluir</button></div>` : ''}</article>`;
-}
-function driverTable(rows, limit) {
-  const list = limit ? rows.slice(0, limit) : rows;
-  if (!list.length) return '<div class="empty">Sem pilotos cadastrados.</div>';
-  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${list.map((x, i) => { const t = teamOf(x.d.team_id); return `<tr class="click" data-go="#/driver/${x.d.id}"><td class="pos">${i + 1}</td>
-  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span>${avatarHTML(x.d, 'thumb')}${flag(x.d.country_code)} <b>${esc(x.d.name)}</b><span class="num">${x.d.number ?? ''}</span></td>
-  <td class="muted" style="white-space:nowrap">${teamLogo(t)}${esc(t?.name || '—')}</td><td>${x.wins}</td><td>${x.pod}</td><td class="pts">${x.pts}</td></tr>`; }).join('')}</tbody></table></div>`;
-}
-function teamTable(rows) {
-  if (!rows.length) return '<div class="empty">Sem equipes cadastradas.</div>';
-  return `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Equipe</th><th>V</th><th>P</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${rows.map((x, i) => `<tr><td class="pos">${i + 1}</td><td style="white-space:nowrap"><span class="bar" style="background:${safeColor(x.t.color)}"></span>${teamLogo(x.t, 26)}<b>${esc(x.t.name)}</b></td><td>${x.wins}</td><td>${x.pod}</td><td class="pts">${x.pts}</td></tr>`).join('')}</tbody></table></div>`;
-}
-function resultTable(raceId) {
-  const race = D.races.find(x => x.id === raceId), nav = race ? sessNav(race) : '', cs = race ? curSess(race) : 'RACE';
-  const rs = D.results.filter(r => r.race_id === raceId && sx(r) === cs).sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
-  if (!rs.length) return nav + '<div class="empty">Resultados ainda não publicados' + (nav ? ' para ' + cs : '') + '.</div>';
-  return nav + `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Piloto</th><th>Equipe</th><th>${isTimed(cs) ? 'Tempo' : 'Grid'}</th><th>Estado</th><th>Pen.</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${rs.map(r => { const d = driverOf(r.driver_id), t = teamOf(r.team_id); return `<tr><td class="pos">${r.status === 'FIN' ? (r.position ?? '—') : r.status}</td>
-  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(d?.name || '?')}</b>${r.pole ? ' <span class="tag">Pole</span>' : ''}${r.fastest_lap ? ' <span class="tag">VR</span>' : ''}</td>
-  <td class="muted" style="white-space:nowrap">${teamLogo(t, 20)}${esc(t?.name || '—')}</td><td>${isTimed(cs) ? esc(r.lap_time || '—') : (r.grid ?? '—')}</td><td>${r.status}</td>
-  <td class="muted">${r.penalty_seconds ? '+' + r.penalty_seconds + 's ' : ''}${r.penalty_points ? '−' + r.penalty_points + 'pts' : ''}${!r.penalty_seconds && !r.penalty_points ? '—' : ''}</td><td class="pts">${r.points}</td></tr>`; }).join('')}</tbody></table></div>`;
-}
-function resultTableTop(raceId, n) {
-  const rs = mainRes(raceId).filter(r => r.status === 'FIN').sort((a, b) => a.position - b.position).slice(0, n);
-  return `<table class="tbl"><tbody>${rs.map(r => { const d = driverOf(r.driver_id), t = teamOf(r.team_id); return `<tr><td class="pos">${r.position}</td><td><span class="bar" style="background:${safeColor(t?.color)}"></span>${esc(d?.name || '?')}</td><td class="muted" style="white-space:nowrap">${teamLogo(t, 18)}${esc(t?.short_name || t?.name || '')}</td><td class="pts">${r.points}</td></tr>`; }).join('')}</tbody></table>`;
+  let baseOvr = 64;
+  if (seasonsDisputed === 1) baseOvr = 68;
+  else if (seasonsDisputed === 2) baseOvr = 78;
+  else baseOvr = 82 + (seasonsDisputed * 1.5);
+
+  baseOvr += (wins * 2.5) + (podiums * 1.2) + (poles * 0.8) - (dnfs * 1.5);
+  let overall = Math.min(99, Math.max(58, Math.round(baseOvr)));
+
+  let cls = 'D';
+  if (overall >= 93) cls = 'X';
+  else if (overall >= 86) cls = 'S';
+  else if (overall >= 80) cls = 'A';
+  else if (overall >= 73) cls = 'B';
+  else if (overall >= 66) cls = 'C';
+
+  const price = `€${(overall * 0.9 + wins * 2.2).toFixed(1)}M`;
+  const wage = `€${(overall * 4.8).toFixed(0)}k/wk`;
+
+  return { d, wins, podiums, poles, fls, dnfs, races, seasonsDisputed, age, avgRating, overall, cls, price, wage, ratings };
 }
 
-/* ---------- páginas ---------- */
+/* =====================================================================
+   PÁGINAS E ROTAS
+   ===================================================================== */
 const PAGES = {};
-const nextRace = () => D.races.filter(r => r.status !== 'finished').sort((a, b) => new Date(a.race_date) - new Date(b.race_date))[0];
-const on = k => cfg(k) !== '0';
 
 PAGES.home = () => {
-  const nr = nextRace(), st = standings(S.champ);
-  const lastRace = [...D.races].filter(r => r.status === 'finished' && D.results.some(x => x.race_id === r.id)).sort((a, b) => new Date(b.race_date) - new Date(a.race_date))[0];
-  const upcoming = D.races.filter(r => r.status !== 'finished').sort((a, b) => new Date(a.race_date) - new Date(b.race_date)).slice(0, 4);
-  const banner = safeUrl(cfg('partner_banner'));
-  const blockLast = `<div><h2 class="sec-h"><span>Últimos resultados</span>${lastRace ? `<a class="btn sm ghost" href="#/race/${lastRace.id}">Ver tudo</a>` : ''}</h2>
-      <div class="card">${lastRace ? `<p class="muted" style="margin-bottom:8px">${flag(lastRace.country_code)} ${esc(lastRace.name)} · ${fmtDate(lastRace.race_date)}</p>${resultTableTop(lastRace.id, 8)}` : '<div class="empty">Ainda sem resultados.</div>'}</div></div>`;
-  const blockNext = `<div><h2 class="sec-h"><span>Próximas corridas</span><a class="btn sm ghost" href="#/calendar">Calendário</a></h2>
-      <div style="display:grid;gap:10px">${upcoming.length ? upcoming.map(raceCard).join('') : '<div class="card empty">Sem corridas agendadas.</div>'}</div></div>`;
-  const blockDrv = `<div><h2 class="sec-h"><span>Pilotos</span><span>${champSel()}<a class="btn sm ghost" href="#/standings">Completa</a></span></h2><div class="card">${driverTable(st.drivers, 8)}</div></div>`;
-  const blockTeams = `<div><h2 class="sec-h"><span>Construtores</span><a class="btn sm ghost" href="#/standings">Completa</a></h2><div class="card">${teamTable(st.teams)}</div></div>`;
-  const row = (a, b) => (a || b) ? `<section class="sec"><div class="cols">${a || ''}${b || ''}</div></section>` : '';
+  const next = D.races.find(r => r.status !== 'finished') || D.races[0];
   return `
-  <section class="hero" style="background-image:url('${safeUrl(cfg('hero_image'))}')"><div class="inner">
-    <div class="eyebrow">${nr ? (nr.status === 'live' ? 'Acontecendo agora' : 'Próximo Grand Prix') : esc(cfg('site_name'))}</div>
-    ${nr ? `<h1>${flag(nr.country_code)} ${esc(nr.name)}</h1><p>${esc(nr.circuit || '')} · ${esc(nr.country || '')} · ${fmtDate(nr.race_date, { weekday: 'long', day: '2-digit', month: 'long' })} às ${fmtTime(nr.race_date)}</p>
-    <div class="count" id="count" data-t="${nr.race_date}" data-live="${nr.status === 'live'}"></div>
-    <a class="btn red" href="#/race/${nr.id}">Detalhes da corrida →</a>` : `<h1>${esc(cfg('welcome_title'))}</h1><p>${esc(cfg('welcome_text'))}</p><p style="margin-top:12px" class="muted">Nenhuma corrida agendada no momento.</p>`}
-  </div></section>
-  ${banner && on('show_banner') ? `<div class="partner"><img src="${banner}" alt="Parceiro oficial"></div>` : ''}
-  ${row(on('show_last') && blockLast, on('show_next') && blockNext)}
-  ${row(on('show_drivers') && blockDrv, on('show_teams') && blockTeams)}
-  ${on('show_news') ? `<section class="sec"><h2 class="sec-h"><span>Anúncios oficiais</span><a class="btn sm ghost" href="#/news">Todos</a></h2>
-    <div class="cols3">${sortedNews().slice(0, 3).map(n => newsCard(n)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div></section>` : ''}`;
-};
-
-PAGES.calendar = () => {
-  const m = S.calMonth, y = m.getFullYear(), mo = m.getMonth();
-  const first = new Date(y, mo, 1), startOff = (first.getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
-  const base = D.races.filter(r => (S.calChamp === 'all' || r.championship_id === S.calChamp) && (S.calKind === 'all' || sessOf(r) === S.calKind));
-  const cells = [];
-  for (let i = 0; i < startOff; i++) cells.push('<div></div>');
-  for (let d = 1; d <= days; d++) {
-    const dayT = new Date(y, mo, d).getTime(), sess = base.filter(r => { if (!r.start_date) return false; const a = new Date(r.start_date), b = new Date(r.race_date), a0 = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime(), b0 = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime(); return dayT >= a0 && dayT < b0; });
-    const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0] || sess[0];
-    const today = new Date(); const isT = today.getFullYear() === y && today.getMonth() === mo && today.getDate() === d;
-    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.name.replace('Grande Prêmio ', 'GP '))}</span>`).join('')}</div>`);
-  }
-  const f = S.calFilter;
-  const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
-  const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
-  return `${pageHead('Calendário da temporada', 'Todas as etapas, horários e circuitos.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Adicionar sessão</button>' : ''))}
-  <div class="cols"><div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px">
-    <button class="btn sm" data-act="calPrev">←</button><h3>${m.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3><button class="btn sm" data-act="calNext">→</button></div>
-    <div class="cal">${['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(x => `<div class="h">${x}</div>`).join('')}${cells.join('')}</div></div>
-    <div><div class="chips" style="margin-bottom:8px">${['all', ...Object.keys(SESS)].map(k => `<button class="chip ${S.calKind === k ? 'on' : ''}" data-act="calKind" data-v="${k}">${k === 'all' ? 'Todos os tipos' : SESS[k]}</button>`).join('')}</div>
-    <div class="chips" style="margin-bottom:12px">${['all', 'upcoming', 'live', 'finished'].map(s => `<button class="chip ${f === s ? 'on' : ''}" data-act="calFilter" data-v="${s}">${s === 'all' ? 'Todas' : STATUS[s]}</button>`).join('')}</div>
-    <div style="display:grid;gap:12px">${list.map(raceCardAdm).join('') || '<div class="card empty">Sem corridas.</div>'}</div></div></div>`;
-};
-
-PAGES.race = id => {
-  const r = D.races.find(x => x.id === id);
-  if (!r) return '<div class="card empty">Corrida não encontrada.</div>';
-  const ch = champOf(r.championship_id), bg = safeUrl(r.image_url) || safeUrl(cfg('track_image'));
-  return `<a href="#/calendar" class="muted">← Calendário</a>
-  <section class="hero sm" style="margin-top:12px;background-image:url('${bg}');background-position:center"><div class="inner"><div class="eyebrow">${esc(ch?.name || cfg('site_name'))} · ${roundLbl(r)}</div>
-  <h1>${flag(r.country_code)} ${esc(r.name)}</h1><p>${esc(r.circuit || '')} · ${esc(r.country || '')}<br>${r.start_date ? `Início: ${fmtDate(r.start_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.start_date)}<br>Final: ` : 'Corrida: '}${fmtDate(r.race_date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} às ${fmtTime(r.race_date)}
-  ${r.laps ? `<br>${r.laps} voltas` : ''}</p>
-  <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Adicionar ao meu calendário</button></p></div></section>
-
-  ${r.description ? `<section class="sec"><div class="card" style="white-space:pre-line">${esc(r.description)}</div></section>` : ''}
-  ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Editar corrida</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Lançar resultados</button></div>` : ''}
-  <section class="sec"><h2>Resultados</h2><div class="card">${resultTable(r.id)}</div></section>`;
-};
-
-PAGES.standings = () => {
-  const st = standings(S.champ), ch = champOf(S.champ);
-  return `${pageHead(esc(ch?.name || 'Classificações'), esc(ch?.description || 'Campeonato de pilotos e de construtores.'), champSel() + '<button class="btn" data-act="csv">Exportar CSV</button>' + (isAdmin() ? '<button class="btn" data-act="entNew" data-v="championships">+ Nova categoria</button>' : ''), ch?.image_url, ch?.color)}
-  <section class="sec" style="margin-top:0"><h2>Campeonato de pilotos</h2><div class="card">${driverTable(st.drivers)}</div></section>
-  <section class="sec"><h2>Campeonato de construtores</h2><div class="card">${teamTable(st.teams)}</div></section>
-  <section class="sec"><h2>Classificação por equipes</h2><div class="cols3">${st.teams.map(x => {
-    const ds = st.drivers.filter(y => y.d.team_id === x.t.id);
-    return `<div class="card" style="border-top:3px solid ${safeColor(x.t.color)}"><div class="row" style="gap:10px;margin-bottom:6px">${teamLogo(x.t, 30)}<h3>${esc(x.t.name)}</h3></div><p class="muted" style="margin-bottom:10px">${x.pts} pts</p>${ds.map(y => `<div class="row" style="justify-content:space-between"><a href="#/driver/${y.d.id}">${esc(y.d.name)}</a><b class="display">${y.pts}</b></div>`).join('') || '<span class="muted">Sem pilotos</span>'}</div>`; }).join('') || '<div class="card empty">Sem equipes nesta categoria.</div>'}</div></section>`;
-};
-
-PAGES.drivers = () => {
-  const st = standings(S.champ);
-  return `${pageHead('Pilotos', 'Grid oficial da categoria.', champSel() + (isAdmin() ? '<button class="btn red" data-act="entNew" data-v="drivers">+ Adicionar piloto</button>' : ''))}
-  ${st.drivers.length > 6 ? '<input type="search" id="drvSearch" placeholder="Buscar piloto ou equipe…" aria-label="Buscar piloto" style="margin:0 0 14px;max-width:340px">' : ''}
-  <div class="cols3" id="drvGrid">${st.drivers.map(x => { const t = teamOf(x.d.team_id); return `<a href="#/driver/${x.d.id}" data-q="${esc((x.d.name + ' ' + (t?.name || '') + ' ' + (x.d.number ?? '')).toLowerCase())}" class="card hover drv-card" style="border-top:3px solid ${safeColor(t?.color)}">
-  ${avatarHTML(x.d, 'avatar')}<h3>${esc(x.d.name)}</h3><p class="muted">${flag(x.d.country_code)} #${x.d.number ?? '—'}</p><p class="muted">${teamLogo(t, 20)}${esc(t?.name || 'Sem equipe')}</p><p class="display" style="font-size:22px;margin-top:6px">${x.pts} pts</p></a>`; }).join('') || '<div class="card empty">Sem pilotos.</div>'}</div>`;
-};
-
-PAGES.driver = id => {
-  const d = driverOf(id);
-  if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
-  
-  const t = teamOf(d.team_id);
-  
-  const rs = D.results.filter(r => {
-    if (r.driver_id !== id) return false;
-    const race = D.races.find(x => x.id === r.race_id);
-    return race && sessOf(race) === 'race' && sx(r).startsWith('RACE');
-  });
-  
-  const allDriverResults = D.results.filter(r => r.driver_id === id);
-  const driverRaceIds = [...new Set(allDriverResults.map(r => r.race_id))];
-
-  let polesCount = 0;
-  driverRaceIds.forEach(rId => {
-    const rResults = allDriverResults.filter(r => r.race_id === rId);
-    const hasPole = rResults.some(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1));
-    if (hasPole) polesCount++;
-  });
-
-  const fin = rs.filter(r => r.status === 'FIN');
-  const flCount = allDriverResults.filter(r => r.fastest_lap).length;
-
-  const hist = D.results.filter(r => r.driver_id === id)
-    .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
-    .filter(x => x.race && sx(x.r) === mainSess(x.race))
-    .sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
-
-  return `<a href="#/drivers" class="muted">← Pilotos</a>
-  <section class="card" style="margin-top:12px;border-left:4px solid ${safeColor(t?.color)}"><div class="drv-head">
-    ${safeUrl(d.photo_url) ? `<img class="avatar" style="width:120px;height:120px" src="${safeUrl(d.photo_url)}" alt="">` : `<div class="avatar" style="width:120px;height:120px;font-size:38px">${initials(d.name)}</div>`}
-    <div class="big" style="color:${safeColor(t?.color)}">${d.number ?? ''}</div>
-    <div><h1 style="font-size:38px">${esc(d.name)}</h1><p class="muted">${flag(d.country_code)} ${esc(d.nationality || '')} · ${teamLogo(t, 24)}${esc(t?.name || 'Sem equipe')}</p>
-    ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar piloto</button></p>` : ''}</div></div></section>
-  <section class="sec"><div class="stats">
-    <div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Pontos</small></div>
-    <div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Vitórias</small></div>
-    <div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Pódios</small></div>
-    <div class="stat"><b>${polesCount}</b><small>Pole Positions</small></div>
-    <div class="stat"><b>${flCount}</b><small>Voltas Rápidas</small></div>
-    <div class="stat"><b>${d.titles || 0}</b><small>Campeonatos</small></div>
-    <div class="stat"><b>${rs.length}</b><small>Corridas</small></div></div></section>
-  <section class="sec"><h2>Histórico de resultados</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Grid</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>
-  ${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.grid ?? '—'}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem resultados.</div>'}</div></section>`;
-};
-
-PAGES.news = () => `${pageHead('Anúncios e comunicados', 'Avisos oficiais da direção da liga.', isStaff() ? '<button class="btn red" data-act="entNew" data-v="news">+ Novo anúncio</button>' : '')}
-  <div class="cols3">${sortedNews().map(n => newsCard(n, true)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div>`;
-
-/* ---------- autenticação ---------- */
-const localNote = () => '';
-PAGES.login = () => `<div class="card auth"><h2>Entrar</h2>${localNote()}<form data-form="login">
-  <label>Nome de usuário</label><input name="username" required autocomplete="username"><label>Senha</label><input type="password" name="password" required autocomplete="current-password">
-  <div class="row" style="margin-top:18px"><button class="btn red">Entrar</button></div></form>
-  <p class="hint" style="margin-top:14px">Esqueceu a senha? Peça a um administrador para redefinir.</p>
-  <p class="muted" style="margin-top:12px">Ainda não tem conta? <a href="#/register" style="color:var(--red2)">Criar conta</a></p></div>`;
-PAGES.register = () => `<div class="card auth"><h2>Criar conta</h2>${localNote()}<form data-form="register">
-  <label>Nome de usuário</label><input name="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="username" title="3 a 24 caracteres: letras, números e _">
-  <div class="hint">Letras, números e _ (sem espaços).</div>
-  <label>Senha (mín. 8 caracteres)</label><input type="password" name="password" required minlength="8" autocomplete="new-password">
-  <label>Repita a senha</label><input type="password" name="password2" required minlength="8" autocomplete="new-password">
-  <p class="muted" style="margin-top:10px;font-size:13px">Sua conta fica pendente até ser aprovada pela equipe de staff.</p>
-  <div class="row" style="margin-top:14px"><button class="btn red">Cadastrar</button></div></form></div>`;
-
-PAGES.profile = () => {
-  if (!me.user) return '<div class="card empty">Entre para ver o seu perfil. <a href="#/login" style="color:var(--red2)">Entrar</a></div>';
-  const p = me.profile || {}, d = D.drivers.find(x => x.profile_id === me.user.id), t = d && teamOf(d.team_id);
-  const rs = d ? D.results.filter(r => r.driver_id === d.id) : [], fin = rs.filter(r => r.status === 'FIN');
-  const hist = rs.map(r => ({ r, race: D.races.find(x => x.id === r.race_id) })).filter(x => x.race && sx(x.r) === mainSess(x.race)).sort((a, b) => new Date(b.race.race_date) - new Date(a.race.race_date));
-  const myTeam = D.teams.find(x => x.principal_id === me.user.id);
-  return `${pageHead('Meu perfil', '')}
-  <div class="cols"><div class="card"><div class="drv-head">${safeUrl(p.avatar_url) ? `<img class="avatar" src="${safeUrl(p.avatar_url)}" alt="">` : `<div class="avatar">${initials(p.username)}</div>`}
-    <div><h2>${esc(p.username || '')}</h2><p style="margin-top:6px"><span class="tag">${ROLES[p.role] || 'Visitante'}</span> <span class="tag">${ACCT[p.status] || ''}</span>${isOwner() ? ' <span class="tag owner">Conta principal</span>' : ''}</p></div></div>
-    ${p.status === 'pending' ? '<p class="muted" style="margin-top:14px">Sua conta aguarda aprovação do staff.</p>' : ''}
-    <form data-form="profile" style="margin-top:12px"><label>Nome de usuário</label><input name="username" value="${esc(p.username || '')}" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" ${isOwner() ? 'readonly' : ''}>
-    <label>Foto de perfil</label><input type="file" name="avatar" accept="image/*">
-    <div class="row" style="margin-top:16px"><button class="btn red">Salvar</button><button type="button" class="btn" data-act="logout">Sair</button></div></form>
-    <form data-form="changepw" style="margin-top:22px;border-top:1px solid var(--line);padding-top:6px"><label>Nova senha (mín. 8)</label><input type="password" name="password" required minlength="8" autocomplete="new-password">
-    <div class="row" style="margin-top:12px"><button class="btn">Alterar senha</button></div></form></div>
-  <div><div class="card"><h3 style="margin-bottom:10px">Equipe e número</h3>${d ? `<p>${teamLogo(t, 24)}<span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(t?.name || 'Sem equipe')}</b> · <span class="display" style="font-size:22px">#${d.number ?? '—'}</span></p><p style="margin-top:8px"><a class="btn sm" href="#/driver/${d.id}">Página pública</a></p>` : '<p class="muted">Você ainda não tem perfil de piloto associado. Fale com o staff.</p>'}</div>
-  <div class="stats" style="margin-top:14px"><div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Pontos</small></div><div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Vitórias</small></div><div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Pódios</small></div><div class="stat"><b>${rs.length}</b><small>Corridas</small></div></div></div></div>
-  ${myTeam ? `<section class="sec"><h2>Gerenciar minha equipe</h2><div class="card"><form data-form="myteam" data-id="${myTeam.id}"><div class="grid2"><div><label>Nome</label><input name="name" value="${esc(myTeam.name)}" required></div><div><label>Cor</label><input type="color" name="color" value="${safeColor(myTeam.color)}"></div></div>
-  ${fieldHTML({ k: 'logo_url', l: 'Logo da equipe', t: 'image' }, myTeam.logo_url)}<div class="row" style="margin-top:14px"><button class="btn red">Salvar equipe</button></div></form></div></section>` : ''}
-  <section class="sec"><h2>Histórico de corridas</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem corridas registradas.</div>'}</div></section>`;
-};
-
-/* ---------- ADMIN ---------- */
-const optT = () => D.teams.map(t => [t.id, t.name + (t.championship_id ? ' — ' + (champOf(t.championship_id)?.name || '') : '')]);
-const optP = () => D.profiles.map(p => [p.id, p.username || p.id.slice(0, 8)]);
-const optS = () => D.seasons.map(s => [s.id, s.name + (s.is_active ? ' (ativa)' : '')]);
-const optC = () => D.championships.map(c => [c.id, c.name]);
-const ENT = {
-  drivers: { label: 'Pilotos', cols: ['number', 'name', 'team_id', 'championship_id'], fields: [] },
-  teams: { label: 'Equipes', cols: ['name', 'short_name', 'championship_id', 'principal_id', 'color'], fields: [
-    { k: 'name', l: 'Nome da equipe', t: 'text', req: 1 }, { k: 'short_name', l: 'Sigla (3 letras)', t: 'text' }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC },
-    { k: 'color', l: 'Cor da equipe', t: 'color' }, { k: 'logo_url', l: 'Logo da equipe', t: 'image' }, { k: 'principal_id', l: 'Chefe de equipe (conta)', t: 'select', o: optP }] },
-  seasons: { label: 'Temporadas', cols: ['name', 'year', 'is_active'], fields: [{ k: 'name', l: 'Nome', t: 'text', req: 1 }, { k: 'year', l: 'Ano', t: 'number', req: 1 }, { k: 'is_active', l: 'Temporada ativa', t: 'bool' }] },
-  championships: { label: 'Categorias', one: 'Categoria', add: '+ Nova categoria', cols: ['name', 'category', 'season_id', 'points_scale'], fields: [
-    { k: 'name', l: 'Nome da categoria', t: 'text', req: 1 }, { k: 'category', l: 'Divisão / classe (opcional)', t: 'text' },
-    { k: 'season_id', l: 'Temporada', t: 'select', o: optS, help: 'Se deixar vazio, usa a temporada ativa (ou cria uma automaticamente).' },
-    { k: 'description', l: 'Descrição / regulamento resumido', t: 'textarea' }, { k: 'image_url', l: 'Imagem de capa', t: 'image' }, { k: 'color', l: 'Cor da categoria', t: 'color' },
-    { k: 'points_scale', l: 'Sistema de pontos (1º,2º,3º…)', t: 'text', help: 'Separe por vírgula. Ex.: 25,18,15,12,10,8,6,4,2,1 — só pontuam as posições listadas.' },
-    { k: 'fl_bonus', l: 'Pontos da volta mais rápida', t: 'number', help: 'Use 0 para desativar. Se mudar o sistema, todos os resultados são recalculados.' }] },
-  races: { label: 'Calendário', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
-    { k: 'kind', l: 'Tipo', t: 'select', o: () => Object.entries(SESS), req: 1 }, { k: 'name', l: 'Nome (Grand Prix, teste…)', t: 'text', req: 1 }, { k: 'championship_id', l: 'Categoria', t: 'select', o: optC, req: 1 }, { k: 'round', l: 'Rodada', t: 'number' },
-    { k: 'circuit', l: 'Circuito', t: 'text' }, { k: 'country', k2: 'country_code', l: 'País (bandeira)', t: 'country' },
-    { k: 'format', l: 'Modelo de fim de semana (sessões dos resultados)', t: 'select', o: WK_OPTS },
-    { k: 'start_date', l: 'Início do fim de semana', t: 'datetime' }, { k: 'race_date', l: 'Final do fim de semana', t: 'datetime', req: 1 },
-    { k: 'laps', l: 'Número de voltas', t: 'number' }, { k: 'status', l: 'Estado', t: 'select', o: () => Object.entries(STATUS), req: 1 },
-    { k: 'description', l: 'Descrição / regras da etapa', t: 'textarea' }, { k: 'image_url', l: 'Imagem do circuito', t: 'image' }] },
-  news: { label: 'Anúncios', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
-    { k: 'title', l: 'Título', t: 'text', req: 1 }, { k: 'kind', l: 'Tipo', t: 'select', o: () => Object.entries(KINDS), req: 1 },
-    { k: 'body', l: 'Texto do anúncio', t: 'textarea' }, { k: 'image_url', l: 'Imagem (opcional)', t: 'image' },
-    { k: 'pinned', l: 'Fixar no topo', t: 'bool', def: false }, { k: 'published', l: 'Publicado', t: 'bool', def: true }] }
-};
-const SET_FIELDS = [
-  ['Identidade', [
-    { k: 'site_name', l: 'Nome da liga (sigla)', t: 'text' }, { k: 'site_subtitle', l: 'Subtítulo', t: 'text' }, { k: 'logo_url', l: 'Logo principal', t: 'image' }]],
-  ['Cores e fonte', [
-    { k: 'accent', l: 'Cor de destaque', t: 'color' }, { k: 'color_bg', l: 'Cor de fundo', t: 'color' }, { k: 'color_panel', l: 'Cor dos cartões', t: 'color' }, { k: 'color_text', l: 'Cor do texto', t: 'color' },
-    { k: 'font_display', l: 'Fonte dos títulos', t: 'select', o: () => FONTS.map(f => [f, f]), noblank: 1 }]],
-  ['Imagens', [
-    { k: 'hero_image', l: 'Imagem principal da página inicial', t: 'image' }, { k: 'track_image', l: 'Imagem de circuito (fundo dos cabeçalhos)', t: 'image' }]],
-  ['Parceiro oficial', [
-    { k: 'partner_banner', l: 'Banner do parceiro (página inicial)', t: 'image' }, { k: 'partner_logo', l: 'Logo do parceiro (rodapé)', t: 'image' }, { k: 'partner_name', l: 'Nome do parceiro', t: 'text' }]],
-  ['Menu', [
-    { k: 'nav_home', l: 'Nome do botão: Início', t: 'text' }, { k: 'nav_calendar', l: 'Nome do botão: Calendário', t: 'text' }, { k: 'nav_standings', l: 'Nome do botão: Classificações', t: 'text' },
-    { k: 'nav_drivers', l: 'Nome do botão: Pilotos', t: 'text' }, { k: 'nav_news', l: 'Nome do botão: Anúncios', t: 'text' }]],
-  ['Seções da página inicial', [
-    { k: 'show_banner', l: 'Mostrar banner do parceiro', t: 'bool' }, { k: 'show_last', l: 'Mostrar últimos resultados', t: 'bool' }, { k: 'show_next', l: 'Mostrar próximas corridas', t: 'bool' },
-    { k: 'show_drivers', l: 'Mostrar classificação de pilotos', t: 'bool' }, { k: 'show_teams', l: 'Mostrar classificação de construtores', t: 'bool' }, { k: 'show_news', l: 'Mostrar anúncios', t: 'bool' }]],
-  ['Textos e links', [
-    { k: 'welcome_title', l: 'Título de boas-vindas (sem corridas)', t: 'text' }, { k: 'welcome_text', l: 'Texto de boas-vindas', t: 'text' }, { k: 'footer_text', l: 'Texto do rodapé', t: 'text' },
-    { k: 'discord_url', l: 'Link do Discord', t: 'text' }, { k: 'instagram_url', l: 'Link do Instagram', t: 'text' }, { k: 'youtube_url', l: 'Link do YouTube', t: 'text' }]],
-  ['Avançado', [
-    { k: 'custom_css', l: 'CSS personalizado', t: 'textarea', code: 1, help: 'Para quem quiser mexer em qualquer detalhe visual. Ex.: .card{border-radius:2px}' }]]
-];
-const TABS = () => {
-  const t = [];
-  if (isAdmin()) t.push(['site', 'Personalizar site'], ['championships', 'Categorias'], ['seasons', 'Temporadas'], ['drivers', 'Pilotos'], ['teams', 'Equipes']);
-  t.push(['races', 'Calendário'], ['results', 'Resultados'], ['news', 'Anúncios']);
-  if (isAdmin()) t.push(['users', 'Usuários'], ['audit', 'Histórico']);
-  return t;
-};
-function cellVal(k, v) {
-  if (v === null || v === undefined || v === '') return '—';
-  if (k === 'team_id') return esc(teamOf(v)?.name || '—');
-  if (k === 'championship_id') return esc(champOf(v)?.name || '—');
-  if (k === 'principal_id') return esc(D.profiles.find(p => p.id === v)?.username || '—');
-  if (k === 'season_id') return esc(D.seasons.find(s => s.id === v)?.name || '—');
-  if (k === 'race_date') return fmtDate(v) + ' ' + fmtTime(v);
-  if (k === 'created_at') return fmtDate(v);
-  if (k === 'kind') return KINDS[v] || v;
-  if (k === 'color') return `<span class="bar" style="background:${safeColor(v)};height:14px"></span><b>${esc(v)}</b>`;
-  if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
-  if (k === 'status') return `<span class="tag ${v}">${STATUS[v] || v}</span>`;
-  return esc(v);
-}
-
-PAGES.admin = async () => {
-  if (!me.user) return '<div class="card empty">Entre para continuar. <a href="#/login" style="color:var(--red2)">Entrar</a></div>';
-  if (!isStaff()) return '<div class="card empty"><h3>Acesso negado</h3><p class="muted" style="margin-top:8px">Esta área é exclusiva de administradores e staff autorizados.</p></div>';
-  const tabs = TABS();
-  if (!S.adminTab || !tabs.find(t => t[0] === S.adminTab)) S.adminTab = tabs[0][0];
-  const k = S.adminTab; let body = '';
-  if (k === 'site') body = sitePanel();
-  else if (k === 'drivers') body = driversPanel();
-  else if (ENT[k]) body = entPanel(k);
-  else if (k === 'results') body = resultsPanel();
-  else if (k === 'users') body = usersPanel();
-  else if (k === 'audit') body = await auditPanel();
-  return `${pageHead('Painel de administração', `${ROLES[me.profile.role]} · ${esc(me.profile.username)}`)}
-  <div class="tabs">${tabs.map(([key, l]) => `<button class="chip ${key === k ? 'on' : ''}" data-act="adminTab" data-v="${key}">${l}</button>`).join('')}</div>${body}`;
-};
-
-const catFilter = () => D.championships.length ? `<select data-change="admCat" style="width:auto;min-width:200px"><option value="all">Todas as categorias</option>${D.championships.map(c => `<option value="${c.id}" ${S.admCat === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
-
-function entPanel(key) {
-  const E = ENT[key]; let rows = D[key] || [];
-  if (['teams', 'races'].includes(key) && S.admCat !== 'all') rows = rows.filter(r => r.championship_id === S.admCat);
-  if (key === 'races') rows = [...rows].sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
-  if (key === 'news') rows = sortedNews();
-  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Resultados</button> ` : '';
-  const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumerar rodadas por data</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Adicionar'}</button></div></div>`;
-  const H = { number: 'Nº', name: 'Nome', team_id: 'Equipe', championship_id: 'Categoria', short_name: 'Sigla', principal_id: 'Chefe', color: 'Cor', year: 'Ano', is_active: 'Ativa', category: 'Divisão', season_id: 'Temporada', points_scale: 'Pontos', round: 'Rodada', circuit: 'Circuito', race_date: 'Data', status: 'Estado', title: 'Título', kind: 'Tipo', pinned: 'Fixado', created_at: 'Criado', published: 'Publicado' };
-  return head + `<div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr>${key === 'teams' ? '<th>Logo</th>' : ''}${E.cols.map(c => `<th>${H[c] || c}</th>`).join('')}<th></th></tr></thead><tbody>
-  ${rows.map(r => `<tr>${key === 'teams' ? `<td>${teamLogo(r, 28) || '<span class="muted">—</span>'}</td>` : ''}${E.cols.map(c => `<td>${cellVal(c, r[c])}</td>`).join('')}<td style="white-space:nowrap;text-align:right">${extra(r)}<button class="btn sm" data-act="entEdit" data-v="${key}" data-id="${r.id}">Editar</button> <button class="btn sm danger" data-act="entDel" data-v="${key}" data-id="${r.id}">Excluir</button></td></tr>`).join('')}</tbody></table>` : `<div class="empty">Nada por aqui ainda. Use “${E.add || '+ Adicionar'}”.</div>`}</div>`;
-}
-function driversPanel() {
-  let rows = D.drivers; if (S.admCat !== 'all') rows = rows.filter(d => d.championship_id === S.admCat);
-  rows = [...rows].sort((a, b) => (a.number ?? 999) - (b.number ?? 999));
-  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Pilotos</h2><div class="row">${catFilter()}<button class="btn red" data-act="entNew" data-v="drivers">+ Adicionar piloto</button></div></div>
-  <div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr><th>Piloto</th><th>Nº</th><th>País</th><th>Equipe</th><th>Categoria</th><th></th></tr></thead><tbody>
-  ${rows.map(d => { const t = teamOf(d.team_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inativo</span>' : ''}</td><td class="display">${d.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
-  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span>${teamLogo(t, 20)}${esc(t?.name || '—')}</td><td class="muted">${esc(champOf(d.championship_id)?.name || '—')}</td>
-  <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="entEdit" data-v="drivers" data-id="${d.id}">Editar</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Excluir</button></td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">Nenhum piloto nesta categoria. Use “+ Adicionar piloto”.</div>'}</div>`;
-}
-function sitePanel() {
-  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Personalizar o site</h2><button class="btn danger" data-act="resetSite">Restaurar padrão</button></div>
-  <p class="muted" style="margin-bottom:14px">Aqui você muda nome, logo, cores, fonte, imagens, menu, seções da página inicial, textos, links e até o CSS. Deixe um campo vazio para voltar ao padrão.</p>
-  <form data-form="settings" class="card">${SET_FIELDS.map(([g, fs]) => `<h3 style="margin:22px 0 4px;color:var(--red2)">${g}</h3>${fs.map(f => {
-    let v = f.t === 'color' || f.t === 'select' ? cfg(f.k) : f.t === 'bool' ? on(f.k) : (D.settings[f.k] || '');
-    return fieldHTML({ ...f, ph: DEFS[f.k] || '', prev: f.t === 'image' ? cfg(f.k) : null }, v); }).join('')}`).join('')}
-  <div class="row" style="margin-top:24px"><button class="btn red">Salvar personalização</button></div></form>`;
-}
-
-/* campos de formulário reutilizáveis */
-function fieldHTML(f, v) {
-  const n = `name="${f.k}"${f.req ? ' required' : ''}`, help = f.help ? `<div class="hint">${esc(f.help)}</div>` : '';
-  if (f.t === 'bool') return `<label class="chk"><input type="checkbox" name="${f.k}" ${v === undefined || v === null ? (f.def === false ? '' : 'checked') : (v ? 'checked' : '')}> ${f.l}</label>`;
-  let inp;
-  if (f.t === 'textarea') inp = `<textarea ${n} class="${f.code ? 'code' : ''}" ${f.code ? 'spellcheck="false"' : ''}>${esc(v || '')}</textarea>`;
-  else if (f.t === 'select') inp = `<select ${n}>${f.noblank ? '' : '<option value="">—</option>'}${f.o().map(([val, lab]) => `<option value="${esc(val)}" ${val === v ? 'selected' : ''}>${esc(lab)}</option>`).join('')}</select>`;
-  else if (f.t === 'country') inp = `<select ${n}><option value="">—</option>${COUNTRIES.map(([c, nm]) => `<option value="${c}" ${(f.cur || '').toUpperCase() === c ? 'selected' : ''}>${flag(c)} ${nm}</option>`).join('')}</select>`;
-  else if (f.t === 'datetime') { const dt = v ? new Date(new Date(v) - new Date(v).getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : ''; inp = `<input type="datetime-local" ${n} value="${dt}">`; }
-  else if (f.t === 'color') inp = `<input type="color" ${n} value="${safeColor(v)}">`;
-  else if (f.t === 'image') { const pv = safeUrl(f.prev || v); inp = `<div class="imgf">${pv ? `<img class="prev" src="${pv}" alt="">` : ''}<input type="url" name="${f.k}" value="${esc((v || '').startsWith('data:') ? '' : v || '')}" placeholder="Cole um link (https://…) ou envie um arquivo abaixo"><input type="file" name="${f.k}__file" accept="image/*"></div>`; }
-  else inp = `<input type="${f.t}" ${n} value="${esc(v ?? '')}" placeholder="${esc(f.ph || '')}">`;
-  return `<label>${f.l}</label>${inp}${help}`;
-}
-function openEnt(key, id) {
-  if (key === 'drivers') return openDriver(id);
-  const E = ENT[key], row = id ? { ...D[key].find(x => x.id === id) } : {};
-  if (!id && key === 'races') { row.championship_id = S.calChamp !== 'all' ? S.calChamp : (S.admCat !== 'all' ? S.admCat : S.champ); row.status = 'upcoming'; }
-  if (!id && key === 'teams' && S.admCat !== 'all') row.championship_id = S.admCat;
-  if (!id && key === 'championships') { row.points_scale = '25,18,15,12,10,8,6,4,2,1'; row.fl_bonus = 1; row.color = DEFS.accent; }
-  if (!id && key === 'news') row.kind = 'anuncio';
-  if (!id && key === 'races' && !D.championships.length) { toast('Crie uma categoria antes de adicionar corridas.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
-  
-  let extraImport = '';
-  if (key === 'championships' && D.championships.length > 0) {
-    extraImport = `<div style="margin-top:16px;background:var(--panel2);padding:12px;border-radius:8px;border:1px solid var(--line)">
-      <label>Importar equipes e pilotos de outra categoria existente</label>
-      <div class="row" style="gap:8px">
-        <select id="importSourceCat" style="flex:1"><option value="">— Selecionar categoria origem —</option>${D.championships.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
-        <button type="button" class="btn sm" data-act="importData" data-dest-id="${id || ''}">Importar</button>
+    <section class="hero" style="background-image:url('https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200')">
+      <div class="inner">
+        <div class="eyebrow">${next ? next.name : 'Real Formula Motorsports'}</div>
+        <h1>${next ? flag(next.country_code) + ' ' + esc(next.name) : esc(cfg('site_name'))}</h1>
+        <p class="muted">Acompanha estatísticas, ratings de pilotos, valor de mercado e a janela de transferências da liga.</p>
+        <div style="margin-top:20px"><a href="#/players" class="btn red">Ver Pilotos & Overall →</a></div>
       </div>
-      <div class="hint">Copia todas as equipes e pilotos da categoria selecionada para esta.</div>
-    </div>`;
-  }
+    </section>
+  `;
+};
 
-  $('#dlg').innerHTML = `<form data-form="ent" data-key="${key}" data-id="${id || ''}"><h3>${id ? 'Editar' : 'Adicionar'} — ${E.one || E.label}</h3>${E.fields.map(f => fieldHTML(f.t === 'country' ? { ...f, cur: row[f.k2] } : f, row[f.k])).join('')}${extraImport}
-  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar</button></div></form>`;
-  $('#dlg').showModal();
+PAGES.players = () => {
+  const list = D.drivers.map(d => getDriverCareerStats(d.id)).filter(Boolean).sort((a,b) => b.overall - a.overall);
+
+  return `
+    <div class="pagehead">
+      <div>
+        <h1>Pilotos da Liga</h1>
+        <p>Estatísticas unificadas, idade progressiva, nota média e classes de performance (D, C, B, A, S, X).</p>
+      </div>
+    </div>
+    
+    <div class="card scroll">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Piloto</th>
+            <th>Idade</th>
+            <th>Épocas</th>
+            <th>Equipe</th>
+            <th>Valor Est.</th>
+            <th>Vitórias</th>
+            <th>Pódios</th>
+            <th>Nota Média</th>
+            <th style="text-align:right">OVR</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map(st => {
+            const t = D.teams.find(x => x.id === st.d.team_id);
+            return `
+              <tr class="click" onclick="openDriverProfile('${st.d.id}')">
+                <td><span class="cls-badge cls-${st.cls}">${st.cls}</span></td>
+                <td><b>${esc(st.d.name)}</b> <span class="muted">#${st.d.number}</span></td>
+                <td>${st.age} anos</td>
+                <td><span class="tag">${st.seasonsDisputed} Season(s)</span></td>
+                <td><span class="bar" style="background:${safeColor(t?.color)}"></span>${esc(t?.name || 'Agente Livre')}</td>
+                <td style="color:var(--green)"><b>${st.price}</b></td>
+                <td>${st.wins}</td>
+                <td>${st.podiums}</td>
+                <td><b style="color:var(--amber)">${st.avgRating}</b></td>
+                <td style="text-align:right"><span class="ovr-pill">${st.overall}</span></td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+};
+
+PAGES.records = () => {
+  const stats = D.drivers.map(d => getDriverCareerStats(d.id)).filter(Boolean);
+  const mostWins = [...stats].sort((a,b) => b.wins - a.wins)[0];
+  const mostPoles = [...stats].sort((a,b) => b.poles - a.poles)[0];
+  const youngestWinner = [...stats].filter(x => x.wins > 0).sort((a,b) => a.age - b.age)[0] || stats[0];
+
+  return `
+    <div class="pagehead">
+      <div>
+        <h1>Recordes da Liga</h1>
+        <p>Estatísticas históricas acumuladas da RFM inspiradas nos recordes do automobilismo real.</p>
+      </div>
+    </div>
+
+    <div class="cols3">
+      <div class="card">
+        <span class="tag">Mais Jovem</span>
+        <h3 style="margin-top:8px">Piloto mais novo a vencer</h3>
+        <p class="display" style="font-size:28px;color:var(--red2);margin-top:6px">${esc(youngestWinner?.d.name || '—')}</p>
+        <p class="muted" style="font-size:13px">${youngestWinner?.age || 17} Anos</p>
+      </div>
+      <div class="card">
+        <span class="tag">Vitórias</span>
+        <h3 style="margin-top:8px">Maior vencedor da liga</h3>
+        <p class="display" style="font-size:28px;color:var(--amber);margin-top:6px">${esc(mostWins?.d.name || '—')}</p>
+        <p class="muted" style="font-size:13px">${mostWins?.wins || 0} Vitórias Totais</p>
+      </div>
+      <div class="card">
+        <span class="tag">Qualificação</span>
+        <h3 style="margin-top:8px">Rei das Pole Positions</h3>
+        <p class="display" style="font-size:28px;color:var(--cls-a);margin-top:6px">${esc(mostPoles?.d.name || '—')}</p>
+        <p class="muted" style="font-size:13px">${mostPoles?.poles || 0} Poles</p>
+      </div>
+    </div>
+  `;
+};
+
+PAGES.transfers = () => {
+  return `
+    <div class="pagehead">
+      <div>
+        <h1>Janela de Transferências</h1>
+        <p>Histórico completo de movimentações de pilotos entre temporadas.</p>
+      </div>
+    </div>
+
+    <div class="card scroll">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Temporada</th>
+            <th>Piloto</th>
+            <th>Origem</th>
+            <th>Destino</th>
+            <th>Valor da Transação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${D.transfers.map(tf => {
+            const d = D.drivers.find(x => x.id === tf.driver_id);
+            return `
+              <tr>
+                <td><span class="tag">${esc(tf.season)}</span></td>
+                <td><b>${esc(d?.name || 'Piloto')}</b></td>
+                <td class="muted">${esc(tf.from_team)}</td>
+                <td><b>${esc(tf.to_team)}</b></td>
+                <td style="color:var(--green)"><b>${esc(tf.fee)}</b></td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+};
+
+PAGES.teams = () => {
+  return `
+    <div class="pagehead">
+      <div>
+        <h1>Equipes & Construtores</h1>
+        <p>Títulos de construtores (WCC), pilotos campeões pela equipe (WDC) e o piloto mais vitorioso.</p>
+      </div>
+    </div>
+
+    <div class="cols3">
+      ${D.teams.map(t => {
+        const teamDrivers = D.drivers.filter(d => d.team_id === t.id);
+        return `
+          <div class="card" style="border-top:4px solid ${safeColor(t.color)}">
+            <h2>${esc(t.name)}</h2>
+            <p class="muted" style="font-size:12px">Sigla: ${esc(t.short_name)}</p>
+            <div style="margin:14px 0">
+              <p>WCC (Construtores): <b>${t.championships_won || 0} Título(s)</b></p>
+              <p>WDC (Pilotos): <b>${(t.titles_wdc || []).join(', ') || 'Nenhum'}</b></p>
+            </div>
+            <h4 style="margin-top:10px">Pilotos no Grid:</h4>
+            ${teamDrivers.map(d => `<div class="muted" style="font-size:13px">• ${esc(d.name)} (#${d.number})</div>`).join('') || '<span class="muted">Sem pilotos</span>'}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+};
+
+PAGES.calendar = () => `<div class="card"><h2>Calendário</h2><p class="muted">Lista de corridas agendadas.</p></div>`;
+PAGES.standings = () => `<div class="card"><h2>Classificação Oficial</h2><p class="muted">Pontuação do campeonato de pilotos e construtores.</p></div>`;
+PAGES.news = () => `<div class="card"><h2>Anúncios Oficiais</h2><p class="muted">Comunicados da direção de prova.</p></div>`;
+
+PAGES.admin = () => {
+  return `
+    <div class="pagehead">
+      <div>
+        <h1>Painel de Administração</h1>
+        <p>Gerencie ligas, corridas e faça a transição de temporadas sem duplicar cadastros.</p>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--amber)">
+      <h3>🔄 Mudança de Temporada (Season Transition)</h3>
+      <p class="muted" style="margin-top:6px;margin-bottom:14px">Avança a temporada da liga. Todos os pilotos cadastrados sobem automaticamente +1 season de experiência e +1 ano de idade sem criar dados duplicados.</p>
+      <button class="btn red" onclick="advanceSeason()">Executar Mudança de Temporada →</button>
+    </div>
+  `;
+};
+
+/* =====================================================================
+   DETALHES DO PERFIL DO PILOTO (MODAL COMPLETO ESTILO DASHBOARD)
+   ===================================================================== */
+function openDriverProfile(driverId) {
+  const st = getDriverCareerStats(driverId);
+  if (!st) return;
+  const t = D.teams.find(x => x.id === st.d.team_id);
+  const dlg = $('#dlg');
+
+  dlg.innerHTML = `
+    <div class="profile-modal">
+      <div>
+        <div style="width:100%;height:200px;background:var(--panel2);border-radius:10px;display:grid;place-items:center;font-size:54px;font-family:var(--fd)">
+          ${st.d.photo_url ? `<img src="${st.d.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">` : initials(st.d.name)}
+        </div>
+        <div style="margin-top:14px">
+          <h2>${esc(st.d.name)} <span class="cls-badge cls-${st.cls}">${st.cls}</span></h2>
+          <p class="muted">${flag(st.d.country_code)} ${esc(st.d.nationality || '')} · #${st.d.number}</p>
+          <div style="margin-top:12px;font-size:13px">
+            <p>Equipe: <b style="color:${safeColor(t?.color)}">${esc(t?.name || 'Agente Livre')}</b></p>
+            <p>Idade de Carreira: <b>${st.age} Anos</b></p>
+            <p>Salário Est.: <b style="color:var(--green)">${st.wage}</b></p>
+            <p>Preço de Mercado: <b style="color:var(--green)">${st.price}</b></p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="cols4" style="margin-bottom:16px">
+          <div class="card" style="text-align:center"><b style="font-size:26px;font-family:var(--fd)">${st.overall}</b><br><small class="muted">OVERALL</small></div>
+          <div class="card" style="text-align:center"><b style="font-size:26px;font-family:var(--fd);color:var(--green)">${st.wins}</b><br><small class="muted">VITÓRIAS</small></div>
+          <div class="card" style="text-align:center"><b style="font-size:26px;font-family:var(--fd)">${st.podiums}</b><br><small class="muted">PÓDIOS</small></div>
+          <div class="card" style="text-align:center"><b style="font-size:26px;font-family:var(--fd);color:var(--amber)">${st.avgRating}</b><br><small class="muted">NOTA MÉDIA</small></div>
+        </div>
+
+        <h3>Forma Recente (Ratings por Fim de Semana)</h3>
+        <p class="muted" style="font-size:12px;margin-bottom:10px">Notas atribuídas em cada GP com base em ultrapassagens, posição e ritmo.</p>
+        <div class="row" style="gap:8px">
+          ${st.ratings.map(r => {
+            const cls = r >= 8.5 ? 'rating-high' : r >= 6.8 ? 'rating-mid' : 'rating-low';
+            return `<div class="rating-pill ${cls}">${r.toFixed(1)}</div>`;
+          }).join('')}
+        </div>
+
+        <div class="row end" style="margin-top:28px">
+          <button class="btn" onclick="document.getElementById('dlg').close()">Fechar Perfil</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  dlg.showModal();
 }
 
-function teamOpts(cat, sel) {
-  const ts = D.teams.filter(t => !cat || !t.championship_id || t.championship_id === cat);
-  return `<option value="">— Sem equipe —</option>${ts.map(t => `<option value="${t.id}" ${t.id === sel ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}<option value="__new">➕ Criar nova equipe…</option>`;
-}
-function openDriver(id) {
-  if (!D.championships.length) { toast('Crie uma categoria antes de adicionar pilotos.', true); S.adminTab = 'championships'; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; return; }
-  const d = id ? driverOf(id) : { active: true, titles: 0, championship_id: S.admCat !== 'all' ? S.admCat : S.champ };
-  const t = teamOf(d.team_id);
-  $('#dlg').innerHTML = `<form data-form="driver" data-id="${id || ''}"><h3>${id ? 'Editar piloto' : 'Adicionar piloto à categoria'}</h3>
-  <label>Categoria</label><select name="championship_id" data-change="drvCat" required><option value="">—</option>${optC().map(([v, l]) => `<option value="${v}" ${v === d.championship_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
-  ${fieldHTML({ k: 'photo_url', l: 'Foto do piloto', t: 'image' }, d.photo_url)}
-  <div class="grid2"><div><label>Nome</label><input name="name" value="${esc(d.name || '')}" required></div><div><label>Número</label><input type="number" name="number" min="0" max="999" value="${d.number ?? ''}"></div></div>
-  ${fieldHTML({ k: 'country', k2: 'country_code', l: 'Nacionalidade', t: 'country', cur: d.country_code }, '')}
-  <label>Equipe</label><select name="team_id" id="drvTeam" data-change="drvTeam">${teamOpts(d.championship_id, d.team_id)}</select>
-  <div id="newTeam" hidden><label>Nome da nova equipe</label><input name="new_team_name" placeholder="Ex.: Aurora Racing"></div>
-  <label>Cor da equipe</label><input type="color" name="team_color" id="drvColor" value="${safeColor(t?.color)}">
-  ${fieldHTML({ k: 'team_logo', l: 'Logo da equipe', t: 'image' }, t?.logo_url || '')}
-  <div class="hint">Ao escolher uma equipe existente, mudar a cor ou o logo altera a equipe inteira.</div>
-  <div class="grid2"><div><label>Campeonatos conquistados</label><input type="number" name="titles" min="0" value="${d.titles || 0}"></div>
-  <div><label>Conta associada (opcional)</label><select name="profile_id"><option value="">—</option>${optP().map(([v, l]) => `<option value="${v}" ${v === d.profile_id ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div>
-  <label class="chk"><input type="checkbox" name="active" ${d.active === false ? '' : 'checked'}> Piloto ativo</label>
-  <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancelar</button><button class="btn red">Salvar piloto</button></div></form>`;
-  $('#dlg').showModal();
+/* =====================================================================
+   MUDANÇA DE TEMPORADA (SEM DUPLICAR PILOTOS E EQUIPES)
+   ===================================================================== */
+function advanceSeason() {
+  const currentActive = D.seasons.find(s => s.is_active);
+  if (currentActive) currentActive.is_active = false;
+
+  const nextSeasonNum = D.seasons.length + 1;
+  const newSeason = { id: 's' + nextSeasonNum, name: 'Season ' + nextSeasonNum, year: 2024 + nextSeasonNum, is_active: true };
+  D.seasons.push(newSeason);
+
+  D.drivers.forEach(d => {
+    d.current_season = (d.current_season || D.seasons.length - 1) + 1;
+  });
+
+  toast(`Virada de temporada executada! Bem-vindo à ${newSeason.name}.`);
+  route();
 }
 
-function resultsPanel() {
-  const races = [...D.races].sort((a, b) => new Date(b.race_date) - new Date(a.race_date));
-  if ((!S.resRace || !D.races.find(r => r.id === S.resRace)) && races.length) S.resRace = races[0].id;
-  const race = D.races.find(r => r.id === S.resRace);
-  const ds = race ? D.drivers.filter(d => d.active !== false && (!d.championship_id || d.championship_id === race.championship_id)).sort((a, b) => (a.number ?? 999) - (b.number ?? 999)) : [];
-  const cs = race ? curSess(race) : 'RACE';
-  const ex = id => D.results.find(r => r.race_id === S.resRace && r.driver_id === id && sx(r) === cs) || {};
-  const ch = race && champOf(race.championship_id);
-  return `<h2 style="margin-bottom:12px">Publicar resultados</h2>
-  <div class="card"><label style="margin-top:0">Grand Prix</label><select data-change="resRace">${races.map(r => `<option value="${r.id}" ${r.id === S.resRace ? 'selected' : ''}>${flag(r.country_code)} ${esc(r.name)} — ${fmtDate(r.race_date)}</option>`).join('')}</select>
-  ${race ? `<div style="margin-top:16px">${sessNav(race)}</div><form data-form="results" style="margin-top:4px"><h3 style="margin-bottom:8px">Sessão: ${esc(cs)}</h3><p class="muted" style="font-size:13px;margin-bottom:10px">Informe a posição final classificada (já com as penalizações em segundos aplicadas). Os pontos são calculados automaticamente com o sistema de pontos da categoria (${esc(ch?.points_scale || '25,18,15,12,10,8,6,4,2,1')}; volta mais rápida +${ch?.fl_bonus ?? 1}), menos a penalização em pontos.</p>
-  <div class="scroll"><table class="tbl"><thead><tr><th>Piloto</th><th>${isTimed(cs) ? 'Tempo' : 'Grid'}</th><th>Pos</th><th>Estado</th><th>Pen. s</th><th>Pen. pts</th><th>Pole</th><th>VR</th><th>Pts</th></tr></thead><tbody>
-  ${ds.map(d => { const e = ex(d.id); return `<tr data-d="${d.id}"><td style="white-space:nowrap">${esc(d.name)} <span class="num">${d.number ?? ''}</span></td>
-  <td>${isTimed(cs) ? `<input type="text" name="lap" value="${esc(e.lap_time || '')}" placeholder="1:32.456" inputmode="decimal" autocomplete="off" style="width:110px">` : `<input type="number" min="1" name="grid" value="${e.grid ?? ''}" style="width:64px">`}</td><td><input type="number" min="1" name="position" value="${e.position ?? ''}" style="width:64px"></td>
-  <td><select name="status" style="width:84px">${['FIN', 'DNF', 'DSQ', 'DNS'].map(s => `<option ${e.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
-  <td><input type="number" min="0" name="ps" value="${e.penalty_seconds || 0}" style="width:64px"></td><td><input type="number" min="0" name="pp" value="${e.penalty_points || 0}" style="width:64px"></td>
-  <td><input type="checkbox" name="pole" ${e.pole ? 'checked' : ''}></td><td><input type="checkbox" name="fl" ${e.fastest_lap ? 'checked' : ''}></td><td class="pts">${e.points ?? '—'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="empty">Nenhum piloto nesta categoria. Adicione pilotos na aba “Pilotos”.</td></tr>'}</tbody></table></div>
-  <label class="chk"><input type="checkbox" name="finish" checked> Marcar corrida como finalizada</label>
-  <div class="row" style="margin-top:14px"><button class="btn red">Publicar resultados</button></div></form>` : '<div class="empty">Crie primeiro uma corrida na aba Calendário.</div>'}</div>`;
-}
-function usersPanel() {
-  const ps = D.profiles, pend = ps.filter(p => p.status === 'pending');
-  const row = p => {
-    const main = (p.username || '').toLowerCase() === OWNER_NAME, locked = main || (p.role === 'admin' && !isOwner());
-    const roleOpts = Object.entries(ROLES).filter(([k]) => k !== 'admin' || isOwner() || p.role === 'admin');
-    return `<tr><td><b>${esc(p.username || '—')}</b> ${main ? '<span class="tag owner">Conta principal</span>' : ''}<br><small class="muted">${esc(p.id.slice(0, 8))}</small></td><td>${fmtDate(p.created_at)}</td>
-  <td><select data-change="userRole" data-id="${p.id}" style="width:auto" ${locked ? 'disabled' : ''}>${roleOpts.map(([k, l]) => `<option value="${k}" ${p.role === k ? 'selected' : ''}>${l}</option>`).join('')}</select></td>
-  <td><span class="tag ${p.status === 'active' ? 'finished' : p.status === 'pending' ? 'upcoming' : ''}">${ACCT[p.status]}</span></td>
-  <td style="white-space:nowrap;text-align:right">${!locked && p.status !== 'active' ? `<button class="btn sm" data-act="userStatus" data-id="${p.id}" data-v="active">Aprovar</button> ` : ''}${!locked && p.status !== 'suspended' ? `<button class="btn sm danger" data-act="userStatus" data-id="${p.id}" data-v="suspended">Suspender</button> ` : ''}${!(p.role === 'admin' && !isOwner() && !main && p.id !== me.user.id) || main && isOwner() ? `<button class="btn sm" data-act="pwReset" data-id="${p.id}" data-n="${esc(p.username)}">Redefinir senha</button>` : ''}</td></tr>`; };
-  return `<h2 style="margin-bottom:6px">Usuários e acessos</h2>
-  <p class="muted" style="margin-bottom:14px">Mude a permissão de qualquer conta para dar ou tirar acesso. ${isOwner() ? 'Como conta principal, você também pode dar e tirar o cargo de administrador.' : 'Somente a conta principal pode dar ou tirar o cargo de administrador.'}</p>
-  ${pend.length ? `<div class="card" style="margin-bottom:16px;border-color:#52421d"><h3 style="margin-bottom:8px">Pedidos de cadastro (${pend.length})</h3><div class="scroll"><table class="tbl"><tbody>${pend.map(row).join('')}</tbody></table></div></div>` : ''}
-  <div class="card scroll"><table class="tbl"><thead><tr><th>Usuário</th><th>Criada</th><th>Permissão</th><th>Estado</th><th></th></tr></thead><tbody>${ps.map(row).join('') || '<tr><td class="empty" colspan="5">Sem contas.</td></tr>'}</tbody></table></div>`;
-}
-async function auditPanel() {
-  const { data, error } = await sb.from('audit_log').select('*').order('created_at', { ascending: false }).limit(100);
-  if (error) return `<div class="card empty">${esc(error.message)}</div>`;
-  const who = id => D.profiles.find(p => p.id === id)?.username || (id ? id.slice(0, 8) : 'sistema');
-  const ACTN = { INSERT: 'Criou', UPDATE: 'Alterou', DELETE: 'Excluiu' };
-  return `<h2 style="margin-bottom:12px">Histórico de alterações</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Quando</th><th>Quem</th><th>Ação</th><th>Tabela</th><th>Detalhe</th></tr></thead><tbody>
-  ${data.map(a => { const o = a.new_data || a.old_data || {}; return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(a.created_at)} ${fmtTime(a.created_at)}</td><td>${esc(who(a.user_id))}</td><td>${ACTN[a.action] || a.action}</td><td>${esc(a.table_name)}</td><td class="muted">${esc(o.name || o.title || o.username || o.key || o.position || String(a.row_id || '').slice(0, 8))}</td></tr>`; }).join('') || '<tr><td colspan="5" class="empty">Sem registros.</td></tr>'}</tbody></table></div>`;
-}
-
-/* ---------- router ---------- */
+/* =====================================================================
+   ROTEADOR E NAVEGAÇÃO
+   ===================================================================== */
 function renderNav() {
   const h = location.hash || '#/';
-  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/drivers', 'nav_drivers'], ['#/news', 'nav_news']];
-  const l = NAVL.map(([href, k]) => `<a href="${href}" class="${h === href ? 'on' : ''}">${esc(cfg(k))}</a>`);
-  if (isStaff()) l.push(`<a href="#/admin" class="${h.startsWith('#/admin') ? 'on' : ''}">Admin</a>`);
-  l.push(me.user ? `<a href="#/profile" class="${h === '#/profile' ? 'on' : ''}">${esc(me.profile?.username || 'Perfil')}</a>` : `<a href="#/login" class="${h === '#/login' ? 'on' : ''}" style="color:#fff;background:var(--red)">Entrar</a>`);
-  $('#links').innerHTML = l.join(''); $('#links').classList.remove('open');
-  $('#gear').hidden = !isAdmin();
+  const links = [
+    ['#/', 'nav_home'],
+    ['#/players', 'nav_players'],
+    ['#/records', 'nav_records'],
+    ['#/transfers', 'nav_transfers'],
+    ['#/teams', 'nav_teams'],
+    ['#/calendar', 'nav_calendar'],
+    ['#/standings', 'nav_standings'],
+    ['#/admin', 'Admin']
+  ];
+
+  $('#logo').innerHTML = `<b>${esc(cfg('site_name'))}<small>${esc(cfg('site_subtitle'))}</small></b>`;
+  $('#links').innerHTML = links.map(([href, k]) => `<a href="${href}" class="${h === href ? 'on' : ''}">${esc(cfg(k) || k)}</a>`).join('');
 }
-let countTimer;
-async function route() {
-  clearInterval(countTimer);
-  const rawHash = location.hash || '#/';
-  const h = rawHash.slice(2).split('/'), page = h[0] || 'home';
+
+function route() {
+  const raw = location.hash || '#/';
+  const page = raw.slice(2).split('/')[0] || 'home';
   renderNav();
   const fn = PAGES[page] || PAGES.home;
-  const app = $('#app'); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = '';
-  app.innerHTML = await fn(h[1]);
-  const c = $('#count');
-  if (c) { const tick = () => {
-    const t = new Date(c.dataset.t) - Date.now();
-    if (t <= 0 || c.dataset.live === 'true') { c.innerHTML = '<div style="min-width:160px"><b style="color:var(--red2)">LIVE</b><small>Em pista</small></div>'; return; }
-    const v = [Math.floor(t / 864e5), Math.floor(t / 36e5) % 24, Math.floor(t / 6e4) % 60, Math.floor(t / 1e3) % 60];
-    c.innerHTML = ['Dias', 'Horas', 'Min', 'Seg'].map((l, i) => `<div><b>${String(v[i]).padStart(2, '0')}</b><small>${l}</small></div>`).join(''); };
-    tick(); countTimer = setInterval(tick, 1000); }
+  $('#app').innerHTML = fn();
 }
-async function refresh() { const y = window.scrollY; await loadData(); await route(); window.scrollTo(0, y); }
-const goAdmin = tab => { S.adminTab = tab; if (location.hash === '#/admin') route(); else location.hash = '#/admin'; };
 
-/* ---------- ações ---------- */
-const download = (name, text, type) => { const u = URL.createObjectURL(new Blob([text], { type })); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); };
-const ACT = {
-  closeDlg: () => $('#dlg').close(),
-  csv: () => {
-    const st = standings(S.champ), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-    const rows = [['Pos', 'Piloto', 'Equipe', 'Pontos', 'Vitórias', 'Pódios']].concat(st.drivers.map((x, i) => [i + 1, x.d.name, teamOf(x.d.team_id)?.name || '', x.pts, x.wins, x.pod]));
-    rows.push([], ['Pos', 'Equipe', 'Pontos', 'Vitórias', 'Pódios']);
-    st.teams.forEach((x, i) => rows.push([i + 1, x.t.name, x.pts, x.wins, x.pod]));
-    download('classificacao.csv', '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n'), 'text/csv;charset=utf-8');
-  },
-  ics: a => {
-    const r = D.races.find(x => x.id === a.dataset.v); if (!r) return;
-    const f = d => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d+/, ''), t0 = new Date(r.race_date).getTime();
-    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Liga//PT', 'BEGIN:VEVENT', 'UID:' + r.id + '@liga', 'DTSTAMP:' + f(Date.now()), 'DTSTART:' + f(r.start_date ? new Date(r.start_date).getTime() : t0), 'DTEND:' + f(t0 + 2 * 36e5),
-      'SUMMARY:' + (cfg('site_name') + ' — ' + r.name).replace(/[,;]/g, ' '), 'LOCATION:' + [r.circuit, r.country].filter(Boolean).join(' ').replace(/[,;]/g, ' '), 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
-    download('corrida.ics', ics, 'text/calendar;charset=utf-8');
-  },
-  logout: async () => { await sb.auth.signOut(); me = { user: null, profile: null }; location.hash = '#/'; await refresh(); },
-  calPrev: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() - 1, 1); route(); },
-  calNext: () => { S.calMonth = new Date(S.calMonth.getFullYear(), S.calMonth.getMonth() + 1, 1); route(); },
-  calFilter: el => { S.calFilter = el.dataset.v; route(); },
-  calKind: el => { S.calKind = el.dataset.v; route(); },
-  sessSet: el => { S.sess[el.dataset.id] = el.dataset.v; route(); },
-  sessGo: el => { const r = D.races.find(x => x.id === el.dataset.id), l = sessionsOf(r); S.sess[r.id] = l[(l.indexOf(curSess(r)) + Number(el.dataset.v) + l.length) % l.length]; route(); },
-  adminTab: el => { S.adminTab = el.dataset.v; route(); },
-  openSite: () => goAdmin('site'),
-  entNew: el => openEnt(el.dataset.v),
-  entEdit: el => openEnt(el.dataset.v, el.dataset.id),
-  goResults: el => { S.resRace = el.dataset.id; goAdmin('results'); },
-  importData: async el => {
-    const sourceCatId = $('#importSourceCat').value;
-    if (!sourceCatId) return toast('Selecione uma categoria de origem para importar.', true);
-    
-    // Recolher equipes e pilotos da categoria de origem
-    const srcTeams = D.teams.filter(t => t.championship_id === sourceCatId);
-    const srcDrivers = D.drivers.filter(d => d.championship_id === sourceCatId);
-    
-    if (!srcTeams.length && !srcDrivers.length) return toast('A categoria selecionada não possui equipes nem pilotos.', true);
-    
-    const teamIdMap = {};
-    let importedTeams = 0, importedDrivers = 0;
-    
-    // Importar equipes temporariamente em memória / banco para inserir ao salvar o formulário principal
-    for (const st of srcTeams) {
-      const newTeamId = crypto.randomUUID ? crypto.randomUUID() : 't' + Math.random().toString(36).slice(2);
-      teamIdMap[st.id] = newTeamId;
-      const res = await sb.from('teams').insert({
-        id: newTeamId,
-        name: st.name + ' (Cópia)',
-        short_name: st.short_name,
-        color: st.color,
-        logo_url: st.logo_url,
-        championship_id: null // Ficará vinculado à nova categoria ao salvar
-      });
-      if (!res.error) importedTeams++;
-    }
-    
-    for (const sd of srcDrivers) {
-      const res = await sb.from('drivers').insert({
-        name: sd.name,
-        number: sd.number,
-        nationality: sd.nationality,
-        country_code: sd.country_code,
-        team_id: sd.team_id ? (teamIdMap[sd.team_id] || null) : null,
-        photo_url: sd.photo_url,
-        titles: sd.titles || 0,
-        active: sd.active,
-        championship_id: null
-      });
-      if (!res.error) importedDrivers++;
-    }
-    
-    toast(`Importação concluída: ${importedTeams} equipes e ${importedDrivers} pilotos copiados! Salve a categoria para finalizar.`);
-    $('#dlg').close();
-    await refresh();
-  },
-  entDel: async el => {
-    const k = el.dataset.v;
-    const warn = k === 'championships' ? 'Isto também exclui as corridas e resultados desta categoria. ' : k === 'races' ? 'Isto também exclui os resultados da corrida. ' : '';
-    if (!confirm(warn + 'Excluir este registro? A ação fica registrada no histórico.')) return;
-    const { error } = await sb.from(k).delete().eq('id', el.dataset.id);
-    if (error) return toast(error.message, true);
-    toast('Excluído.'); refresh();
-  },
-  userStatus: async el => {
-    const { error } = await sb.from('profiles').update({ status: el.dataset.v }).eq('id', el.dataset.id);
-    if (error) return toast(error.message, true);
-    toast('Estado atualizado.'); refresh();
-  },
-  pwReset: async el => {
-    const pw = prompt(`Nova senha para "${el.dataset.n}" (mínimo 8 caracteres):`);
-    if (!pw) return;
-    const { error } = await sb.rpc('admin_set_password', { target: el.dataset.id, new_password: pw });
-    if (error) return toast(error.message, true);
-    toast('Senha redefinida. Avise o usuário.');
-  },
-  renumber: async () => {
-    const groups = {};
-    D.races.filter(r => sessOf(r) === 'race').forEach(r => (groups[r.championship_id] ||= []).push(r));
-    const ups = [];
-    Object.values(groups).forEach(rs => rs.sort((a, b) => new Date(a.race_date) - new Date(b.race_date)).forEach((r, i) => { if (r.round !== i + 1) ups.push(sb.from('races').update({ round: i + 1 }).eq('id', r.id)); }));
-    const res = await Promise.all(ups); const e = res.find(x => x.error);
-    if (e) return toast(e.error.message, true);
-    toast(ups.length ? 'Rodadas renumeradas pela data.' : 'As rodadas já estão em ordem.'); refresh();
-  },
-  resetSite: async () => {
-    if (!confirm('Restaurar nome, cores, imagens e textos para o padrão?')) return;
-    const { error } = await sb.from('settings').delete().neq('key', '');
-    if (error) return toast(error.message, true);
-    toast('Site restaurado ao padrão.'); refresh();
-  }
-};
-document.addEventListener('click', e => {
-  const a = e.target.closest('[data-act]');
-  if (a && ACT[a.dataset.act]) { e.preventDefault(); ACT[a.dataset.act](a); return; }
-  const g = e.target.closest('[data-go]');
-  if (g) location.hash = g.dataset.go;
-});
-document.addEventListener('input', e => {
-  if (e.target.id !== 'drvSearch') return;
-  const q = e.target.value.trim().toLowerCase();
-  document.querySelectorAll('#drvGrid [data-q]').forEach(c => c.hidden = !!q && !c.dataset.q.includes(q));
-});
-document.addEventListener('change', async e => {
-  const el = e.target.closest('[data-change]'); if (!el) return;
-  const k = el.dataset.change;
-  if (k === 'champ') { S.champ = el.value; route(); }
-  else if (k === 'calChamp') { S.calChamp = el.value; route(); }
-  else if (k === 'admCat') { S.admCat = el.value; route(); }
-  else if (k === 'resRace') { S.resRace = el.value; route(); }
-  else if (k === 'drvCat') { $('#drvTeam').innerHTML = teamOpts(el.value, ''); $('#newTeam').hidden = true; }
-  else if (k === 'drvTeam') {
-    $('#newTeam').hidden = el.value !== '__new';
-    const t = teamOf(el.value);
-    $('#drvColor').value = safeColor(t?.color);
-    const lu = $('#dlg [name=team_logo]'); if (lu) lu.value = (t?.logo_url || '').startsWith('data:') ? '' : (t?.logo_url || '');
-    const lf = $('#dlg [name=team_logo__file]'); if (lf) lf.value = '';
-  }
-  else if (k === 'userRole') {
-    const { error } = await sb.from('profiles').update({ role: el.value }).eq('id', el.dataset.id);
-    if (error) toast(error.message, true); else toast('Permissão atualizada.');
-    refresh();
-  }
-  else if (k === 'raceStatus') {
-    const { error } = await sb.from('races').update({ status: el.value }).eq('id', el.dataset.id);
-    if (error) toast(error.message, true); else toast('Estado da corrida atualizado.');
-    refresh();
-  }
-});
-$('#burger').onclick = () => $('#links').classList.toggle('open');
-
-async function uploadMedia(file, folder) {
-  if (!file || !file.size) return null;
-  if (file.size > 4e6) throw new Error('A imagem precisa ter menos de 4 MB.');
-  const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
-  const up = await sb.storage.from('media').upload(path, file, { upsert: false, contentType: file.type });
-  if (up.error) throw up.error;
-  return sb.storage.from('media').getPublicUrl(path).data.publicUrl;
-}
-const imgVal = async (fd, k, folder) => { const f = fd.get(k + '__file'); const up = f && f.size ? await uploadMedia(f, folder) : null; return up || (fd.get(k) || '').trim() || null; };
-
-document.addEventListener('submit', async e => {
-  const f = e.target.closest('[data-form]'); if (!f) return;
-  e.preventDefault();
-  const type = f.dataset.form, fd = new FormData(f), btn = f.querySelector('button:not([type=button])');
-  if (btn) btn.disabled = true;
-  try {
-    if (type === 'login') {
-      const { error } = await sb.auth.signInWithPassword({ email: toEmail(fd.get('username')), password: fd.get('password') });
-      if (error) throw new Error(/invalid/i.test(error.message) ? 'Nome de usuário ou senha incorretos.' : error.message);
-      await loadMe();
-      if (me.profile?.status === 'suspended') { await sb.auth.signOut(); me = { user: null, profile: null }; throw new Error('Esta conta está suspensa.'); }
-      toast('Bem-vindo!'); location.hash = '#/profile'; await refresh();
-    } else if (type === 'register') {
-      const un = (fd.get('username') || '').trim();
-      if (!/^[A-Za-z0-9_]{3,24}$/.test(un)) throw new Error('Nome de usuário: 3 a 24 caracteres, só letras, números e _.');
-      if (fd.get('password') !== fd.get('password2')) throw new Error('As senhas não são iguais.');
-      const { data, error } = await sb.auth.signUp({ email: toEmail(un), password: fd.get('password'), options: { data: { username: un } } });
-      if (error) throw new Error(/already|registered/i.test(error.message) ? 'Esse nome de usuário já está em uso.' : error.message);
-      if (!data.session) { toast('Conta criada.', true); location.hash = '#/login'; }
-      else { await loadMe(); toast('Conta criada!'); location.hash = '#/profile'; await refresh(); }
-    } else if (type === 'changepw') {
-      const { error } = await sb.auth.updateUser({ password: fd.get('password') });
-      if (error) throw error; f.reset(); toast('Senha alterada.');
-    } else if (type === 'profile') {
-      let avatar_url = me.profile?.avatar_url || null;
-      const file = fd.get('avatar');
-      if (file && file.size) {
-        if (file.size > 3e6) throw new Error('A imagem precisa ter menos de 3 MB.');
-        const path = `${me.user.id}/avatar-${Date.now()}.${(file.name.split('.').pop() || 'png').toLowerCase()}`;
-        const up = await sb.storage.from('avatars').upload(path, file, { upsert: true });
-        if (up.error) throw up.error;
-        avatar_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-      }
-      const { error } = await sb.from('profiles').update({ username: fd.get('username'), avatar_url }).eq('id', me.user.id);
-      if (error) throw error; await loadMe(); toast('Perfil atualizado.'); await refresh();
-    } else if (type === 'myteam') {
-      const { error } = await sb.from('teams').update({ name: fd.get('name'), color: fd.get('color'), logo_url: await imgVal(fd, 'logo_url', 'teams') }).eq('id', f.dataset.id);
-      if (error) throw error; toast('Equipe atualizada.'); await refresh();
-    } else if (type === 'ent') {
-      const key = f.dataset.key, E = ENT[key], row = {}, id = f.dataset.id;
-      for (const fl of E.fields) {
-        let v = fd.get(fl.k);
-        if (fl.t === 'bool') v = f.elements[fl.k].checked;
-        else if (fl.t === 'image') v = await imgVal(fd, fl.k, key);
-        else if (fl.t === 'country') { row[fl.k2] = v || null; v = v ? countryName(v) : null; }
-        else if (v === '' || v === null) v = null;
-        else if (fl.t === 'number') v = Number(v);
-        else if (fl.t === 'datetime') v = new Date(v).toISOString();
-        row[fl.k] = v;
-      }
-      if (key === 'races') row.format = row.format || null;
-      if (key === 'championships') {
-        if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(row.points_scale || '')) throw new Error('Sistema de pontos inválido. Use números separados por vírgula, ex.: 25,18,15,12,10.');
-        row.points_scale = row.points_scale.replace(/\s/g, ''); row.fl_bonus = row.fl_bonus ?? 0;
-        if (!row.season_id) {
-          let s = D.seasons.find(x => x.is_active) || D.seasons[0];
-          if (!s) { const y = new Date().getFullYear(); const r = await sb.from('seasons').insert({ name: 'Temporada ' + y, year: y, is_active: true }).select().single(); if (r.error) throw r.error; s = r.data; }
-          row.season_id = s.id;
-        }
-      }
-      if (key === 'seasons' && row.is_active) await sb.from('seasons').update({ is_active: false }).neq('id', id || '00000000-0000-0000-0000-000000000000');
-      if (key === 'news' && !id) row.author_id = me.user.id;
-      const res = await (id ? sb.from(key).update(row).eq('id', id) : sb.from(key).insert(row).select().single());
-      if (res.error) throw res.error;
-      
-      const newId = id || res.data?.id;
-      if (key === 'championships' && newId) {
-        // Se houver equipes ou pilotos importados sem championship_id, associar a esta nova categoria recém criada/editada
-        await sb.from('teams').update({ championship_id: newId }).is('championship_id', null);
-        await sb.from('drivers').update({ championship_id: newId }).is('championship_id', null);
-        if (!id) { S.champ = newId; S.admCat = 'all'; }
-      }
-
-      $('#dlg').close(); toast(id ? 'Salvo.' : 'Adicionado com sucesso!'); await refresh();
-    } else if (type === 'driver') {
-      const cat = fd.get('championship_id'), id = f.dataset.id;
-      const num = fd.get('number') === '' ? null : Number(fd.get('number'));
-      if (num !== null && D.drivers.some(d => d.id !== id && d.championship_id === cat && d.number === num)) throw new Error(`O número ${num} já está em uso nesta categoria.`);
-      let teamId = fd.get('team_id') || null; const color = fd.get('team_color'), logo = await imgVal(fd, 'team_logo', 'teams');
-      if (teamId === '__new') {
-        const name = (fd.get('new_team_name') || '').trim(); if (!name) throw new Error('Informe o nome da nova equipe.');
-        const r = await sb.from('teams').insert({ name, short_name: name.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase(), color, logo_url: logo, championship_id: cat }).select().single();
-        if (r.error) throw r.error; teamId = r.data.id;
-      } else if (teamId) {
-        const t = teamOf(teamId), up = {};
-        if (t && (t.color || '').toLowerCase() !== color.toLowerCase()) up.color = color;
-        if (t && logo !== (t.logo_url || null)) up.logo_url = logo;
-        if (Object.keys(up).length) { const r = await sb.from('teams').update(up).eq('id', teamId); if (r.error) throw r.error; }
-      }
-      const cc = fd.get('country') || null;
-      const row = { championship_id: cat, name: fd.get('name').trim(), number: num, nationality: cc ? countryName(cc) : null, country_code: cc, team_id: teamId,
-        photo_url: await imgVal(fd, 'photo_url', 'drivers'), titles: Number(fd.get('titles') || 0), profile_id: fd.get('profile_id') || null, active: f.elements.active.checked };
-      const { error } = await (id ? sb.from('drivers').update(row).eq('id', id) : sb.from('drivers').insert(row));
-      if (error) throw error;
-      $('#dlg').close(); toast(id ? 'Piloto atualizado.' : 'Piloto adicionado à categoria.'); await refresh();
-    } else if (type === 'settings') {
-      const up = [], del = [];
-      for (const [, fs] of SET_FIELDS) for (const fl of fs) {
-        let v;
-        if (fl.t === 'bool') v = f.elements[fl.k].checked ? '' : '0';
-        else if (fl.t === 'image') v = await imgVal(fd, fl.k, 'site') || '';
-        else { v = (fd.get(fl.k) || '').trim(); if (['color', 'select'].includes(fl.t) && v.toLowerCase() === String(DEFS[fl.k]).toLowerCase()) v = ''; }
-        if (v) up.push({ key: fl.k, value: v }); else del.push(fl.k);
-      }
-      if (up.length) { const r = await sb.from('settings').upsert(up, { onConflict: 'key' }); if (r.error) throw r.error; }
-      if (del.length) { const r = await sb.from('settings').delete().in('key', del); if (r.error) throw r.error; }
-      toast('Personalização salva.'); await refresh();
-    } else if (type === 'results') {
-      const rows = [], del = [];
-      f.querySelectorAll('tbody tr[data-d]').forEach(tr => {
-        const g = n => tr.querySelector(`[name=${n}]`), did = tr.dataset.d, d = driverOf(did);
-        const pos = g('position').value, status = g('status').value;
-        const lapIn = g('lap'), hasLap = !!(lapIn && lapIn.value.trim());
-        if (!pos && status === 'FIN' && !hasLap) { del.push(did); return; }
-        const sNow = curSess(D.races.find(r => r.id === S.resRace)), timed = isTimed(sNow);
-        const lap = timed ? (g('lap').value || '').trim() : '';
-        if (lap && !/^(\d{1,2}:)?\d{1,2}[.,]\d{1,3}$/.test(lap)) throw new Error(`Tempo inválido para ${d?.name || 'piloto'}. Use o formato 1:32.456`);
-        rows.api = true;
-        rows.push({ race_id: S.resRace, session: sNow, driver_id: did, team_id: d?.team_id || null,
-          ...(timed ? { lap_time: lap ? lap.replace(',', '.') : null } : { grid: g('grid').value ? Number(g('grid').value) : null }),
-          position: pos ? Number(pos) : null, status, penalty_seconds: Number(g('ps').value || 0), penalty_points: Number(g('pp').value || 0),
-          pole: g('pole').checked, fastest_lap: g('fl').checked });
-      });
-      const pos = rows.filter(r => r.status === 'FIN' && r.position).map(r => r.position);
-      if (new Set(pos).size !== pos.length) throw new Error('Existem posições repetidas.');
-      if (rows.length) { const { error } = await sb.from('results').upsert(rows, { onConflict: 'race_id,session,driver_id' }); if (error) throw error; }
-      if (del.length) { const { error } = await sb.from('results').delete().eq('race_id', S.resRace).eq('session', curSess(D.races.find(r => r.id === S.resRace))).in('driver_id', del); if (error) throw error; }
-      if (fd.get('finish')) { const { error } = await sb.from('races').update({ status: 'finished' }).eq('id', S.resRace); if (error) throw error; }
-      toast('Resultados publicados. Classificações atualizadas.'); await refresh();
-    }
-  } catch (err) { toast(err.message || 'Ocorreu um erro.', true); }
-  finally { if (btn) btn.disabled = false; }
-});
-
-/* ---------- arranque ---------- */
-window.addEventListener('hashchange', () => { window.scrollTo(0, 0); route(); });
-(async () => {
-  sb.auth.onAuthStateChange(async ev => { if (ev === 'SIGNED_OUT') { me = { user: null, profile: null }; renderNav(); } });
-  if (sb.init) await sb.init();
-  await loadMe();
-  await loadData();
-  if (!location.hash) location.hash = '#/';
-  await route();
-})();
+window.addEventListener('hashchange', route);
+route();
 </script>
 </body>
 </html>
