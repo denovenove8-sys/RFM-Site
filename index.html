@@ -199,18 +199,13 @@ footer a{color:var(--text);margin-left:12px;text-decoration:underline;text-under
 
 <script>
 /* =====================================================================
-   CONFIGURAÇÃO — preencha com os dados do seu projeto Supabase
-   (Project Settings → API). A chave "anon" é pública por design;
-   a segurança vem das políticas RLS do schema.sql.
-   Sem essas chaves o site roda em MODO LOCAL (tudo funciona, mas os
-   dados ficam salvos só neste navegador) — ótimo para testar.
+   CONFIGURAÇÃO SUPABASE
    ===================================================================== */
-const SUPABASE_URL = "https://pfisbhwxldkgjreqiery.supabase.co";        // ex.: "https://abcd1234.supabase.co"
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaXNiaHd4bGRrZ2pyZXFpZXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNzA3NDAsImV4cCI6MjEwOTc0Njc0MH0.XFD32llqr6vNCKwE94wppi0ArCI9KnU4tk1PRbT_csc";   // ex.: "eyJhbGciOi..."
+const SUPABASE_URL = "";        // ex.: "https://abcd1234.supabase.co"
+const SUPABASE_ANON_KEY = "";   // ex.: "eyJhbGciOi..."
 
-const OWNER_NAME = 'haraguchi9020';   // conta principal (vira administradora ao se cadastrar)
+const OWNER_NAME = 'haraguchi9020';
 
-/* Imagens padrão do site (podem ser trocadas no painel: Personalizar site) */
 const FONTS = ['Oswald', 'Rajdhani', 'Orbitron', 'Teko', 'Barlow Condensed'];
 const DEFS = {
   site_name: 'Minha Liga', site_subtitle: '', accent: '#b5322c',
@@ -243,7 +238,7 @@ const sessionsOf = r => WK[r.format] || ['RACE'];
 const mainSess = r => [...sessionsOf(r)].reverse().find(n => n.startsWith('RACE')) || 'RACE';
 const curSess = r => { const c = S.sess[r.id]; return c && sessionsOf(r).includes(c) ? c : mainSess(r); };
 const sx = x => x.session || 'RACE';
-const isTimed = s => !String(s || 'RACE').startsWith('RACE');   // treinos livres e qualificações: mostram tempo em vez de grid
+const isTimed = s => !String(s || 'RACE').startsWith('RACE');
 const mainRes = id => { const r = D.races.find(x => x.id === id); return D.results.filter(x => x.race_id === id && (!r || sx(x) === mainSess(r))); };
 const sessNav = r => { const ss = sessionsOf(r), c = curSess(r); return ss.length < 2 ? '' : `<div class="row" style="gap:8px;margin-bottom:14px;flex-wrap:wrap"><button type="button" class="btn sm" data-act="sessGo" data-id="${r.id}" data-v="-1" aria-label="Sessão anterior">←</button>
   <div class="chips">${ss.map(n => `<button type="button" class="chip ${n === c ? 'on' : ''}" data-act="sessSet" data-id="${r.id}" data-v="${n}">${n}</button>`).join('')}</div>
@@ -252,9 +247,9 @@ const roundLbl = r => sessOf(r) === 'race' ? 'Rodada ' + (r.round ?? '-') : 'Pr�
 const ROLES = { admin: 'Administrador', staff: 'Staff', team_principal: 'Chefe de equipe', driver: 'Piloto', visitor: 'Visitante' };
 const ACCT = { pending: 'Pendente', active: 'Ativa', suspended: 'Suspensa' };
 const KINDS = { anuncio: 'Anúncio', comunicado: 'Comunicado oficial', noticia: 'Notícia', resultado: 'Resultado' };
-const COUNTRIES = [['BR','Brasil'],['PT','Portugal'],['ES','Espanha'],['FR','França'],['IT','Itália'],['DE','Alemanha'],['GB','Reino Unido'],['NL','Países Baixos'],['BE','Bélgica'],['CH','Suíça'],['AT','Áustria'],['SE','Suécia'],['NO','Noruega'],['FI','Finlândia'],['DK','Dinamarca'],['PL','Polônia'],['CZ','Tchéquia'],['HU','Hungria'],['RO','Romênia'],['GR','Grécia'],['TR','Turquia'],['RU','Rússia'],['UA','Ucrânia'],['IE','Irlanda'],['HR','Croácia'],['RS','Sérvia'],['SK','Eslováquia'],['SI','Eslovênia'],['BG','Bulgária'],['LU','Luxemburgo'],['MC','Mônaco'],['US','Estados Unidos'],['CA','Canadá'],['MX','México'],['AR','Argentina'],['CL','Chile'],['CO','Colômbia'],['PE','Peru'],['UY','Uruguai'],['VE','Venezuela'],['PY','Paraguai'],['JP','Japão'],['CN','China'],['KR','Coreia do Sul'],['IN','Índia'],['TH','Tailândia'],['SG','Singapura'],['MY','Malásia'],['ID','Indonésia'],['PH','Filipinas'],['VN','Vietnã'],['AE','Emirados Árabes Unidos'],['SA','Arábia Saudita'],['QA','Catar'],['BH','Bahrein'],['IL','Israel'],['AZ','Azerbaijão'],['AU','Austrália'],['NZ','Nova Zelândia'],['ZA','África do Sul'],['MA','Marrocos'],['EG','Egito'],['AO','Angola'],['MZ','Moçambique'],['CV','Cabo Verde']];
+const COUNTRIES = [['BR','Brasil'],['PT','Portugal'],['ES','Espanha'],['FR','França'],['IT','Itália'],['DE','Alemanha'],['GB','Reino Unido'],['NL','Países Baixos'],['BE','Bélgica'],['CH','Suíça'],['AT','Áustria'],['SE','Suécia'],['NO','Noruega'],['FI','Finlândia'],['DK','Dinamarca'],['PL','Polônia'],['CZ','Tchéquia'],['HU','Hungria'],['RO','Romênia'],['GR','Grécia'],['TR','Turquia'],['RU','Rússia'],['UA','Ucrânia'],['IE','Irlanda'],['HR','Croácia'],['RS','Sérvia'],['SK','Eslováquia'],['SI','Eslovênea'],['BG','Bulgária'],['LU','Luxemburgo'],['MC','Mônaco'],['US','Estados Unidos'],['CA','Canadá'],['MX','México'],['AR','Argentina'],['CL','Chile'],['CO','Colômbia'],['PE','Peru'],['UY','Uruguai'],['VE','Venezuela'],['PY','Paraguai'],['JP','Japão'],['CN','China'],['KR','Coreia do Sul'],['IN','Índia'],['TH','Tailândia'],['SG','Singapura'],['MY','Malásia'],['ID','Indonésia'],['PH','Filipinas'],['VN','Vietnã'],['AE','Emirados Árabes Unidos'],['SA','Arábia Saudita'],['QA','Catar'],['BH','Bahrein'],['IL','Israel'],['AZ','Azerbaijão'],['AU','Austrália'],['NZ','Nova Zelândia'],['ZA','África do Sul'],['MA','Marrocos'],['EG','Egito'],['AO','Angola'],['MZ','Moçambique'],['CV','Cabo Verde']];
 const countryName = cc => (COUNTRIES.find(c => c[0] === (cc || '').toUpperCase()) || [])[1] || '';
-const toEmail = u => String(u).trim().toLowerCase() + '@rfm-liga.com';   // e-mail interno (nunca recebe nada)
+const toEmail = u => String(u).trim().toLowerCase() + '@rfm-liga.com';
 
 function toast(msg, err) {
   const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
@@ -522,23 +517,38 @@ function applySettings() {
   if (isLocal && SUPABASE_URL && !window.supabase) { bar.hidden = false; bar.textContent = 'Não foi possível carregar a biblioteca do Supabase — rodando em modo local.'; }
 }
 
-/* ---------- classificações (calculadas a partir dos resultados publicados) ---------- */
+/* ---------- classificações ---------- */
 function standings(cid) {
-  // Filtra apenas corridas oficiais da temporada (ignora pré-temporada)
   const raceIds = new Set(D.races.filter(r => r.championship_id === cid && sessOf(r) === 'race').map(r => r.id));
+  const allRes = D.results.filter(r => raceIds.has(r.race_id));
   
-  // Considera apenas sessões de corrida (ignora treinos e qualificações)
-  const res = D.results.filter(r => raceIds.has(r.race_id) && sx(r).startsWith('RACE'));
   const inCat = x => !x.championship_id || x.championship_id === cid;
-  const agg = rs => ({
-    pts: rs.reduce((a, r) => a + Number(r.points || 0), 0),
-    wins: rs.filter(r => r.position === 1 && r.status === 'FIN').length,
-    pod: rs.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
-    poles: rs.filter(r => r.pole).length, n: rs.length
-  });
+  const agg = (dId) => {
+    const rsRace = allRes.filter(r => r.driver_id === dId && sx(r).startsWith('RACE'));
+    const rsAll = allRes.filter(r => r.driver_id === dId);
+    return {
+      pts: rsRace.reduce((a, r) => a + Number(r.points || 0), 0),
+      wins: rsRace.filter(r => r.position === 1 && r.status === 'FIN').length,
+      pod: rsRace.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
+      poles: rsAll.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).length,
+      fls: rsRace.filter(r => r.fastest_lap).length,
+      n: rsRace.length
+    };
+  };
+  
   const sort = (a, b) => b.pts - a.pts || b.wins - a.wins || b.pod - a.pod;
-  const drivers = D.drivers.filter(d => d.active !== false && inCat(d)).map(d => ({ d, ...agg(res.filter(r => r.driver_id === d.id)) })).sort(sort);
-  const teams = D.teams.filter(inCat).map(t => ({ t, ...agg(res.filter(r => r.team_id === t.id)) })).sort(sort);
+  const drivers = D.drivers.filter(d => d.active !== false && inCat(d)).map(d => ({ d, ...agg(d.id) })).sort(sort);
+  const teams = D.teams.filter(inCat).map(t => {
+    const tRaceRes = allRes.filter(r => r.team_id === t.id && sx(r).startsWith('RACE'));
+    return {
+      t,
+      pts: tRaceRes.reduce((a, r) => a + Number(r.points || 0), 0),
+      wins: tRaceRes.filter(r => r.position === 1 && r.status === 'FIN').length,
+      pod: tRaceRes.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
+      n: tRaceRes.length
+    };
+  }).sort(sort);
+  
   return { drivers, teams };
 }
 const champSel = (key = 'champ') => D.championships.length > 1 ? `<select data-change="${key}" style="width:auto;min-width:220px" aria-label="Categoria">${D.championships.map(c => `<option value="${c.id}" ${c.id === S.champ ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>` : '';
@@ -686,14 +696,22 @@ PAGES.driver = id => {
   if (!d) return '<div class="card empty">Piloto não encontrado.</div>';
   const t = teamOf(d.team_id);
   
-  // Filtra apenas sessões oficiais de corrida (RACE) de eventos válidos (race)
   const rs = D.results.filter(r => {
     if (r.driver_id !== id) return false;
     const race = D.races.find(x => x.id === r.race_id);
     return race && sessOf(race) === 'race' && sx(r).startsWith('RACE');
   });
   
+  const allDriverResults = D.results.filter(r => {
+    if (r.driver_id !== id) return false;
+    const race = D.races.find(x => x.id === r.race_id);
+    return race && sessOf(race) === 'race';
+  });
+
   const fin = rs.filter(r => r.status === 'FIN');
+  const polesCount = allDriverResults.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).length;
+  const flCount = rs.filter(r => r.fastest_lap).length;
+
   const hist = D.results.filter(r => r.driver_id === id)
     .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
     .filter(x => x.race && sx(x.r) === mainSess(x.race))
@@ -709,7 +727,8 @@ PAGES.driver = id => {
     <div class="stat"><b>${rs.reduce((a, r) => a + Number(r.points || 0), 0)}</b><small>Pontos</small></div>
     <div class="stat"><b>${fin.filter(r => r.position === 1).length}</b><small>Vitórias</small></div>
     <div class="stat"><b>${fin.filter(r => r.position <= 3).length}</b><small>Pódios</small></div>
-    <div class="stat"><b>${rs.filter(r => r.pole).length}</b><small>Pole positions</small></div>
+    <div class="stat"><b>${polesCount}</b><small>Pole Positions</small></div>
+    <div class="stat"><b>${flCount}</b><small>Voltas Rápidas</small></div>
     <div class="stat"><b>${d.titles || 0}</b><small>Campeonatos</small></div>
     <div class="stat"><b>${rs.length}</b><small>Corridas</small></div></div></section>
   <section class="sec"><h2>Histórico de resultados</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Grid</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>
@@ -719,7 +738,7 @@ PAGES.driver = id => {
 PAGES.news = () => `${pageHead('Anúncios e comunicados', 'Avisos oficiais da direção da liga.', isStaff() ? '<button class="btn red" data-act="entNew" data-v="news">+ Novo anúncio</button>' : '')}
   <div class="cols3">${sortedNews().map(n => newsCard(n, true)).join('') || '<div class="card empty">Sem anúncios.</div>'}</div>`;
 
-/* ---------- autenticação (só nome de usuário + senha) ---------- */
+/* ---------- autenticação ---------- */
 const localNote = () => '';
 PAGES.login = () => `<div class="card auth"><h2>Entrar</h2>${localNote()}<form data-form="login">
   <label>Nome de usuário</label><input name="username" required autocomplete="username"><label>Senha</label><input type="password" name="password" required autocomplete="current-password">
@@ -756,7 +775,7 @@ PAGES.profile = () => {
   <section class="sec"><h2>Histórico de corridas</h2><div class="card">${hist.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Corrida</th><th>Data</th><th>Pos</th><th style="text-align:right">Pts</th></tr></thead><tbody>${hist.map(({ r, race }) => `<tr class="click" data-go="#/race/${race.id}"><td>${flag(race.country_code)} ${esc(race.name)}</td><td class="muted">${fmtDate(race.race_date)}</td><td>${r.status === 'FIN' ? 'P' + r.position : r.status}</td><td class="pts">${r.points}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Sem corridas registradas.</div>'}</div></section>`;
 };
 
-/* ---------- ADMIN: definição das entidades (tudo editável) ---------- */
+/* ---------- ADMIN ---------- */
 const optT = () => D.teams.map(t => [t.id, t.name + (t.championship_id ? ' — ' + (champOf(t.championship_id)?.name || '') : '')]);
 const optP = () => D.profiles.map(p => [p.id, p.username || p.id.slice(0, 8)]);
 const optS = () => D.seasons.map(s => [s.id, s.name + (s.is_active ? ' (ativa)' : '')]);
@@ -1251,5 +1270,7 @@ window.addEventListener('hashchange', () => { window.scrollTo(0, 0); route(); })
   await route();
 })();
 </script>
+</body>
+</html>
 </body>
 </html>
