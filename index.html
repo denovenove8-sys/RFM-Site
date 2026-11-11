@@ -530,8 +530,8 @@ function standings(cid) {
       pts: rsRace.reduce((a, r) => a + Number(r.points || 0), 0),
       wins: rsRace.filter(r => r.position === 1 && r.status === 'FIN').length,
       pod: rsRace.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
-      poles: rsAll.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).length,
-      fls: rsRace.filter(r => r.fastest_lap).length,
+      poles: new Set(rsAll.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).map(r => r.race_id)).size,
+      fls: rsAll.filter(r => r.fastest_lap).length,
       n: rsRace.length
     };
   };
@@ -709,8 +709,8 @@ PAGES.driver = id => {
   });
 
   const fin = rs.filter(r => r.status === 'FIN');
-  const polesCount = allDriverResults.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).length;
-  const flCount = rs.filter(r => r.fastest_lap).length;
+  const polesCount = new Set(allDriverResults.filter(r => r.pole || (sx(r).startsWith('RACE') && r.grid === 1)).map(r => r.race_id)).size;
+  const flCount = allDriverResults.filter(r => r.fastest_lap).length;
 
   const hist = D.results.filter(r => r.driver_id === id)
     .map(r => ({ r, race: D.races.find(x => x.id === r.race_id) }))
@@ -1270,7 +1270,5 @@ window.addEventListener('hashchange', () => { window.scrollTo(0, 0); route(); })
   await route();
 })();
 </script>
-</body>
-</html>
 </body>
 </html>
