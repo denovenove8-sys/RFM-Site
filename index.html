@@ -1,16 +1,20 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My League</title>
-<meta name="description" content="Official league platform: calendar, results, standings, drivers and teams.">
+<title>RFM — Real Formula Motorsports</title>
+<meta name="description" content="Official RFM platform: calendar, results, standings, drivers, teams and race VODs.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="My League">
-<meta property="og:description" content="Official league platform: calendar, results, standings, drivers and teams.">
-<meta property="og:image" content="">
+<meta property="og:site_name" content="RFM">
+<meta property="og:url" content="https://rfm-site.pages.dev/">
+<meta property="og:title" content="RFM — Real Formula Motorsports">
+<meta property="og:description" content="Official RFM platform: calendar, results, standings, drivers, teams and race VODs.">
+<meta property="og:image" content="https://rfm-site.pages.dev/banner.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="675">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="">
+<meta name="twitter:image" content="https://rfm-site.pages.dev/banner.png">
 <link rel="icon" id="favicon" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -354,7 +358,7 @@ const OWNER_NAME = 'haraguchi9020';
 
 const FONTS = ['Oswald', 'Rajdhani', 'Orbitron', 'Teko', 'Barlow Condensed'];
 const DEFS = {
-  site_name: 'My League', site_subtitle: '', site_description: 'Official league platform: calendar, results, standings, drivers and teams.', accent: '#b5322c',
+  site_name: 'RFM', site_subtitle: 'Real Formula Motorsports', site_description: 'Official RFM platform: calendar, results, standings, drivers, teams and race VODs.', accent: '#b5322c',
   color_bg: '#0e0f10', color_panel: '#16181a', color_text: '#e9e6e0', font_display: 'Oswald',
   logo_url: '', hero_image: '', track_image: '',
   partner_banner: '', partner_logo: '', partner_name: '',
@@ -664,7 +668,7 @@ function applySettings() {
   $('#favicon').href = lg || '';
   { const setM = (sel, v) => { const m = document.querySelector(sel); if (m) m.setAttribute('content', v); };
     const desc = cfg('site_description'), ttl = cfg('site_subtitle') ? `${cfg('site_name')} — ${cfg('site_subtitle')}` : cfg('site_name'),
-      img = (safeUrl(cfg('hero_image')) || safeUrl(cfg('logo_url'))).replace(/&amp;/g, '&');
+      img = (safeUrl(cfg('og_image')) || 'https://rfm-site.pages.dev/banner.png').replace(/&amp;/g, '&');
     setM('meta[name=description]', desc); setM('meta[property="og:title"]', ttl); setM('meta[property="og:description"]', desc);
     setM('meta[property="og:image"]', img); setM('meta[name="twitter:image"]', img); }
   document.title = cfg('site_subtitle') ? `${cfg('site_name')} — ${cfg('site_subtitle')}` : cfg('site_name');
@@ -1347,7 +1351,7 @@ const ENT = {
 };
 const SET_FIELDS = [
   ['Identity', [
-    { k: 'site_name', l: 'League name (short)', t: 'text' }, { k: 'site_subtitle', l: 'Subtitle', t: 'text' }, { k: 'site_description', l: 'Description (text when sharing the link)', t: 'text' }, { k: 'logo_url', l: 'Main logo', t: 'image' }]],
+    { k: 'site_name', l: 'League name (short)', t: 'text' }, { k: 'site_subtitle', l: 'Subtitle', t: 'text' }, { k: 'site_description', l: 'Description (text when sharing the link)', t: 'text' }, { k: 'og_image', l: 'Link preview image (full URL, 1200×630)', t: 'text' }, { k: 'logo_url', l: 'Main logo', t: 'image' }]],
   ['Colors and font', [
     { k: 'accent', l: 'Accent color', t: 'color' }, { k: 'color_bg', l: 'Background color', t: 'color' }, { k: 'color_panel', l: 'Card color', t: 'color' }, { k: 'color_text', l: 'Text color', t: 'color' },
     { k: 'font_display', l: 'Heading font', t: 'select', o: () => FONTS.map(f => [f, f]), noblank: 1 }]],
