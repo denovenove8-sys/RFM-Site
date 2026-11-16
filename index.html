@@ -437,7 +437,7 @@ function makeLocal() {
     try { db = await idbGet(KEY); } catch {}
     if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
     if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
-    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
+    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods', 'dotd_votes'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
     try { await idbSet(KEY, db); ls.del(KEY); } catch {}
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
   };
@@ -452,7 +452,7 @@ function makeLocal() {
   const adm = () => { const p = P(); return !!p && p.role === 'admin' && p.status === 'active'; };
   const stf = () => { const p = P(); return !!p && ['admin', 'staff'].includes(p.role) && p.status === 'active'; };
   const isOwnerL = () => adm() && P().username.toLowerCase() === OWNER_NAME;
-  const allow = (t, row) => adm() || (stf() && ['races', 'results', 'news', 'vods'].includes(t)) || (t === 'teams' && !!sess() && row && row.principal_id === sess()) || (t === 'profiles' && row && row.id === sess());
+  const allow = (t, row) => adm() || (stf() && ['races', 'results', 'news', 'vods'].includes(t)) || (t === 'teams' && !!sess() && row && row.principal_id === sess()) || (t === 'profiles' && row && row.id === sess()) || (t === 'dotd_votes' && !!sess() && row && row.voter_id === sess());
   const AUD = ['profiles', 'teams', 'drivers', 'seasons', 'championships', 'races', 'results', 'news', 'vods', 'settings', 'entries', 'team_entries'];
   const slim = o => o && Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'string' && v.length > 200 ? '(imagem)' : v]));
   const aud = (op, t, o, n) => {
@@ -510,6 +510,7 @@ function makeLocal() {
           if (t === 'profiles' && !stf()) out = out.filter(r => r.id === sess());
           if (['news', 'vods'].includes(t) && !stf()) out = out.filter(r => r.published);
           if (t === 'audit_log' && !adm()) out = [];
+          if (t === 'dotd_votes' && !stf()) out = out.filter(r => r.voter_id === sess());
           if (this.ord) { const [c, asc] = this.ord; out = [...out].sort((a, b) => (a[c] > b[c] ? 1 : a[c] < b[c] ? -1 : 0) * (asc ? 1 : -1)); }
           if (this.lim) out = out.slice(0, this.lim);
           return this.fin(out.map(r => ({ ...r })));
@@ -630,10 +631,12 @@ async function loadData() {
   if (ents.error || tents.error) toast('New tables not found: run the updated schema.sql in Supabase. (' + (ents.error || tents.error).message + ')', true);
   const vodsR = await q('vods', r => r.order('created_at', { ascending: false }));
   if (vodsR.error) toast('VODs table not found: run the updated schema.sql in Supabase.', true);
+  const dvR = await q('dotd_votes');
   const set = {}; (settings.data || []).forEach(r => { if (r.value) set[r.key] = r.value; });
   D = { teams: teams.data || [], drivers: drivers.data || [], seasons: seasons.data || [], championships: championships.data || [],
         races: races.data || [], results: results.data || [], news: news.data || [], profiles: [], settings: set, entries: ents.data || [], team_entries: tents.data || [] };
   D.vods = vodsR.data || [];
+  D.dotd_votes = dvR.data || [];
   if (isStaff()) { const p = await sb.from('profiles').select('*').order('created_at', { ascending: false }); D.profiles = p.data || []; }
   STC = {}; L = null; pickChamp(); applySettings();
 }
@@ -702,7 +705,7 @@ function standingsCalc(cid) {
     const flCount = allRes.filter(r => r.driver_id === dId && r.fastest_lap).length;
 
     return {
-      pts: rsRace.reduce((a, r) => a + Number(r.points || 0), 0),
+      pts: rsRace.reduce((a, r) => a + Number(r.points || 0), 0) + [...raceIds].reduce((a, id) => a + dotdPts(id, dId), 0),
       wins: rsRace.filter(r => r.position === 1 && r.status === 'FIN').length,
       pod: rsRace.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
       poles: polesCount,
@@ -721,7 +724,7 @@ function standingsCalc(cid) {
     const tRaceRes = allRes.filter(r => r.team_id === t.id && sx(r).startsWith('RACE'));
     return {
       t,
-      pts: tRaceRes.reduce((a, r) => a + Number(r.points || 0), 0),
+      pts: tRaceRes.reduce((a, r) => a + Number(r.points || 0), 0) + [...raceIds].reduce((a, id) => { const rc = D.races.find(x => x.id === id), p = rc && rc.dotd_driver_id ? dotdPts(id, rc.dotd_driver_id) : 0; if (!p) return a; const rr = allRes.find(x => x.race_id === id && x.driver_id === rc.dotd_driver_id && sx(x).startsWith('RACE')); return a + (rr && rr.team_id === t.id ? p : 0); }, 0),
       wins: tRaceRes.filter(r => r.position === 1 && r.status === 'FIN').length,
       pod: tRaceRes.filter(r => r.position && r.position <= 3 && r.status === 'FIN').length,
       n: tRaceRes.length
@@ -773,7 +776,7 @@ function resultTable(raceId) {
   if (!rs.length) return nav + '<div class="empty">Results not published yet' + (nav ? ' para ' + cs : '') + '.</div>';
   return nav + `<div class="scroll"><table class="tbl"><thead><tr><th>Pos</th><th>Driver</th><th>Team</th><th>${isTimed(cs) ? 'Time' : 'Grid'}</th><th>Status</th><th>Pen.</th><th style="text-align:right">Pts</th></tr></thead><tbody>
   ${rs.map(r => { const d = driverOf(r.driver_id), t = teamOf(r.team_id); return `<tr><td class="pos">${r.status === 'FIN' ? (r.position ?? '—') : r.status}</td>
-  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(d?.name || '?')}</b>${r.pole ? ' <span class="tag">Pole</span>' : ''}${r.fastest_lap ? ' <span class="tag">VR</span>' : ''}</td>
+  <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t?.color)}"></span><b>${esc(d?.name || '?')}</b>${r.pole ? ' <span class="tag">Pole</span>' : ''}${(sx(r).startsWith('RACE') && (D.races.find(x => x.id === r.race_id) || {}).dotd_driver_id === r.driver_id) ? ' <span class="tag">DOTD</span>' : ''}${r.fastest_lap ? ' <span class="tag">VR</span>' : ''}</td>
   <td class="muted" style="white-space:nowrap">${teamLogo(t, 20)}${esc(t?.name || '—')}</td><td>${isTimed(cs) ? esc(r.lap_time || '—') : (r.grid ?? '—')}</td><td>${r.status}</td>
   <td class="muted">${r.penalty_seconds ? '+' + r.penalty_seconds + 's ' : ''}${r.penalty_points ? '−' + r.penalty_points + 'pts' : ''}${!r.penalty_seconds && !r.penalty_points ? '—' : ''}</td><td class="pts">${r.points}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
@@ -852,7 +855,8 @@ function buildLeague() {
       const rated = ss.map(s => ({ s, v: rate(s) })).filter(x => x.v !== null);
       const avg = a => a.reduce((t, x) => t + x.v, 0) / a.length;
       const m = rated.find(x => x.s.n === main), oth = rated.filter(x => x !== m);
-      const rating = !rated.length ? null : m && oth.length ? m.v * 0.7 + avg(oth) * 0.3 : m ? m.v : avg(rated);
+      let rating = !rated.length ? null : m && oth.length ? m.v * 0.7 + avg(oth) * 0.3 : m ? m.v : avg(rated);
+      if (rating !== null && race.dotd_driver_id === did) rating = Math.min(10, rating + Number(race.dotd_rating ?? 0.5));
       const ms = ss.find(s => s.n === main), mr = ms && ms.me, fin = !!mr && mr.status === 'FIN' && !!mr.position;
       const mine = rs.filter(x => x.driver_id === did);
       P(did).wk.push({
@@ -861,7 +865,7 @@ function buildLeague() {
         raced: !!mr && mr.status !== 'DNS', fin, pos: fin ? mr.position : null, grid: ms ? ms.grid : null, status: mr ? mr.status : null,
         win: fin && mr.position === 1, pod: fin && mr.position <= 3, pole: mine.some(x => x.pole) || (!!ms && ms.grid === 1),
         fl: !!mr && !!mr.fastest_lap, dnf: !!mr && mr.status === 'DNF',
-        pts: mine.filter(x => sx(x).startsWith('RACE')).reduce((a, x) => a + Number(x.points || 0), 0),
+        pts: mine.filter(x => sx(x).startsWith('RACE')).reduce((a, x) => a + Number(x.points || 0), 0) + dotdPts(race.id, did), dotd: race.dotd_driver_id === did,
         gain: fin && ms.grid ? ms.grid - mr.position : null, rating
       });
       byDriver[did].seasons.add(si);
@@ -1241,6 +1245,53 @@ PAGES.calendar = () => {
     <div style="display:grid;gap:12px">${list.map(raceCardAdm).join('') || '<div class="card empty">No races.</div>'}</div></div></div>`;
 };
 
+
+const dotdPts = (raceId, did) => { const r = D.races.find(x => x.id === raceId); return r && r.dotd_driver_id === did ? Number(r.dotd_points || 0) : 0; };
+function dotdSection(r) {
+  const staff = isStaff(), win = r.dotd_driver_id ? driverOf(r.dotd_driver_id) : null;
+  if (!staff && !win && !r.dotd_open) return '';
+  const raced = [...new Set(D.results.filter(x => x.race_id === r.id && sx(x).startsWith('RACE')).map(x => x.driver_id))].map(driverOf).filter(Boolean);
+  const pool = raced.length ? raced : D.drivers.filter(d => d.active !== false);
+  const votes = (D.dotd_votes || []).filter(v => v.race_id === r.id), mine = me.user ? votes.find(v => v.voter_id === me.user.id) : null;
+  const cnt = id => votes.filter(v => v.driver_id === id).length, rat = Number(r.dotd_rating ?? 0.5), pts = Number(r.dotd_points || 0);
+  const wt = win ? teamOf((D.results.find(x => x.race_id === r.id && x.driver_id === win.id) || {}).team_id || win.team_id) : null;
+  const winHTML = win ? `<a href="#/driver/${win.id}" class="row" style="gap:12px;margin-bottom:10px">${avatarHTML(win, 'thumb')}<div><b style="font-size:17px">${flag(win.country_code)} ${esc(win.name)}</b><div class="muted" style="font-size:12px">${teamLogo(wt, 14)}${esc(wt?.name || '')}</div></div><span class="tag">DOTD</span><span class="tag">+${rat} rating / overall</span>${pts > 0 ? `<span class="tag">+${pts} pts</span>` : ''}</a>` : '<p class="muted" style="margin-bottom:10px">No Driver of the Day chosen yet.</p>';
+  const voteHTML = r.dotd_open ? `<div style="margin:6px 0 12px"><span class="tag live">Voting open</span> ${me.user && me.profile?.status === 'active' ? `<span class="muted" style="font-size:12px">${mine ? 'Your vote is saved — you can change it.' : 'Pick one driver.'}</span>` : '<a class="btn sm" href="#/login">Sign in to vote</a>'}</div>
+    ${me.user && me.profile?.status === 'active' ? `<div class="row" style="gap:8px;flex-wrap:wrap">${pool.map(d => `<button class="btn sm ${mine && mine.driver_id === d.id ? 'red' : ''}" data-act="dotdVote" data-id="${r.id}" data-v="${d.id}">${esc(d.name)}${staff ? ` · ${cnt(d.id)}` : ''}</button>`).join('')}</div>` : ''}` : '';
+  const staffHTML = staff ? `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)"><div class="muted" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Staff · Driver of the Day (${votes.length} vote${votes.length === 1 ? '' : 's'})</div>
+    <div class="row" style="gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <label style="min-width:200px">Driver<select id="dotdDrv"><option value="">— None —</option>${pool.map(d => `<option value="${d.id}" ${r.dotd_driver_id === d.id ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select></label>
+      <label style="width:130px">Rating / overall bonus<input id="dotdRat" type="number" step="0.1" min="0" max="3" value="${rat}"></label>
+      <label style="width:120px">Championship pts<input id="dotdPts" type="number" step="1" min="0" value="${pts}"></label>
+      <button class="btn red" data-act="dotdSave" data-id="${r.id}">Save</button>
+      <button class="btn" data-act="dotdToggle" data-id="${r.id}">${r.dotd_open ? 'Close voting & pick winner' : 'Open voting'}</button>
+      ${r.dotd_driver_id ? `<button class="btn danger" data-act="dotdClear" data-id="${r.id}">Clear</button>` : ''}</div></div>` : '';
+  return `<section class="sec"><h2>Driver of the Day</h2><div class="card">${winHTML}${voteHTML}${staffHTML}</div></section>`;
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-act^="dotd"]'); if (!b) return;
+  const id = b.dataset.id, a = b.dataset.act, r = D.races.find(x => x.id === id); if (!r) return;
+  const upd = async p => { const { error } = await sb.from('races').update(p).eq('id', id); if (error) return toast(error.message, true); toast('Saved.'); await refresh(); };
+  try {
+    if (a === 'dotdVote') {
+      if (!me.user) return toast('Sign in to vote.', true);
+      const { error } = await sb.from('dotd_votes').upsert({ race_id: id, voter_id: me.user.id, driver_id: b.dataset.v }, { onConflict: 'race_id,voter_id' });
+      if (error) return toast(error.message, true); toast('Vote saved.'); await refresh();
+    } else if (a === 'dotdSave') {
+      await upd({ dotd_driver_id: $('#dotdDrv').value || null, dotd_rating: Number($('#dotdRat').value || 0), dotd_points: Number($('#dotdPts').value || 0) });
+    } else if (a === 'dotdClear') {
+      await upd({ dotd_driver_id: null });
+    } else if (a === 'dotdToggle') {
+      if (!r.dotd_open) return await upd({ dotd_open: true });
+      const vs = (D.dotd_votes || []).filter(v => v.race_id === id), tally = {};
+      vs.forEach(v => { tally[v.driver_id] = (tally[v.driver_id] || 0) + 1; });
+      const top = Math.max(0, ...Object.values(tally)), leaders = Object.keys(tally).filter(k => tally[k] === top);
+      const p = { dotd_open: false }; if (leaders.length) p.dotd_driver_id = leaders.includes(r.dotd_driver_id) ? r.dotd_driver_id : leaders[0];
+      await upd(p);
+    }
+  } catch (err) { toast(err.message || 'An error occurred.', true); }
+});
+
 PAGES.race = id => {
   const r = D.races.find(x => x.id === id);
   if (!r) return '<div class="card empty">Race not found.</div>';
@@ -1252,6 +1303,7 @@ PAGES.race = id => {
   <p style="margin-top:12px"><span class="tag ${r.status}">${STATUS[r.status]}</span> <button class="btn sm ghost" data-act="ics" data-v="${r.id}">+ Add to my calendar</button></p></div></section>
 
   ${r.description ? `<section class="sec"><div class="card" style="white-space:pre-line">${esc(r.description)}</div></section>` : ''}
+  ${dotdSection(r)}
   ${isStaff() ? `<div class="row" style="margin-top:14px"><button class="btn sm" data-act="entEdit" data-v="races" data-id="${r.id}">Edit race</button><button class="btn sm" data-act="goResults" data-id="${r.id}">Enter results</button></div>` : ''}
   <section class="sec"><h2>Results</h2><div class="card">${resultTable(r.id)}</div></section>`;
 };
