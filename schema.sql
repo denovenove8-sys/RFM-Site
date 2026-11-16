@@ -92,6 +92,11 @@ create table if not exists races (
 );
 alter table races add column if not exists qualifying_date timestamptz;
 alter table races add column if not exists laps int;
+-- Driver of the Day
+alter table races add column if not exists dotd_driver_id uuid references drivers(id) on delete set null;
+alter table races add column if not exists dotd_rating numeric not null default 0.5;
+alter table races add column if not exists dotd_points numeric not null default 0;
+alter table races add column if not exists dotd_open boolean not null default false;
 alter table races add column if not exists description text;
 alter table races add column if not exists kind text not null default 'race';
 alter table races add column if not exists format text;
@@ -125,6 +130,15 @@ create table if not exists news (
 );
 alter table news add column if not exists kind text not null default 'anuncio';
 alter table news add column if not exists pinned boolean not null default false;
+
+create table if not exists dotd_votes (
+  id uuid primary key default gen_random_uuid(),
+  race_id uuid not null references races(id) on delete cascade,
+  voter_id uuid not null references profiles(id) on delete cascade,
+  driver_id uuid not null references drivers(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique (race_id, voter_id)
+);
 
 -- VODs (race videos: YouTube / Twitch links)
 create table if not exists vods (
@@ -321,12 +335,13 @@ alter table races         enable row level security;
 alter table results       enable row level security;
 alter table news          enable row level security;
 alter table vods          enable row level security;
+alter table dotd_votes    enable row level security;
 alter table settings      enable row level security;
 alter table audit_log     enable row level security;
 
 do $$ declare p record; begin
   for p in select policyname, tablename from pg_policies where schemaname = 'public'
-           and tablename in ('profiles','teams','drivers','seasons','championships','races','results','news','vods','settings','audit_log')
+           and tablename in ('profiles','teams','drivers','seasons','championships','races','results','news','vods','dotd_votes','settings','audit_log')
   loop execute format('drop policy if exists %I on public.%I', p.policyname, p.tablename); end loop;
 end $$;
 
@@ -361,6 +376,14 @@ create policy "admin_settings" on settings      for all using (is_admin()) with 
 create policy "staff_races"   on races   for all using (is_staff()) with check (is_staff());
 create policy "staff_results" on results for all using (is_staff()) with check (is_staff());
 create policy "staff_news"    on news    for all using (is_staff()) with check (is_staff());
+create policy "dotd_select" on dotd_votes for select using (voter_id = auth.uid() or is_staff());
+create policy "dotd_insert" on dotd_votes for insert with check (
+  voter_id = auth.uid()
+  and exists (select 1 from profiles p where p.id = auth.uid() and p.status = 'active')
+  and exists (select 1 from races r where r.id = race_id and r.dotd_open));
+create policy "dotd_update" on dotd_votes for update using (voter_id = auth.uid()) with check (
+  voter_id = auth.uid() and exists (select 1 from races r where r.id = race_id and r.dotd_open));
+create policy "dotd_delete" on dotd_votes for delete using (voter_id = auth.uid() or is_staff());
 create policy "staff_vods"    on vods    for all using (is_staff()) with check (is_staff());
 
 -- Chefe de equipe: só edita a sua equipe (nome, cor, logo)
