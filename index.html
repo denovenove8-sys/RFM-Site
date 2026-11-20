@@ -78,6 +78,17 @@ textarea{min-height:110px;resize:vertical}
 .md .spoiler{background:#000;color:transparent;border-radius:3px;padding:0 3px;cursor:pointer;user-select:none}.md .spoiler.on{color:inherit;background:var(--panel2);user-select:auto}
 .md .demoji{height:1.3em;width:1.3em;vertical-align:-.3em}
 .mdbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.mdbar button{min-width:32px;padding:4px 8px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;cursor:pointer;font-size:13px}
+.dts{background:rgba(127,127,127,.22);border-radius:4px;padding:0 4px}
+.rdgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:960px){.rdgrid{grid-template-columns:1fr}}
+.rdline{display:grid;grid-template-columns:minmax(90px,.45fr) 1fr auto;gap:8px;margin-bottom:6px;align-items:center}
+.dc{background:#2b2d31;color:#dbdee1;border-radius:8px;border-left:4px solid var(--red);padding:14px;font-family:'gg sans','Segoe UI',Arial,sans-serif;font-size:14px}
+.dc .md{color:#dbdee1}.dc .md blockquote{border-left-color:#4e5058;color:#b5bac1}.dc .md code,.dc .md pre{background:#1e1f22;border-color:#1e1f22;color:#dbdee1}
+.dc .dcimg{width:100%;max-height:260px;object-fit:cover;border-radius:6px;display:block;margin-bottom:10px}
+.dc hr{border:0;border-top:1px solid #3f4147;margin:12px 0}
+.dc .dbtns{display:flex;gap:8px;flex-wrap:wrap}.dc .dbtn{padding:6px 16px;border-radius:4px;font-weight:600;color:#fff;font-size:14px}
+.dc .dbtn.g{background:#248046}.dc .dbtn.r{background:#da373c}.dc .dbtn.b{background:#5865f2}
+.dc .dboard{font-family:Consolas,monospace;font-size:12px;background:#1e1f22;border-radius:4px;padding:8px;margin-top:6px;white-space:pre;overflow:auto}
 .mdprev{margin-top:8px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px;min-height:20px}.mdprev:empty::before{content:'Preview';color:var(--muted)}
 
 textarea.code{font-family:ui-monospace,Consolas,monospace;font-size:13px;min-height:140px}
@@ -394,11 +405,19 @@ const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#5a5df0';
 const safeUrl = u => /^(https?:\/\/|data:image\/)/i.test(u || '') ? esc(u) : '';
 
 /* markdown do Discord */
+function dts(n, f) {
+  const d = new Date(n * 1000), L = 'en-GB';
+  const o = { t: [{ hour: '2-digit', minute: '2-digit' }], T: [{ timeStyle: 'medium' }], d: [{ dateStyle: 'short' }], D: [{ dateStyle: 'long' }],
+    f: [{ dateStyle: 'long', timeStyle: 'short' }], F: [{ dateStyle: 'full', timeStyle: 'short' }] };
+  if (f === 'R') { const m = Math.round((d - Date.now()) / 6e4), a = Math.abs(m); const u = a >= 1440 ? [Math.round(a / 1440), 'day'] : a >= 60 ? [Math.round(a / 60), 'hour'] : [a, 'minute']; return m >= 0 ? `in ${u[0]} ${u[1]}${u[0] === 1 ? '' : 's'}` : `${u[0]} ${u[1]}${u[0] === 1 ? '' : 's'} ago`; }
+  return d.toLocaleString(L, o[f][0]);
+}
 function dmd(src) {
     let s = esc(src || '');
     const blocks = [], codes = [];
     s = s.replace(/```(?:[a-z]*\n)?([\s\S]*?)```/g, (_, c) => { blocks.push(c.replace(/\n$/, '')); return `\u0000B${blocks.length - 1}\u0000`; });
     s = s.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return `\u0000C${codes.length - 1}\u0000`; });
+    s = s.replace(/&lt;t:(-?\d+)(?::([tTdDfFR]))?&gt;/g, (_, n, f) => `<span class="dts">${dts(+n, f || 'f')}</span>`);
     s = s.replace(/&lt;a?:(\w+):(\d+)&gt;/g, '<img class="demoji" src="https://cdn.discordapp.com/emojis/$2.png?size=48" alt=":$1:">')
       .replace(/\*\*\*([^\n]+?)\*\*\*/g, '<b><i>$1</i></b>')
       .replace(/\*\*([^\n]+?)\*\*/g, '<b>$1</b>')
@@ -424,7 +443,7 @@ function dmd(src) {
   }
   
   const MD_TOOLS = [['B', '**', '**', 'Bold'], ['I', '*', '*', 'Italic'], ['U', '__', '__', 'Underline'], ['S', '~~', '~~', 'Strikethrough'],
-    ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading']];
+    ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading'], ['•', '- ', '', 'List'], ['-#', '-# ', '', 'Small text']];
   const mdBar = () => `<div class="mdbar">${MD_TOOLS.map((t, i) => `<button type="button" data-md="${i}" title="${t[3]}">${t[0]}</button>`).join('')}</div>`;
   
   document.addEventListener('click', e => {
@@ -668,7 +687,7 @@ const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) :
 const isLocal = !configured;
 
 /* ---------- estado ---------- */
-let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [], transfer_days: [], finance_log: [], contracts: [], bot_config: [], discord_channels: [], discord_roles: [], botcfg: {} };
+let D = { race_direction: [], teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [], transfer_days: [], finance_log: [], contracts: [], bot_config: [], discord_channels: [], discord_roles: [], botcfg: {} };
 let me = { user: null, profile: null };
 let STC = {}, L = null;
 const standings = cid => (STC[cid] ||= standingsCalc(cid));
@@ -711,8 +730,9 @@ async function loadExtra() {
   const q = (t, f) => () => { let r = sb.from(t).select('*'); return f ? f(r) : r; };
   D.transfer_days = await safe(q('transfer_days'));
   D.finance_log = await safe(q('finance_log', r => r.order('id', { ascending: false }).limit(300)));
-  D.contracts = D.bot_config = D.discord_channels = D.discord_roles = [];
+  D.contracts = D.bot_config = D.discord_channels = D.discord_roles = []; D.race_direction = [];
   if (isStaff()) {
+    D.race_direction = await safe(q('race_direction'));
     [D.contracts, D.bot_config, D.discord_channels, D.discord_roles] = await Promise.all([
       safe(q('contracts', r => r.order('created_at', { ascending: false }).limit(300))), safe(q('bot_config')),
       safe(q('discord_channels', r => r.order('position'))), safe(q('discord_roles', r => r.order('position', { ascending: false })))]);
@@ -1483,7 +1503,7 @@ const ENT = {
     { k: 'format', l: 'Weekend template (result sessions)', t: 'select', o: WK_OPTS },
     { k: 'start_date', l: 'Weekend start', t: 'datetime' }, { k: 'race_date', l: 'Weekend end', t: 'datetime', req: 1 },
     { k: 'laps', l: 'Number of laps', t: 'number' }, { k: 'status', l: 'Status', t: 'select', o: () => Object.entries(STATUS), req: 1 },
-    { k: 'description', l: 'Round description / rules', t: 'textarea', md: 1, help: 'Discord formatting works: **bold**, *italic*, __underline__, ~~strike~~, > quote, # heading. The same text goes to the Discord attendance message.' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
+    { k: 'description', l: 'Round description / rules', t: 'textarea', md: 1, help: 'Discord formatting works: **bold**, *italic*, __underline__, ~~strike~~, > quote, # heading. It is the default text of the Race Direction message (you can rewrite it in the Race Direction tab).' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
   news: { label: 'Announcements', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
     { k: 'title', l: 'Title', t: 'text', req: 1 }, { k: 'kind', l: 'Type', t: 'select', o: () => Object.entries(KINDS), req: 1 },
     { k: 'body', l: 'Announcement text', t: 'textarea', md: 1 }, { k: 'image_url', l: 'Image (optional)', t: 'image' },
@@ -1518,7 +1538,7 @@ const SET_FIELDS = [
 const TABS = () => {
   const t = [];
   if (isAdmin()) t.push(['site', 'Customize site'], ['bot', 'Discord bot'], ['championships', 'Categories'], ['seasons', 'Seasons'], ['drivers', 'Drivers'], ['teams', 'Teams'], ['finance', 'Finance'], ['contracts', 'Contracts']);
-  t.push(['races', 'Calendar'], ['results', 'Results'], ['news', 'Announcements'], ['vods', 'VODs']);
+  t.push(['races', 'Calendar'], ['results', 'Results'], ['direction', 'Race Direction'], ['news', 'Announcements'], ['vods', 'VODs']);
   if (isAdmin()) t.push(['users', 'Users'], ['audit', 'History']);
   return t;
 };
@@ -1549,6 +1569,7 @@ PAGES.admin = async () => {
   else if (k === 'drivers') body = driversPanel();
   else if (ENT[k]) body = entPanel(k);
   else if (k === 'results') body = resultsPanel();
+  else if (k === 'direction') body = directionPanel();
   else if (k === 'bot') body = botPanel();
   else if (k === 'finance') body = financePanel();
   else if (k === 'contracts') body = contractsPanel();
@@ -1566,7 +1587,7 @@ function entPanel(key) {
   if (key === 'teams' && S.admCat !== 'all') rows = rows.filter(r => teamInCat(r.id, S.admCat));
   if (key === 'races') rows = [...rows].sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   if (key === 'news') rows = sortedNews();
-  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Results</button> ` : (key === 'teams' && S.admCat !== 'all' ? `<button class="btn sm" data-act="teamLeave" data-id="${r.id}">Remove from category</button> ` : '');
+  const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Results</button> <button class="btn sm" data-act="goDirection" data-id="${r.id}">Direction</button> ` : (key === 'teams' && S.admCat !== 'all' ? `<button class="btn sm" data-act="teamLeave" data-id="${r.id}">Remove from category</button> ` : '');
   const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumber rounds by date</button>' : ''}${key === 'seasons' ? '<button class="btn" data-act="rollNew">Season rollover</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Add'}</button></div></div>`;
   const H = { owner_name: 'Owner', cats: 'Categories', number: 'Nº', name: 'Name', team_id: 'Team', championship_id: 'Category', short_name: 'Short', principal_id: 'Principal', color: 'Cor', year: 'Ano', is_active: 'Active', category: 'Division', season_id: 'Season', points_scale: 'Points', round: 'Round', circuit: 'Circuit', race_date: 'Date', status: 'Status', title: 'Title', url: 'Link', race_id: 'Race', kind: 'Type', pinned: 'Pinned', created_at: 'Created', published: 'Published' };
   return head + `<div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr>${key === 'teams' ? '<th>Logo</th>' : ''}${E.cols.map(c => `<th>${H[c] || c}</th>`).join('')}<th></th></tr></thead><tbody>
@@ -1630,7 +1651,7 @@ function resultsPanel() {
   <td><input type="checkbox" name="pole" ${e.pole ? 'checked' : ''}></td><td><input type="checkbox" name="fl" ${e.fastest_lap ? 'checked' : ''}></td><td class="pts">${e.points ?? '—'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="empty">No drivers in this category. Add drivers in the “Drivers” tab.</td></tr>'}</tbody></table></div>
   <label class="chk"><input type="checkbox" name="finish" checked> Mark race as finished</label>
   <div class="row" style="margin-top:14px"><button class="btn red">Publish results</button><button type="button" class="btn" data-act="discordPub">Publish to Discord</button></div></form>
-  <div class="row" style="margin-top:12px"><button type="button" class="btn sm" data-act="raceReport">Send race report</button><button type="button" class="btn sm" data-act="askPresence">Ask drivers for attendance</button></div>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
+  <div class="row" style="margin-top:12px"><button type="button" class="btn sm" data-act="raceReport">Send race report</button><button type="button" class="btn sm" data-act="goDirection" data-id="${race.id}">Race Direction / attendance</button></div>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
 }
 function usersPanel() {
   const ps = D.profiles, pend = ps.filter(p => p.status === 'pending');
@@ -1653,6 +1674,74 @@ async function auditPanel() {
   const ACTN = { INSERT: 'Created', UPDATE: 'Changed', DELETE: 'Deleted' };
   return `<h2 style="margin-bottom:12px">Change history</h2><div class="card scroll"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Table</th><th>Detail</th></tr></thead><tbody>
   ${data.map(a => { const o = a.new_data || a.old_data || {}; return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(a.created_at)} ${fmtTime(a.created_at)}</td><td>${esc(who(a.user_id))}</td><td>${ACTN[a.action] || a.action}</td><td>${esc(a.table_name)}</td><td class="muted">${esc(o.name || o.title || o.username || o.key || o.position || String(a.row_id || '').slice(0, 8))}</td></tr>`; }).join('') || '<tr><td colspan="5" class="empty">No entries.</td></tr>'}</tbody></table></div>`;
+}
+
+
+/* ---------- RACE DIRECTION ---------- */
+const rdRow = id => (D.race_direction || []).find(x => x.race_id === id);
+const rdEpoch = r => { const t = Date.parse(r.race_date); return isNaN(t) ? null : Math.floor(t / 1000); };
+function rdDefaults(race) {
+  const ch = champOf(race.championship_id), se = D.seasons.find(x => x.id === ch?.season_id), ep = rdEpoch(race);
+  const sub = [race.round ? `Rodada ${race.round}` : '', se?.name || ''].filter(Boolean).join(' - ');
+  const loc = [race.circuit, race.country].filter(Boolean).join(' - ');
+  const info = []; if (ep) info.push({ l: 'Horário', v: `<t:${ep}:F>` }); if (loc) info.push({ l: 'Local', v: loc });
+  return { title: String(race.name || '').toUpperCase(), subtitle: sub, body: race.description || '', info, image_url: race.image_url || '', show_board: true };
+}
+function rdPreviewHTML(d) {
+  const img = safeUrl(d.image_url), info = (d.info || []).filter(i => (i.l || '').trim() || (i.v || '').trim()).map(i => i.l.trim() ? `**${i.l.trim()}:** ${i.v}` : i.v).join('\n');
+  return `<div class="dc">${img ? `<img class="dcimg" src="${img}" alt="">` : ''}<div class="md">
+    ${d.title ? `<div class="h2">${esc(d.title)}</div>` : ''}${d.subtitle ? `<div class="h3">${esc(d.subtitle)}</div>` : ''}
+    ${d.body ? dmd(d.body) : ''}${info ? `<div style="margin-top:8px">${dmd(info)}</div>` : ''}</div>
+    ${d.show_board ? `<div class="md" style="margin-top:10px"><b>Comparecimento</b></div><div class="dboard">Confirmados (0)   Ausentes (0)   Dúvida (0)</div>` : ''}
+    <hr><div class="dbtns"><span class="dbtn g">Confirmar</span><span class="dbtn r">Ausente</span><span class="dbtn b">Dúvida</span></div></div>`;
+}
+const rdLineHTML = (i = {}) => `<div class="rdline"><input name="rdl" value="${esc(i.l || '')}" placeholder="Label (e.g. Horário)"><input name="rdv" value="${esc(i.v || '')}" placeholder="Value (accepts **bold**, links…)"><button type="button" class="btn sm danger" data-act="rdDelLine" title="Remove">×</button></div>`;
+function directionPanel() {
+  const races = [...D.races].sort((a, b) => new Date(b.race_date) - new Date(a.race_date));
+  if (!races.length) return '<h2 style="margin-bottom:12px">Race Direction</h2><div class="card empty">First create a race in the Calendar tab.</div>';
+  if (!S.rdRace || !D.races.find(r => r.id === S.rdRace)) {
+    const up = races.filter(r => r.status !== 'finished').sort((a, b) => new Date(a.race_date) - new Date(b.race_date))[0];
+    S.rdRace = (up || races[0]).id;
+  }
+  const race = D.races.find(r => r.id === S.rdRace), saved = rdRow(race.id), def = rdDefaults(race);
+  const d = saved ? { title: saved.title ?? def.title, subtitle: saved.subtitle ?? '', body: saved.body ?? '', info: saved.info || [], image_url: saved.image_url || '', show_board: saved.show_board !== false } : def;
+  const posted = saved?.posted_at ? `<span class="tag finished">Posted ${fmtDate(saved.posted_at)} ${fmtTime(saved.posted_at)}</span>` : '<span class="tag upcoming">Not posted yet</span>';
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Race Direction</h2><div class="row">${posted}
+    <select data-change="rdRace" style="width:auto;min-width:260px">${races.map(r => `<option value="${r.id}" ${r.id === S.rdRace ? 'selected' : ''}>${flag(r.country_code)} ${esc(r.name)} — ${fmtDate(r.race_date)}</option>`).join('')}</select></div></div>
+  <p class="muted" style="margin-bottom:14px">Build the message the bot posts in the attendance channel: banner image, race info and your own text, with the 3 buttons (Confirmar / Ausente / Dúvida) right under it. No DMs are sent. Discord formatting works in the text: <b>**bold**</b>, *italic*, __underline__, ~~strike~~, > quote, # heading, -# small text, \`code\`, ||spoiler||, and <code>&lt;t:UNIX:F&gt;</code> for a time shown in each driver’s timezone.</p>
+  <div class="rdgrid"><div class="card" id="rdForm">
+    <label style="margin-top:0">Title</label><input name="title" value="${esc(d.title)}">
+    <label>Subtitle (optional)</label><input name="subtitle" value="${esc(d.subtitle)}" placeholder="Rodada 3 - Temporada 5">
+    <label>Message</label><div class="mdwrap">${mdBar()}<textarea name="body" rows="8" placeholder="Race Direction text…">${esc(d.body)}</textarea></div>
+    <div class="row" style="margin-top:6px"><button type="button" class="btn sm" data-act="rdTime">Insert race time</button></div>
+    <label>Race info lines</label><div id="rdLines">${d.info.map(rdLineHTML).join('')}</div>
+    <div class="row" style="margin-top:4px"><button type="button" class="btn sm" data-act="rdAddLine">+ Add line</button><button type="button" class="btn sm" data-act="rdAuto">Fill from race</button></div>
+    <label>Image (banner)</label>${fieldHTML({ k: 'image_url', l: '', t: 'image' }, d.image_url).replace(/^<label><\/label>/, '')}
+    <label class="chk"><input type="checkbox" name="show_board" ${d.show_board ? 'checked' : ''}> Show the Confirmados / Ausentes / Dúvida board</label>
+    <div class="row" style="margin-top:20px"><button type="button" class="btn" data-act="rdSave">Save draft</button><button type="button" class="btn red" data-act="rdAsk">Ask drivers attendance</button>
+    ${saved?.posted_at ? '<button type="button" class="btn" data-act="rdAsk" data-v="new">Post again as new message</button>' : ''}</div>
+    <p class="hint">${saved?.posted_at ? '“Ask drivers attendance” updates the message already in Discord (answers are kept).' : '“Ask drivers attendance” posts the message in the attendance channel.'} Only people with an allowed role can open it, and your Discord ID must be saved in your profile.</p>
+  </div>
+  <div class="card" style="position:sticky;top:12px"><h3 style="margin-bottom:10px">Discord preview</h3><div id="rdPrev">${rdPreviewHTML(d)}</div></div></div>`;
+}
+function rdRead() {
+  const root = $('#rdForm'); if (!root) return null;
+  const g = n => root.querySelector(`[name=${n}]`), file = g('image_url__file')?.files[0];
+  const info = [...root.querySelectorAll('.rdline')].map(r => ({ l: r.querySelector('[name=rdl]').value.trim(), v: r.querySelector('[name=rdv]').value.trim() })).filter(i => i.l || i.v);
+  return { file, title: g('title').value.trim(), subtitle: g('subtitle').value.trim(), body: g('body').value.trim(), info, image_url: file && file.size ? URL.createObjectURL(file) : g('image_url').value.trim(), show_board: g('show_board').checked };
+}
+const rdLive = () => { const d = rdRead(); if (d) $('#rdPrev').innerHTML = rdPreviewHTML(d); };
+document.addEventListener('input', e => { if (e.target.closest?.('#rdForm')) rdLive(); });
+document.addEventListener('change', e => { if (e.target.closest?.('#rdForm')) rdLive(); });
+async function rdSave() {
+  const d = rdRead(); if (!d) throw new Error('Open the Race Direction tab first.');
+  if (!d.title) throw new Error('Write a title.');
+  const url = d.file && d.file.size ? await uploadMedia(d.file, 'direction') : (d.image_url || null);
+  const row = { race_id: S.rdRace, title: d.title, subtitle: d.subtitle || null, body: d.body || null, info: d.info, image_url: url || null, show_board: d.show_board, updated_at: new Date().toISOString() };
+  const { error } = await sb.from('race_direction').upsert(row, { onConflict: 'race_id' });
+  if (error) throw new Error(/race_direction/.test(error.message) ? 'Run schema_race_direction.sql in Supabase first. (' + error.message + ')' : error.message);
+  const old = rdRow(S.rdRace); if (old) Object.assign(old, row); else D.race_direction.push({ ...row, posted_at: null });
+  const u = $('#rdForm [name=image_url]'), f = $('#rdForm [name=image_url__file]'); if (u && url) u.value = url; if (f) f.value = '';
 }
 
 /* ---------- DISCORD BOT / FINANCE / CONTRACTS ---------- */
@@ -1841,7 +1930,7 @@ const ACT = {
     $('#dlg').showModal();
   },
   askPresence: () => {
-    if (!S.resRace) return;
+    if (S.resRace) { S.rdRace = S.resRace; return goAdmin('direction'); }
     if (!me.profile?.discord_id) return toast('Save your Discord ID in your profile first (the bot checks that you hold the required role).', true);
     if (confirm('Post the attendance message (race info + Confirm / Absent / Doubt buttons) in the Discord attendance channel?')) queueJob('presence_ask', { race_id: S.resRace });
   },
@@ -1893,6 +1982,23 @@ const ACT = {
   entNew: el => openEnt(el.dataset.v),
   entEdit: el => openEnt(el.dataset.v, el.dataset.id),
   goResults: el => { S.resRace = el.dataset.id; goAdmin('results'); },
+  goDirection: el => { S.rdRace = el.dataset.id; goAdmin('direction'); },
+  rdAddLine: () => { $('#rdLines').insertAdjacentHTML('beforeend', rdLineHTML()); $('#rdLines .rdline:last-child input').focus(); },
+  rdDelLine: el => { el.closest('.rdline').remove(); rdLive(); },
+  rdAuto: () => { const r = D.races.find(x => x.id === S.rdRace); $('#rdLines').innerHTML = rdDefaults(r).info.map(rdLineHTML).join(''); rdLive(); },
+  rdTime: () => {
+    const r = D.races.find(x => x.id === S.rdRace), ep = rdEpoch(r); if (!ep) return toast('This race has no date.', true);
+    const ta = $('#rdForm [name=body]'), a = ta.selectionStart; ta.setRangeText(`<t:${ep}:F>`, a, ta.selectionEnd, 'end'); ta.focus(); rdLive();
+  },
+  rdSave: async el => { el.disabled = true; try { await rdSave(); toast('Draft saved.'); } catch (e) { toast(e.message || 'Error', true); } el.disabled = false; },
+  rdAsk: async el => {
+    if (!me.profile?.discord_id) return toast('Save your Discord ID in your profile first (the bot checks that you hold the required role).', true);
+    const again = el.dataset.v === 'new';
+    if (!confirm(again ? 'Delete the old message and post a NEW one (previous answers are kept)?' : 'Send this message to the Discord attendance channel?')) return;
+    el.disabled = true;
+    try { await rdSave(); await queueJob('presence_ask', { race_id: S.rdRace, repost: again }); await refresh(); } catch (e) { toast(e.message || 'Error', true); }
+    el.disabled = false;
+  },
   entDel: async el => {
     const k = el.dataset.v;
     const warn = k === 'championships' ? 'This also deletes the races and results of this category. ' : k === 'races' ? 'This also deletes the results of the race. ' : '';
@@ -1977,6 +2083,7 @@ document.addEventListener('change', async e => {
   const el = e.target.closest('[data-change]'); if (!el) return;
   const k = el.dataset.change;
   if (k === 'champ') { S.champ = el.value; route(); }
+  else if (k === 'rdRace') { S.rdRace = el.value; route(); }
   else if (k === 'calChamp') { S.calChamp = el.value; route(); }
   else if (k === 'admCat') { S.admCat = el.value; route(); }
   else if (k === 'plSeason') { S.plSeason = el.value; route(); }
