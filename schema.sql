@@ -1,5 +1,5 @@
 -- =====================================================================
--- LBA — Bot do Discord + Contratos + Finanças + Janelas de transferência
+-- RFA — Bot do Discord + Contratos + Finanças + Janelas de transferência
 -- Rode DEPOIS do schema.sql, no SQL Editor do Supabase. Pode rodar de novo.
 -- =====================================================================
 
