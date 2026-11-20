@@ -393,51 +393,50 @@ const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUppe
 const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#5a5df0';
 const safeUrl = u => /^(https?:\/\/|data:image\/)/i.test(u || '') ? esc(u) : '';
 
-/* markdown do Discord: **negrito** *itálico* __sublinhado__ ~~riscado~~ ||spoiler|| `código` ```bloco``` > citação # título -# pequeno */
+/* markdown do Discord */
 function dmd(src) {
-  let s = esc(src || '');
-  const blocks = [], codes = [];
-  s = s.replace(/```(?:[a-z]*\n)?([\s\S]*?)```/g, (_, c) => { blocks.push(c.replace(/\n$/, '')); return `\u0000B${blocks.length - 1}\u0000`; });
-  s = s.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return `\u0000C${codes.length - 1}\u0000`; });
-  s = s.replace(/&lt;a?:(\w+):(\d+)&gt;/g, '<img class="demoji" src="https://cdn.discordapp.com/emojis/$2.png?size=48" alt=":$1:">')
-    .replace(/\*\*\*([^\n]+?)\*\*\*/g, '<b><i>$1</i></b>')
-    .replace(/\*\*([^\n]+?)\*\*/g, '<b>$1</b>')
-    .replace(/__([^\n]+?)__/g, '<u>$1</u>')
-    .replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\*)/g, '$1<i>$2</i>')
-    .replace(/(^|[^_\w])_([^_\n]+?)_(?![_\w])/g, '$1<i>$2</i>')
-    .replace(/~~([^\n]+?)~~/g, '<s>$1</s>')
-    .replace(/\|\|([^\n]+?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'on\')">$1</span>')
-    .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-  const out = []; let q = [];
-  const flush = () => { if (q.length) { out.push(`<blockquote>${q.join('<br>')}</blockquote>`); q = []; } };
-  for (const ln of s.split('\n')) {
-    let m;
-    if ((m = ln.match(/^&gt; ?(.*)$/))) { q.push(m[1]); continue; }
+    let s = esc(src || '');
+    const blocks = [], codes = [];
+    s = s.replace(/```(?:[a-z]*\n)?([\s\S]*?)```/g, (_, c) => { blocks.push(c.replace(/\n$/, '')); return `\u0000B${blocks.length - 1}\u0000`; });
+    s = s.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return `\u0000C${codes.length - 1}\u0000`; });
+    s = s.replace(/&lt;a?:(\w+):(\d+)&gt;/g, '<img class="demoji" src="https://cdn.discordapp.com/emojis/$2.png?size=48" alt=":$1:">')
+      .replace(/\*\*\*([^\n]+?)\*\*\*/g, '<b><i>$1</i></b>')
+      .replace(/\*\*([^\n]+?)\*\*/g, '<b>$1</b>')
+      .replace(/__([^\n]+?)__/g, '<u>$1</u>')
+      .replace(/(^|[^*\w])\*([^*\n]+?)\*(?!\*)/g, '$1<i>$2</i>')
+      .replace(/(^|[^_\w])_([^_\n]+?)_(?![_\w])/g, '$1<i>$2</i>')
+      .replace(/~~([^\n]+?)~~/g, '<s>$1</s>')
+      .replace(/\|\|([^\n]+?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'on\')">$1</span>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    const out = []; let q = [];
+    const flush = () => { if (q.length) { out.push(`<blockquote>${q.join('<br>')}</blockquote>`); q = []; } };
+    for (const ln of s.split('\n')) {
+      let m;
+      if ((m = ln.match(/^&gt; ?(.*)$/))) { q.push(m[1]); continue; }
+      flush();
+      if ((m = ln.match(/^(#{1,3}) (.*)$/))) out.push(`<div class="h${m[1].length}">${m[2]}</div>`);
+      else if ((m = ln.match(/^-# (.*)$/))) out.push(`<div class="sub">${m[1]}</div>`);
+      else if ((m = ln.match(/^[-*] (.*)$/))) out.push(`<div>• ${m[1]}</div>`);
+      else out.push(ln.trim() ? `<div>${ln}</div>` : '<div style="height:.6em"></div>');
+    }
     flush();
-    if ((m = ln.match(/^(#{1,3}) (.*)$/))) out.push(`<div class="h${m[1].length}">${m[2]}</div>`);
-    else if ((m = ln.match(/^-# (.*)$/))) out.push(`<div class="sub">${m[1]}</div>`);
-    else if ((m = ln.match(/^[-*] (.*)$/))) out.push(`<div>• ${m[1]}</div>`);
-    else out.push(ln.trim() ? `<div>${ln}</div>` : '<div style="height:.6em"></div>');
+    return out.join('').replace(/\u0000B(\d+)\u0000/g, (_, i) => `<pre>${blocks[i]}</pre>`).replace(/\u0000C(\d+)\u0000/g, (_, i) => `<code>${codes[i]}</code>`);
   }
-  flush();
-  return out.join('').replace(/\u0000B(\d+)\u0000/g, (_, i) => `<pre>${blocks[i]}</pre>`).replace(/\u0000C(\d+)\u0000/g, (_, i) => `<code>${codes[i]}</code>`);
-}
-
-
-const MD_TOOLS = [['B', '**', '**', 'Bold'], ['I', '*', '*', 'Italic'], ['U', '__', '__', 'Underline'], ['S', '~~', '~~', 'Strikethrough'],
-  ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading']];
-const mdBar = () => `<div class="mdbar">${MD_TOOLS.map((t, i) => `<button type="button" data-md="${i}" title="${t[3]}">${t[0]}</button>`).join('')}</div>`;
-
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-md]'); if (!b) return;
-  const ta = b.closest('.mdwrap')?.querySelector('textarea'); if (!ta) return;
-  const [, pre, post] = MD_TOOLS[+b.dataset.md], a = ta.selectionStart, z = ta.selectionEnd;
-  ta.setRangeText(pre + ta.value.slice(a, z) + post, a, z, 'select'); ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true }));
-});
-document.addEventListener('input', e => {
-  const ta = e.target; if (!ta.matches?.('.mdwrap textarea')) return;
-  const pv = ta.closest('.mdwrap').querySelector('.mdprev'); if (pv) pv.innerHTML = dmd(ta.value);
-});
+  
+  const MD_TOOLS = [['B', '**', '**', 'Bold'], ['I', '*', '*', 'Italic'], ['U', '__', '__', 'Underline'], ['S', '~~', '~~', 'Strikethrough'],
+    ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading']];
+  const mdBar = () => `<div class="mdbar">${MD_TOOLS.map((t, i) => `<button type="button" data-md="${i}" title="${t[3]}">${t[0]}</button>`).join('')}</div>`;
+  
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-md]'); if (!b) return;
+    const ta = b.closest('.mdwrap')?.querySelector('textarea'); if (!ta) return;
+    const [, pre, post] = MD_TOOLS[+b.dataset.md], a = ta.selectionStart, z = ta.selectionEnd;
+    ta.setRangeText(pre + ta.value.slice(a, z) + post, a, z, 'select'); ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  document.addEventListener('input', e => {
+    const ta = e.target; if (!ta.matches?.('.mdwrap textarea')) return;
+    const pv = ta.closest('.mdwrap').querySelector('.mdprev'); if (pv) pv.innerHTML = dmd(ta.value);
+  });
 
 const fmtDate = (d, o) => new Date(d).toLocaleDateString('en-GB', o || { day: '2-digit', month: 'short', year: 'numeric' });
 const fmtTime = d => new Date(d).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -837,7 +836,7 @@ function newsCard(n, full) {
   const body = n.body || '';
   return `<article class="card news-card hover ${n.pinned ? 'pinned' : ''}">${safeUrl(n.image_url) ? `<div class="img" style="background-image:url('${safeUrl(n.image_url)}')"></div>` : ''}
   <div class="row" style="gap:6px"><span class="tag">${KINDS[n.kind] || 'Announcement'}</span>${n.pinned ? '<span class="tag pin">📌 Pinned</span>' : ''}<span class="muted" style="font-size:12px">${fmtDate(n.created_at)}</span></div>
-  <h3>${esc(n.title)}</h3>${full ? `<div class="muted body md" style="white-space:normal">${dmd(body)}</div>` : `<p class="muted body">${esc(body.slice(0, 130) + (body.length > 130 ? '…' : ''))}</p>`}
+  <h3>${esc(n.title)}</h3>${full ? `<div class="muted md">${dmd(body)}</div>` : `<p class="muted body">${esc(body.replace(/[*_~|`>#]+/g, '').slice(0, 130) + (body.length > 130 ? '…' : ''))}</p>`}
   ${isStaff() ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="news" data-id="${n.id}">Edit</button><button class="btn sm danger" data-act="entDel" data-v="news" data-id="${n.id}">Delete</button></div>` : ''}</article>`;
 }
 function driverTable(rows, limit) {
@@ -1469,12 +1468,13 @@ const ENT = {
     { k: 'add_cat', l: 'Enroll in a category (optional)', t: 'select', o: optC, virtual: 1, help: 'The team is unique in the league. Here you only add it to one more category/season.' },
     { k: 'color', l: 'Team color', t: 'color' }, { k: 'logo_url', l: 'Team logo', t: 'image' }, { k: 'principal_id', l: 'Team principal (account)', t: 'select', o: optP },
     { k: 'owner_name', l: 'Team owner (name printed on the contract)', t: 'text' }, { k: 'owner_photo_url', l: 'Team owner photo', t: 'image' },
-    { k: 'owner_discord_id', l: 'Team owner Discord ID (unlocks the Contracts Center)', t: 'text', help: 'Discord → Settings → Advanced → Developer Mode; then right-click the user → Copy User ID.' }] },
+    { k: 'owner_discord_id', l: 'Team owner Discord ID (unlocks the Contracts Center)', t: 'text', help: 'Discord → Settings → Advanced → Developer Mode; then right-click the user → Copy User ID.' },
+    { k: 'discord_role_id', l: 'Team Discord role ID (needed to sign drivers)', t: 'text', help: 'Optional. If empty, the bot looks for a server role named like the team. Requires the SQL column teams.discord_role_id.' }] },
   seasons: { label: 'Seasons', cols: ['name', 'year', 'is_active'], fields: [{ k: 'name', l: 'Name', t: 'text', req: 1 }, { k: 'year', l: 'Ano', t: 'number', req: 1 }, { k: 'is_active', l: 'Active season', t: 'bool' }] },
   championships: { label: 'Categories', one: 'Category', add: '+ New category', cols: ['name', 'category', 'season_id', 'points_scale'], fields: [
     { k: 'name', l: 'Category name', t: 'text', req: 1 }, { k: 'category', l: 'Division / class (optional)', t: 'text' },
     { k: 'season_id', l: 'Season', t: 'select', o: optS, help: 'If left empty, uses the active season (or creates one automatically).' },
-    { k: 'description', l: 'Description / short rules', t: 'textarea', md: 1 }, { k: 'image_url', l: 'Cover image', t: 'image' }, { k: 'color', l: 'Category color', t: 'color' },
+    { k: 'description', l: 'Description / short rules', t: 'textarea' }, { k: 'image_url', l: 'Cover image', t: 'image' }, { k: 'color', l: 'Category color', t: 'color' },
     { k: 'points_scale', l: 'Points system (1st, 2nd, 3rd…)', t: 'text', help: 'Separate with commas. E.g. 25,18,15,12,10,8,6,4,2,1 — only the listed positions score.' },
     { k: 'fl_bonus', l: 'Fastest lap points', t: 'number', help: 'Use 0 to disable. If you change the system, all results are recalculated.' }] },
   races: { label: 'Calendar', cols: ['round', 'name', 'championship_id', 'circuit', 'race_date', 'status'], fields: [
@@ -1483,7 +1483,7 @@ const ENT = {
     { k: 'format', l: 'Weekend template (result sessions)', t: 'select', o: WK_OPTS },
     { k: 'start_date', l: 'Weekend start', t: 'datetime' }, { k: 'race_date', l: 'Weekend end', t: 'datetime', req: 1 },
     { k: 'laps', l: 'Number of laps', t: 'number' }, { k: 'status', l: 'Status', t: 'select', o: () => Object.entries(STATUS), req: 1 },
-    { k: 'description', l: 'Round description / rules', t: 'textarea', md: 1, help: 'Discord formatting works here: **bold**, *italic*, __underline__, ~~strike~~, > quote, # heading. The same text goes to the Discord attendance message.' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
+    { k: 'description', l: 'Round description / rules', t: 'textarea', md: 1, help: 'Discord formatting works: **bold**, *italic*, __underline__, ~~strike~~, > quote, # heading. The same text goes to the Discord attendance message.' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
   news: { label: 'Announcements', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
     { k: 'title', l: 'Title', t: 'text', req: 1 }, { k: 'kind', l: 'Type', t: 'select', o: () => Object.entries(KINDS), req: 1 },
     { k: 'body', l: 'Announcement text', t: 'textarea', md: 1 }, { k: 'image_url', l: 'Image (optional)', t: 'image' },
@@ -1659,27 +1659,26 @@ async function auditPanel() {
 const BOT_FIELDS = [
   ['Channels (where the bot posts each thing)', [
     { k: 'ch_application_panel', l: 'Application panel (Driver / Team Principal / Strategist menu)', t: 'channel' },
-    { k: 'ch_application_review', l: 'Application forms (team principals read the driver applications here)', t: 'channel' },
+    { k: 'ch_application_review', l: 'Driver applications (team principals read them here)', t: 'channel' },
     { k: 'ch_contract_panel', l: 'Contracts Center panel', t: 'channel' },
     { k: 'ch_contracts', l: 'Signed contracts, transfers and releases', t: 'channel' },
     { k: 'ch_results_qualy', l: 'Qualifying / practice results', t: 'channel' },
     { k: 'ch_results_race', l: 'Race results', t: 'channel' },
     { k: 'ch_report', l: 'Race report', t: 'channel' },
-    { k: 'ch_attendance', l: 'Race Direction / attendance message (Confirm / Absent / Doubt buttons)', t: 'channel' },
-    { k: 'ch_lineup', l: 'Season line-up panel (team menu)', t: 'channel' },
-    { k: 'ch_finance', l: 'Finance panel + movement messages', t: 'channel' }]],
+    { k: 'ch_attendance', l: 'Race Direction / attendance message (with the 3 buttons)', t: 'channel' },
+    { k: 'ch_lineup', l: 'Line-up panel (team menu)', t: 'channel' },
+    { k: 'ch_finance', l: 'Finance panel + movements', t: 'channel' }]],
   ['Images', [
     { k: 'img_application', l: 'APPLICATION panel banner', t: 'image' }, { k: 'img_contract', l: 'CONTRACT panel banner', t: 'image' },
-    { k: 'img_lineup', l: 'LINE-UP panel banner', t: 'image' }, { k: 'img_finance', l: 'FINANCE panel banner', t: 'image' },
-    { k: 'img_report', l: 'RACE REPORT banner (optional, falls back to the race banner)', t: 'image' },
+    { k: 'img_lineup', l: 'LINE-UP panel banner', t: 'image' }, { k: 'img_finance', l: 'FINANCE panel banner', t: 'image' }, { k: 'img_report', l: 'RACE REPORT banner (optional)', t: 'image' },
     { k: 'img_contract_logo', l: 'Logo printed on the contract sheet', t: 'image' },
     { k: 'img_qualy', l: 'QUALIFYING banner', t: 'image' }, { k: 'img_qualy_sprint', l: 'SPRINT QUALIFYING banner (optional)', t: 'image' },
     { k: 'img_race', l: 'RACE banner', t: 'image' }, { k: 'img_race_sprint', l: 'SPRINT RACE banner (optional)', t: 'image' }]],
   ['Rules', [
     { k: 'league_name', l: 'Full league name (printed on the contract)', t: 'text' }, { k: 'league_short', l: 'League short name (e.g. RFA)', t: 'text' },
-    { k: 'roles_notify', l: 'Role IDs allowed to notify drivers (comma separated)', t: 'text' },
-    { k: 'role_hireable', l: 'Role required to sign / transfer drivers (the team owner also needs their team role)', t: 'text', help: 'Role ID. Default: 1542917057874624613. Leave empty to not require it.' },
-    { k: 'role_finance_ping', l: 'Role pinged on every finance update', t: 'text', help: 'Role ID. The movement message deletes itself after 10 minutes.' },
+    { k: 'roles_notify', l: 'Role IDs allowed to open attendance / notify (comma separated)', t: 'text' },
+    { k: 'role_hireable', l: 'Role ID required to sign drivers (team officials; the team role is also required)', t: 'text' },
+    { k: 'role_finance_ping', l: 'Role ID pinged on every finance movement', t: 'text' },
     { k: 'pilot_age_min', l: 'Minimum driver age', t: 'number' }, { k: 'pilot_age_max', l: 'Maximum driver age', t: 'number' },
     { k: 'transfer_enforce', l: 'Only allow signing/transfers on the transfer-window days marked in the calendar', t: 'bool' },
     { k: 'max_main_drivers', l: 'Max main drivers per team (0 = unlimited)', t: 'number' }, { k: 'max_reserve_drivers', l: 'Max reserve drivers per team (0 = unlimited)', t: 'number' },
@@ -1844,7 +1843,7 @@ const ACT = {
   askPresence: () => {
     if (!S.resRace) return;
     if (!me.profile?.discord_id) return toast('Save your Discord ID in your profile first (the bot checks that you hold the required role).', true);
-    if (confirm('Post the attendance message (with the Confirm / Absent / Doubt buttons and the race info) in the attendance channel? No DMs are sent.')) queueJob('presence_ask', { race_id: S.resRace });
+    if (confirm('Post the attendance message (race info + Confirm / Absent / Doubt buttons) in the Discord attendance channel?')) queueJob('presence_ask', { race_id: S.resRace });
   },
   finAdj: a => {
     const kind = a.dataset.kind, id = a.dataset.id, nm = kind === 'team' ? teamOf(id)?.name : driverOf(id)?.name;
