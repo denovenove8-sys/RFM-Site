@@ -1934,7 +1934,7 @@ const ACT = {
     const kind = a.dataset.kind, id = a.dataset.id, wd = a.dataset.mode === 'withdraw', nm = kind === 'team' ? teamOf(id)?.name : driverOf(id)?.name;
     $('#dlg').innerHTML = `<form data-form="finadj" data-kind="${kind}" data-id="${id}" data-mode="${wd ? 'withdraw' : 'adjust'}"><h3>${wd ? 'Withdraw money' : 'Adjust ' + (kind === 'team' ? 'balance' : 'value')} — ${esc(nm || '')}</h3>
     ${wd ? `<p class="muted" style="font-size:13px;margin-bottom:8px">Current balance: <b>${cash(teamOf(id)?.balance)}</b></p>` : ''}
-    <label>${wd ? 'Amount to withdraw' : 'Amount (positive adds, negative subtracts)'}</label><input type="number" name="amount" step="1000" ${wd ? 'min="1"' : ''} required placeholder="${wd ? 'e.g. 200000' : 'e.g. 500000 or -200000'}">
+    <label>${wd ? 'Amount to withdraw' : 'Amount (positive adds, negative subtracts)'}</label><input type="number" name="amount" step="any" ${wd ? 'min="0.01"' : ''} required placeholder="${wd ? 'e.g. 200000' : 'e.g. 500000 or -200000'}">
     <label>Reason</label><input name="reason" required placeholder="${wd ? 'e.g. Fine, penalty…' : 'e.g. Sponsorship, fine…'}">
     ${wd ? '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" name="neg" style="width:auto"> Allow the balance to go negative</label>' : ''}
     <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">${wd ? 'Withdraw' : 'Apply'}</button></div></form>`;
