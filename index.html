@@ -68,7 +68,6 @@ input[type=checkbox]{width:auto;accent-color:var(--red)}
 input[type=color]{padding:2px;height:40px;cursor:pointer}
 input[type=file]{padding:8px;font-size:13px}
 textarea{min-height:110px;resize:vertical}
-
 /* formatação estilo Discord */
 .md{line-height:1.5;word-wrap:break-word}
 .md blockquote{margin:4px 0;padding:2px 0 2px 12px;border-left:4px solid var(--line);color:var(--muted)}
@@ -80,6 +79,7 @@ textarea{min-height:110px;resize:vertical}
 .md .demoji{height:1.3em;width:1.3em;vertical-align:-.3em}
 .mdbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.mdbar button{min-width:32px;padding:4px 8px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;cursor:pointer;font-size:13px}
 .mdprev{margin-top:8px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px;min-height:20px}.mdprev:empty::before{content:'Preview';color:var(--muted)}
+
 textarea.code{font-family:ui-monospace,Consolas,monospace;font-size:13px;min-height:140px}
 .hint{font-size:12px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0;font-family:'Barlow',sans-serif}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -340,6 +340,12 @@ dialog:has(.vodp){width:min(960px,96vw)}
 .hub-big .count small{font-size:8.5px;letter-spacing:.14em;color:#c9caff}
 .hub-big .btn{padding:8px 14px;font-size:12px}
 @media (max-width:860px){.hub-big .inner{max-width:100%}.hub-big::after{left:30%;opacity:.55}}
+.cal .d.tw{background:color-mix(in srgb,var(--green) 20%,var(--panel));border-color:var(--green)}
+.cal .d.tw::after{content:'Window';display:block;font-size:10px;color:var(--green);margin-top:2px;letter-spacing:.06em}
+.cal.edit .d:not(.race){cursor:pointer;outline:1px dashed var(--line)}
+.delta.up{color:#5fcf8a}.delta.down{color:#f87171}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -376,7 +382,7 @@ const DEFS = {
   partner_banner: '', partner_logo: '', partner_name: '',
   welcome_title: '', welcome_text: '',
   footer_text: '', discord_url: '', instagram_url: '', youtube_url: '',
-  nav_home: 'Home', nav_calendar: 'Calendar', nav_standings: 'Standings', nav_players: 'Drivers', nav_teams: 'Teams', nav_transfers: 'Transfers', nav_records: 'Records', nav_vods: 'VODs', nav_news: 'Announcements',
+  nav_home: 'Home', nav_calendar: 'Calendar', nav_standings: 'Standings', nav_players: 'Drivers', nav_teams: 'Teams', nav_transfers: 'Transfers', nav_finance: 'Finance', nav_records: 'Records', nav_vods: 'VODs', nav_news: 'Announcements',
   show_banner: '1', show_last: '1', show_next: '1', show_drivers: '1', show_teams: '1', show_news: '1', custom_css: ''
 };
 
@@ -416,9 +422,12 @@ function dmd(src) {
   flush();
   return out.join('').replace(/\u0000B(\d+)\u0000/g, (_, i) => `<pre>${blocks[i]}</pre>`).replace(/\u0000C(\d+)\u0000/g, (_, i) => `<code>${codes[i]}</code>`);
 }
+
+
 const MD_TOOLS = [['B', '**', '**', 'Bold'], ['I', '*', '*', 'Italic'], ['U', '__', '__', 'Underline'], ['S', '~~', '~~', 'Strikethrough'],
   ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading']];
 const mdBar = () => `<div class="mdbar">${MD_TOOLS.map((t, i) => `<button type="button" data-md="${i}" title="${t[3]}">${t[0]}</button>`).join('')}</div>`;
+
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-md]'); if (!b) return;
   const ta = b.closest('.mdwrap')?.querySelector('textarea'); if (!ta) return;
@@ -429,6 +438,7 @@ document.addEventListener('input', e => {
   const ta = e.target; if (!ta.matches?.('.mdwrap textarea')) return;
   const pv = ta.closest('.mdwrap').querySelector('.mdprev'); if (pv) pv.innerHTML = dmd(ta.value);
 });
+
 const fmtDate = (d, o) => new Date(d).toLocaleDateString('en-GB', o || { day: '2-digit', month: 'short', year: 'numeric' });
 const fmtTime = d => new Date(d).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 const initials = n => (n || '?').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -492,7 +502,7 @@ function makeLocal() {
     try { db = await idbGet(KEY); } catch {}
     if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
     if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
-    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods', 'dotd_votes'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
+    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods', 'dotd_votes', 'transfer_days', 'finance_log', 'contracts', 'bot_config', 'discord_channels', 'discord_roles', 'bot_queue'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
     try { await idbSet(KEY, db); ls.del(KEY); } catch {}
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
   };
@@ -659,7 +669,7 @@ const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) :
 const isLocal = !configured;
 
 /* ---------- estado ---------- */
-let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [] };
+let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [], transfer_days: [], finance_log: [], contracts: [], bot_config: [], discord_channels: [], discord_roles: [], botcfg: {} };
 let me = { user: null, profile: null };
 let STC = {}, L = null;
 const standings = cid => (STC[cid] ||= standingsCalc(cid));
@@ -693,8 +703,26 @@ async function loadData() {
   D.vods = vodsR.data || [];
   D.dotd_votes = dvR.data || [];
   if (isStaff()) { const p = await sb.from('profiles').select('*').order('created_at', { ascending: false }); D.profiles = p.data || []; }
+  await loadExtra();
   STC = {}; L = null; pickChamp(); applySettings();
 }
+/* bot / finance / transfer-window tables (stay empty if schema_bot.sql was not run yet) */
+async function loadExtra() {
+  const safe = async fn => { try { const r = await fn(); return r.error ? [] : (r.data || []); } catch { return []; } };
+  const q = (t, f) => () => { let r = sb.from(t).select('*'); return f ? f(r) : r; };
+  D.transfer_days = await safe(q('transfer_days'));
+  D.finance_log = await safe(q('finance_log', r => r.order('id', { ascending: false }).limit(300)));
+  D.contracts = D.bot_config = D.discord_channels = D.discord_roles = [];
+  if (isStaff()) {
+    [D.contracts, D.bot_config, D.discord_channels, D.discord_roles] = await Promise.all([
+      safe(q('contracts', r => r.order('created_at', { ascending: false }).limit(300))), safe(q('bot_config')),
+      safe(q('discord_channels', r => r.order('position'))), safe(q('discord_roles', r => r.order('position', { ascending: false })))]);
+  }
+  D.botcfg = {}; D.bot_config.forEach(r => { if (r.value) D.botcfg[r.key] = r.value; });
+}
+const bcfg = (k, d = '') => D.botcfg[k] ?? d;
+const cash = v => { const n = Math.round(Number(v) || 0); return (n < 0 ? '-' : '') + (D.settings.currency_symbol || bcfg('currency_symbol', '$')) + ' ' + Math.abs(n).toLocaleString('en-US'); };
+const scash = v => (Number(v) > 0 ? '+' : '') + cash(v);
 function pickChamp() {
   if (S.champ && champOf(S.champ)) return;
   const act = D.seasons.find(s => s.is_active);
@@ -809,7 +837,7 @@ function newsCard(n, full) {
   const body = n.body || '';
   return `<article class="card news-card hover ${n.pinned ? 'pinned' : ''}">${safeUrl(n.image_url) ? `<div class="img" style="background-image:url('${safeUrl(n.image_url)}')"></div>` : ''}
   <div class="row" style="gap:6px"><span class="tag">${KINDS[n.kind] || 'Announcement'}</span>${n.pinned ? '<span class="tag pin">📌 Pinned</span>' : ''}<span class="muted" style="font-size:12px">${fmtDate(n.created_at)}</span></div>
-  <h3>${esc(n.title)}</h3><p class="muted body">${esc(full ? body : body.slice(0, 130) + (body.length > 130 ? '…' : ''))}</p>
+  <h3>${esc(n.title)}</h3>${full ? `<div class="muted body md" style="white-space:normal">${dmd(body)}</div>` : `<p class="muted body">${esc(body.slice(0, 130) + (body.length > 130 ? '…' : ''))}</p>`}
   ${isStaff() ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="news" data-id="${n.id}">Edit</button><button class="btn sm danger" data-act="entDel" data-v="news" data-id="${n.id}">Delete</button></div>` : ''}</article>`;
 }
 function driverTable(rows, limit) {
@@ -1089,6 +1117,7 @@ PAGES.team = id => {
   const S1 = (l, v) => `<div class="stat"><b>${v}</b><small>${l}</small></div>`;
   return `<a href="#/teams" class="muted">← Teams</a>
   <section class="card" style="margin-top:12px;border-left:4px solid ${col}"><div class="drv-head">${teamLogo(t, 80)}<div style="flex:1"><h1 style="font-size:38px">${esc(t.name)}</h1><p class="muted">${esc(t.short_name || '')} · ${hist.length} appearance(s)</p>
+  ${t.owner_name ? `<p class="muted" style="margin-top:6px">${safeUrl(t.owner_photo_url) ? `<img class="thumb" src="${safeUrl(t.owner_photo_url)}" alt="" style="width:28px;height:28px">` : ''}Owner: <b>${esc(t.owner_name)}</b></p>` : ''}
   ${isAdmin() ? `<p style="margin-top:10px"><button class="btn sm" data-act="entEdit" data-v="teams" data-id="${t.id}">Edit team</button></p>` : ''}</div></div></section>
   <section class="sec"><div class="stats">${S1('Constructors’ titles (WCC)', wcc.length)}${S1('Drivers’ titles (WDC)', wdc.length)}${S1('Wins', ts.wins)}${S1('Podiums', ts.pod)}${S1('Poles', ts.poles)}${S1('Fastest laps', ts.fl)}${S1('Races', ts.races)}${S1('Points', ts.pts)}</div></section>
   ${star && star.wins > 0 ? `<section class="sec"><h2>Most successful driver</h2><a href="#/driver/${star.did}" class="card hover race-card">${avatarHTML(driverOf(star.did) || {}, 'avatar')}<div><h3 style="font-size:22px">${esc(driverOf(star.did) ? driverOf(star.did).name : '?')}</h3><p class="muted">${star.wins} wins · ${star.pod} podiums · ${star.poles} poles for the team</p></div></a></section>` : ''}
@@ -1168,6 +1197,9 @@ function openDriver(id, cat) {
   ${fieldHTML({ k: 'photo_url', l: 'Driver photo', t: 'image' }, d.photo_url)}
   <div class="grid2"><div><label>Name</label><input name="name" value="${esc(d.name || '')}" required></div><div><label>Number (in this category)</label><input type="number" name="number" min="0" max="999" value="${e && e.number != null ? e.number : ''}"></div></div>
   ${fieldHTML({ k: 'country', k2: 'country_code', l: 'Nationality', t: 'country', cur: d.country_code }, '')}
+  <div class="grid2"><div><label>Role (in this category)</label><select name="role"><option value="driver" ${(e && e.role) !== 'reserve' ? 'selected' : ''}>Main driver</option><option value="reserve" ${(e && e.role) === 'reserve' ? 'selected' : ''}>Reserve driver</option></select></div>
+  <div><label>Market value (${esc(D.settings.currency_symbol || bcfg('currency_symbol', '$'))})</label><input type="number" name="value" min="0" step="1000" value="${d.value || 0}"></div></div>
+  <label>Driver Discord ID</label><input name="discord_id" value="${esc(d.discord_id || '')}" inputmode="numeric" placeholder="Filled automatically when the driver uses /register">
   <label>Team (in this category)</label><select name="team_id" id="drvTeam" data-change="drvTeam">${teamOpts(cat, e && e.team_id)}</select>
   <div id="newTeam" hidden><label>New team name</label><input name="new_team_name" placeholder="Ex.: Aurora Racing"></div>
   <label>Team color</label><input type="color" name="team_color" id="drvColor" value="${safeColor(t && t.color)}">
@@ -1187,7 +1219,7 @@ function driversPanel() {
   return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Drivers</h2><div class="row">${catFilter()}<button class="btn red" data-act="entNew" data-v="drivers">+ Enroll driver</button></div></div>
   <p class="muted" style="margin-bottom:12px;font-size:13px">Each driver exists only once in the league; here you see their enrollments by category/season. To move everyone to the next season use <b>Seasons → Season rollover</b>.</p>
   <div class="card scroll">${rows.length || orphans.length ? `<table class="tbl"><thead><tr><th>Driver</th><th>Nº</th><th>Country</th><th>Team</th><th>Category</th><th></th></tr></thead><tbody>
-  ${rows.map(({ e, d }) => { const t = teamOf(e.team_id), c = champOf(e.championship_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inactive</span>' : ''}</td><td class="display">${e.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
+  ${rows.map(({ e, d }) => { const t = teamOf(e.team_id), c = champOf(e.championship_id); return `<tr><td style="white-space:nowrap">${avatarHTML(d)}<b>${esc(d.name)}</b>${d.active === false ? ' <span class="tag">Inactive</span>' : ''}${e.role === 'reserve' ? ' <span class="tag">Reserve</span>' : ''}</td><td class="display">${e.number ?? '—'}</td><td>${flag(d.country_code)} ${esc(d.nationality || '')}</td>
   <td style="white-space:nowrap"><span class="bar" style="background:${safeColor(t && t.color)}"></span>${teamLogo(t, 20)}${esc(t ? t.name : '—')}</td><td class="muted">${esc(c ? champLbl(c) : '—')}</td>
   <td style="white-space:nowrap;text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}" data-cat="${e.championship_id}">Edit</button> <button class="btn sm" data-act="entryDel" data-id="${e.id}">Remove from category</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Delete driver</button></td></tr>`; }).join('')}
   ${orphans.map(d => `<tr><td>${avatarHTML(d)}<b>${esc(d.name)}</b></td><td>—</td><td>${flag(d.country_code)}</td><td class="muted">—</td><td class="muted">Not enrolled</td><td style="text-align:right"><button class="btn sm" data-act="drvEdit" data-id="${d.id}">Inscrever</button> <button class="btn sm danger" data-act="entDel" data-v="drivers" data-id="${d.id}">Delete driver</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">No drivers in this category. Use “+ Enroll driver”.</div>'}</div>`;
@@ -1286,15 +1318,17 @@ PAGES.calendar = () => {
     const dayT = new Date(y, mo, d).getTime(), sess = base.filter(r => { if (!r.start_date) return false; const a = new Date(r.start_date), b = new Date(r.race_date), a0 = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime(), b0 = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime(); return dayT >= a0 && dayT < b0; });
     const rcs = base.filter(r => { const x = new Date(r.race_date); return x.getFullYear() === y && x.getMonth() === mo && x.getDate() === d; }), rc = rcs[0] || sess[0];
     const today = new Date(); const isT = today.getFullYear() === y && today.getMonth() === mo && today.getDate() === d;
-    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : ''}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grand Prix ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.name.replace('Grand Prix ', 'GP '))}</span>`).join('')}</div>`);
+    const iso = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, tw = D.transfer_days.some(x => x.day === iso);
+    cells.push(`<div class="d ${rc ? 'race' : ''} ${isT ? 'today' : ''} ${tw ? 'tw' : ''}" ${rc ? `data-go="#/race/${rc.id}"` : (S.twMode && isAdmin() ? `data-act="twToggle" data-v="${iso}"` : '')}>${d}${rcs.map(x => `<span>${sessOf(x) === 'race' ? flag(x.country_code) : '<b>' + SESS[sessOf(x)] + '</b>'} ${esc(x.name.replace('Grand Prix ', 'GP '))}</span>`).join('')}${sess.map(x => `<span>${esc(x.name.replace('Grand Prix ', 'GP '))}</span>`).join('')}</div>`);
   }
   const f = S.calFilter;
   const list = base.filter(r => f === 'all' || r.status === f).sort((a, b) => new Date(a.race_date) - new Date(b.race_date));
   const sel = D.championships.length ? `<select data-change="calChamp" style="width:auto;min-width:200px"><option value="all">All categories</option>${D.championships.map(c => `<option value="${c.id}" ${S.calChamp === c.id ? 'selected' : ''}>${esc(champLbl(c))}</option>`).join('')}</select>` : '';
-  return `${pageHead('Season calendar', 'All rounds, times and circuits.', sel + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Add session</button>' : ''))}
+  return `${pageHead('Season calendar', 'All rounds, times and circuits.', sel + (isAdmin() ? `<button class="btn ${S.twMode ? 'red' : ''}" data-act="twMode">${S.twMode ? 'Done marking windows' : 'Mark transfer windows'}</button>` : '') + (isStaff() ? '<button class="btn red" data-act="entNew" data-v="races">+ Add session</button>' : ''))}
   <div class="cols"><div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px">
     <button class="btn sm" data-act="calPrev">←</button><h3>${m.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h3><button class="btn sm" data-act="calNext">→</button></div>
-    <div class="cal">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<div class="h">${x}</div>`).join('')}${cells.join('')}</div></div>
+    <div class="cal ${S.twMode && isAdmin() ? 'edit' : ''}">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => `<div class="h">${x}</div>`).join('')}${cells.join('')}</div>
+    <div class="legend"><span><i style="background:var(--red)"></i>Race</span><span><i style="background:#5f8f66"></i>Transfer window (signings and transfers allowed)</span></div>${S.twMode && isAdmin() ? '<p class="hint" style="margin-top:8px">Marking mode: click a day without a race to open/close the transfer window.</p>' : ''}</div>
     <div><div class="chips" style="margin-bottom:8px">${['all', ...Object.keys(SESS)].map(k => `<button class="chip ${S.calKind === k ? 'on' : ''}" data-act="calKind" data-v="${k}">${k === 'all' ? 'All types' : SESS[k]}</button>`).join('')}</div>
     <div class="chips" style="margin-bottom:12px">${['all', 'upcoming', 'live', 'finished'].map(s => `<button class="chip ${f === s ? 'on' : ''}" data-act="calFilter" data-v="${s}">${s === 'all' ? 'All' : STATUS[s]}</button>`).join('')}</div>
     <div style="display:grid;gap:12px">${list.map(raceCardAdm).join('') || '<div class="card empty">No races.</div>'}</div></div></div>`;
@@ -1411,6 +1445,7 @@ PAGES.profile = () => {
     <div><h2>${esc(p.username || '')}</h2><p style="margin-top:6px"><span class="tag">${ROLES[p.role] || 'Visitor'}</span> <span class="tag">${ACCT[p.status] || ''}</span>${isOwner() ? ' <span class="tag owner">Main account</span>' : ''}</p></div></div>
     ${p.status === 'pending' ? '<p class="muted" style="margin-top:14px">Your account is awaiting staff approval.</p>' : ''}
     <form data-form="profile" style="margin-top:12px"><label>Username</label><input name="username" value="${esc(p.username || '')}" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" ${isOwner() ? 'readonly' : ''}>
+    <label>Discord ID <span class="muted">(needed so the bot can check your role before notifying drivers)</span></label><input name="discord_id" value="${esc(p.discord_id || '')}" inputmode="numeric" pattern="[0-9]{15,22}" title="Numbers only">
     <label>Profile photo</label><input type="file" name="avatar" accept="image/*">
     <div class="row" style="margin-top:16px"><button class="btn red">Save</button><button type="button" class="btn" data-act="logout">Sign out</button></div></form>
     <form data-form="changepw" style="margin-top:22px;border-top:1px solid var(--line);padding-top:6px"><label>Nova senha (mín. 8)</label><input type="password" name="password" required minlength="8" autocomplete="new-password">
@@ -1429,10 +1464,12 @@ const optS = () => D.seasons.map(s => [s.id, s.name + (s.is_active ? ' (active)'
 const optC = () => D.championships.map(c => [c.id, champLbl(c)]);
 const ENT = {
   drivers: { label: 'Drivers', cols: ['number', 'name', 'team_id', 'championship_id'], fields: [] },
-  teams: { label: 'Teams', cols: ['name', 'short_name', 'cats', 'principal_id', 'color'], fields: [
+  teams: { label: 'Teams', cols: ['name', 'short_name', 'cats', 'owner_name', 'principal_id', 'color'], fields: [
     { k: 'name', l: 'Team name', t: 'text', req: 1 }, { k: 'short_name', l: 'Short (3 letras)', t: 'text' },
     { k: 'add_cat', l: 'Enroll in a category (optional)', t: 'select', o: optC, virtual: 1, help: 'The team is unique in the league. Here you only add it to one more category/season.' },
-    { k: 'color', l: 'Team color', t: 'color' }, { k: 'logo_url', l: 'Team logo', t: 'image' }, { k: 'principal_id', l: 'Team principal (account)', t: 'select', o: optP }] },
+    { k: 'color', l: 'Team color', t: 'color' }, { k: 'logo_url', l: 'Team logo', t: 'image' }, { k: 'principal_id', l: 'Team principal (account)', t: 'select', o: optP },
+    { k: 'owner_name', l: 'Team owner (name printed on the contract)', t: 'text' }, { k: 'owner_photo_url', l: 'Team owner photo', t: 'image' },
+    { k: 'owner_discord_id', l: 'Team owner Discord ID (unlocks the Contracts Center)', t: 'text', help: 'Discord → Settings → Advanced → Developer Mode; then right-click the user → Copy User ID.' }] },
   seasons: { label: 'Seasons', cols: ['name', 'year', 'is_active'], fields: [{ k: 'name', l: 'Name', t: 'text', req: 1 }, { k: 'year', l: 'Ano', t: 'number', req: 1 }, { k: 'is_active', l: 'Active season', t: 'bool' }] },
   championships: { label: 'Categories', one: 'Category', add: '+ New category', cols: ['name', 'category', 'season_id', 'points_scale'], fields: [
     { k: 'name', l: 'Category name', t: 'text', req: 1 }, { k: 'category', l: 'Division / class (optional)', t: 'text' },
@@ -1446,7 +1483,7 @@ const ENT = {
     { k: 'format', l: 'Weekend template (result sessions)', t: 'select', o: WK_OPTS },
     { k: 'start_date', l: 'Weekend start', t: 'datetime' }, { k: 'race_date', l: 'Weekend end', t: 'datetime', req: 1 },
     { k: 'laps', l: 'Number of laps', t: 'number' }, { k: 'status', l: 'Status', t: 'select', o: () => Object.entries(STATUS), req: 1 },
-    { k: 'description', l: 'Round description / rules', t: 'textarea', md: 1, help: 'Discord formatting works: **bold**, *italic*, __underline__, ~~strike~~, > quote, # heading. Also shown in the Discord attendance message.' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
+    { k: 'description', l: 'Round description / rules', t: 'textarea', md: 1, help: 'Discord formatting works here: **bold**, *italic*, __underline__, ~~strike~~, > quote, # heading. The same text goes to the Discord attendance message.' }, { k: 'image_url', l: 'Circuit image', t: 'image' }] },
   news: { label: 'Announcements', cols: ['title', 'kind', 'pinned', 'created_at', 'published'], fields: [
     { k: 'title', l: 'Title', t: 'text', req: 1 }, { k: 'kind', l: 'Type', t: 'select', o: () => Object.entries(KINDS), req: 1 },
     { k: 'body', l: 'Announcement text', t: 'textarea', md: 1 }, { k: 'image_url', l: 'Image (optional)', t: 'image' },
@@ -1468,7 +1505,7 @@ const SET_FIELDS = [
     { k: 'partner_banner', l: 'Partner banner (home page)', t: 'image' }, { k: 'partner_logo', l: 'Partner logo (footer)', t: 'image' }, { k: 'partner_name', l: 'Partner name', t: 'text' }]],
   ['Menu', [
     { k: 'nav_home', l: 'Button name: Home', t: 'text' }, { k: 'nav_calendar', l: 'Button name: Calendar', t: 'text' }, { k: 'nav_standings', l: 'Button name: Standings', t: 'text' },
-    { k: 'nav_players', l: 'Button name: Drivers', t: 'text' }, { k: 'nav_teams', l: 'Button name: Teams', t: 'text' }, { k: 'nav_transfers', l: 'Button name: Transfers', t: 'text' }, { k: 'nav_records', l: 'Button name: Records', t: 'text' }, { k: 'nav_news', l: 'Button name: Announcements', t: 'text' }, { k: 'nav_vods', l: 'Button name: VODs', t: 'text' }]],
+    { k: 'nav_players', l: 'Button name: Drivers', t: 'text' }, { k: 'nav_teams', l: 'Button name: Teams', t: 'text' }, { k: 'nav_transfers', l: 'Button name: Transfers', t: 'text' }, { k: 'nav_finance', l: 'Button name: Finance', t: 'text' }, { k: 'nav_records', l: 'Button name: Records', t: 'text' }, { k: 'nav_news', l: 'Button name: Announcements', t: 'text' }, { k: 'nav_vods', l: 'Button name: VODs', t: 'text' }]],
   ['Home page sections', [
     { k: 'show_banner', l: 'Show partner banner', t: 'bool' }, { k: 'show_last', l: 'Show latest results', t: 'bool' }, { k: 'show_next', l: 'Show upcoming races', t: 'bool' },
     { k: 'show_drivers', l: 'Show drivers’ standings', t: 'bool' }, { k: 'show_teams', l: 'Show constructors’ standings', t: 'bool' }, { k: 'show_news', l: 'Show announcements', t: 'bool' }]],
@@ -1480,7 +1517,7 @@ const SET_FIELDS = [
 ];
 const TABS = () => {
   const t = [];
-  if (isAdmin()) t.push(['site', 'Customize site'], ['championships', 'Categories'], ['seasons', 'Seasons'], ['drivers', 'Drivers'], ['teams', 'Teams']);
+  if (isAdmin()) t.push(['site', 'Customize site'], ['bot', 'Discord bot'], ['championships', 'Categories'], ['seasons', 'Seasons'], ['drivers', 'Drivers'], ['teams', 'Teams'], ['finance', 'Finance'], ['contracts', 'Contracts']);
   t.push(['races', 'Calendar'], ['results', 'Results'], ['news', 'Announcements'], ['vods', 'VODs']);
   if (isAdmin()) t.push(['users', 'Users'], ['audit', 'History']);
   return t;
@@ -1512,6 +1549,9 @@ PAGES.admin = async () => {
   else if (k === 'drivers') body = driversPanel();
   else if (ENT[k]) body = entPanel(k);
   else if (k === 'results') body = resultsPanel();
+  else if (k === 'bot') body = botPanel();
+  else if (k === 'finance') body = financePanel();
+  else if (k === 'contracts') body = contractsPanel();
   else if (k === 'users') body = usersPanel();
   else if (k === 'audit') body = await auditPanel();
   return `${pageHead('Admin panel', `${ROLES[me.profile.role]} · ${esc(me.profile.username)}`)}
@@ -1528,7 +1568,7 @@ function entPanel(key) {
   if (key === 'news') rows = sortedNews();
   const extra = r => key === 'races' ? `<select data-change="raceStatus" data-id="${r.id}" style="width:auto;padding:4px 8px;font-size:12px">${Object.entries(STATUS).map(([v, l]) => `<option value="${v}" ${r.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select> <button class="btn sm" data-act="goResults" data-id="${r.id}">Results</button> ` : (key === 'teams' && S.admCat !== 'all' ? `<button class="btn sm" data-act="teamLeave" data-id="${r.id}">Remove from category</button> ` : '');
   const head = `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>${E.label}</h2><div class="row">${['teams', 'races'].includes(key) ? catFilter() : ''}${key === 'races' ? '<button class="btn" data-act="renumber">Renumber rounds by date</button>' : ''}${key === 'seasons' ? '<button class="btn" data-act="rollNew">Season rollover</button>' : ''}<button class="btn red" data-act="entNew" data-v="${key}">${E.add || '+ Add'}</button></div></div>`;
-  const H = { cats: 'Categories', number: 'Nº', name: 'Name', team_id: 'Team', championship_id: 'Category', short_name: 'Short', principal_id: 'Principal', color: 'Cor', year: 'Ano', is_active: 'Active', category: 'Division', season_id: 'Season', points_scale: 'Points', round: 'Round', circuit: 'Circuit', race_date: 'Date', status: 'Status', title: 'Title', url: 'Link', race_id: 'Race', kind: 'Type', pinned: 'Pinned', created_at: 'Created', published: 'Published' };
+  const H = { owner_name: 'Owner', cats: 'Categories', number: 'Nº', name: 'Name', team_id: 'Team', championship_id: 'Category', short_name: 'Short', principal_id: 'Principal', color: 'Cor', year: 'Ano', is_active: 'Active', category: 'Division', season_id: 'Season', points_scale: 'Points', round: 'Round', circuit: 'Circuit', race_date: 'Date', status: 'Status', title: 'Title', url: 'Link', race_id: 'Race', kind: 'Type', pinned: 'Pinned', created_at: 'Created', published: 'Published' };
   return head + `<div class="card scroll">${rows.length ? `<table class="tbl"><thead><tr>${key === 'teams' ? '<th>Logo</th>' : ''}${E.cols.map(c => `<th>${H[c] || c}</th>`).join('')}<th></th></tr></thead><tbody>
   ${rows.map(r => `<tr>${key === 'teams' ? `<td>${teamLogo(r, 28) || '<span class="muted">—</span>'}</td>` : ''}${E.cols.map(c => `<td>${c === 'cats' ? teamCats(r.id) : cellVal(c, r[c])}</td>`).join('')}<td style="white-space:nowrap;text-align:right">${extra(r)}<button class="btn sm" data-act="entEdit" data-v="${key}" data-id="${r.id}">Edit</button> <button class="btn sm danger" data-act="entDel" data-v="${key}" data-id="${r.id}">Delete</button></td></tr>`).join('')}</tbody></table>` : `<div class="empty">Nothing here yet. Use “${E.add || '+ Add'}”.</div>`}</div>`;
 }
@@ -1549,6 +1589,7 @@ function fieldHTML(f, v) {
   if (f.t === 'textarea' && f.md) inp = `<div class="mdwrap">${mdBar()}<textarea ${n}>${esc(v || '')}</textarea><div class="md mdprev">${dmd(v || '')}</div></div>`;
   else if (f.t === 'textarea') inp = `<textarea ${n} class="${f.code ? 'code' : ''}" ${f.code ? 'spellcheck="false"' : ''}>${esc(v || '')}</textarea>`;
   else if (f.t === 'select') inp = `<select ${n}>${f.noblank ? '' : '<option value="">—</option>'}${f.o().map(([val, lab]) => `<option value="${esc(val)}" ${val === v ? 'selected' : ''}>${esc(lab)}</option>`).join('')}</select>`;
+  else if (f.t === 'channel') inp = D.discord_channels.length ? `<select ${n}><option value="">—</option>${D.discord_channels.map(c => `<option value="${esc(c.id)}" ${String(v) === c.id ? 'selected' : ''}>#${esc(c.name)}${c.category ? ' · ' + esc(c.category) : ''}</option>`).join('')}</select>` : `<input type="text" ${n} value="${esc(v ?? '')}" placeholder="Channel ID (the bot has not synced the list yet)">`;
   else if (f.t === 'country') inp = `<select ${n}><option value="">—</option>${COUNTRIES.map(([c, nm]) => `<option value="${c}" ${(f.cur || '').toUpperCase() === c ? 'selected' : ''}>${flag(c)} ${nm}</option>`).join('')}</select>`;
   else if (f.t === 'datetime') { const dt = v ? new Date(new Date(v) - new Date(v).getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : ''; inp = `<input type="datetime-local" ${n} value="${dt}">`; }
   else if (f.t === 'color') inp = `<input type="color" ${n} value="${safeColor(v)}">`;
@@ -1588,7 +1629,8 @@ function resultsPanel() {
   <td><input type="number" min="0" name="ps" value="${e.penalty_seconds || 0}" style="width:64px"></td><td><input type="number" min="0" name="pp" value="${e.penalty_points || 0}" style="width:64px"></td>
   <td><input type="checkbox" name="pole" ${e.pole ? 'checked' : ''}></td><td><input type="checkbox" name="fl" ${e.fastest_lap ? 'checked' : ''}></td><td class="pts">${e.points ?? '—'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="empty">No drivers in this category. Add drivers in the “Drivers” tab.</td></tr>'}</tbody></table></div>
   <label class="chk"><input type="checkbox" name="finish" checked> Mark race as finished</label>
-  <div class="row" style="margin-top:14px"><button class="btn red">Publish results</button></div></form>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
+  <div class="row" style="margin-top:14px"><button class="btn red">Publish results</button><button type="button" class="btn" data-act="discordPub">Publish to Discord</button></div></form>
+  <div class="row" style="margin-top:12px"><button type="button" class="btn sm" data-act="raceReport">Send race report</button><button type="button" class="btn sm" data-act="askPresence">Ask drivers for attendance</button></div>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
 }
 function usersPanel() {
   const ps = D.profiles, pend = ps.filter(p => p.status === 'pending');
@@ -1613,10 +1655,116 @@ async function auditPanel() {
   ${data.map(a => { const o = a.new_data || a.old_data || {}; return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(a.created_at)} ${fmtTime(a.created_at)}</td><td>${esc(who(a.user_id))}</td><td>${ACTN[a.action] || a.action}</td><td>${esc(a.table_name)}</td><td class="muted">${esc(o.name || o.title || o.username || o.key || o.position || String(a.row_id || '').slice(0, 8))}</td></tr>`; }).join('') || '<tr><td colspan="5" class="empty">No entries.</td></tr>'}</tbody></table></div>`;
 }
 
+/* ---------- DISCORD BOT / FINANCE / CONTRACTS ---------- */
+const BOT_FIELDS = [
+  ['Channels (where the bot posts each thing)', [
+    { k: 'ch_application_panel', l: 'Application panel (Driver / Team Principal / Strategist menu)', t: 'channel' },
+    { k: 'ch_application_review', l: 'Application forms (team principals read the driver applications here)', t: 'channel' },
+    { k: 'ch_contract_panel', l: 'Contracts Center panel', t: 'channel' },
+    { k: 'ch_contracts', l: 'Signed contracts, transfers and releases', t: 'channel' },
+    { k: 'ch_results_qualy', l: 'Qualifying / practice results', t: 'channel' },
+    { k: 'ch_results_race', l: 'Race results', t: 'channel' },
+    { k: 'ch_report', l: 'Race report', t: 'channel' },
+    { k: 'ch_attendance', l: 'Race Direction / attendance message (Confirm / Absent / Doubt buttons)', t: 'channel' },
+    { k: 'ch_lineup', l: 'Season line-up panel (team menu)', t: 'channel' },
+    { k: 'ch_finance', l: 'Finance panel + movement messages', t: 'channel' }]],
+  ['Images', [
+    { k: 'img_application', l: 'APPLICATION panel banner', t: 'image' }, { k: 'img_contract', l: 'CONTRACT panel banner', t: 'image' },
+    { k: 'img_lineup', l: 'LINE-UP panel banner', t: 'image' }, { k: 'img_finance', l: 'FINANCE panel banner', t: 'image' },
+    { k: 'img_report', l: 'RACE REPORT banner (optional, falls back to the race banner)', t: 'image' },
+    { k: 'img_contract_logo', l: 'Logo printed on the contract sheet', t: 'image' },
+    { k: 'img_qualy', l: 'QUALIFYING banner', t: 'image' }, { k: 'img_qualy_sprint', l: 'SPRINT QUALIFYING banner (optional)', t: 'image' },
+    { k: 'img_race', l: 'RACE banner', t: 'image' }, { k: 'img_race_sprint', l: 'SPRINT RACE banner (optional)', t: 'image' }]],
+  ['Rules', [
+    { k: 'league_name', l: 'Full league name (printed on the contract)', t: 'text' }, { k: 'league_short', l: 'League short name (e.g. RFA)', t: 'text' },
+    { k: 'roles_notify', l: 'Role IDs allowed to notify drivers (comma separated)', t: 'text' },
+    { k: 'role_hireable', l: 'Role required to sign / transfer drivers (the team owner also needs their team role)', t: 'text', help: 'Role ID. Default: 1542917057874624613. Leave empty to not require it.' },
+    { k: 'role_finance_ping', l: 'Role pinged on every finance update', t: 'text', help: 'Role ID. The movement message deletes itself after 10 minutes.' },
+    { k: 'pilot_age_min', l: 'Minimum driver age', t: 'number' }, { k: 'pilot_age_max', l: 'Maximum driver age', t: 'number' },
+    { k: 'transfer_enforce', l: 'Only allow signing/transfers on the transfer-window days marked in the calendar', t: 'bool' },
+    { k: 'max_main_drivers', l: 'Max main drivers per team (0 = unlimited)', t: 'number' }, { k: 'max_reserve_drivers', l: 'Max reserve drivers per team (0 = unlimited)', t: 'number' },
+    { k: 'contract_expire_hours', l: 'Hours until a contract offer expires', t: 'number' },
+    { k: 'contract_lang', l: 'Contract sheet language', t: 'select', o: () => [['en', 'English'], ['pt', 'Português']], noblank: 1 },
+    { k: 'nick_format', l: 'Driver nickname after registering', t: 'text', help: 'Use {nome}, {nacionalidade}, {flag} and {numero}. Default: {nome} | {nacionalidade} |' },
+    { k: 'timezone', l: 'Time zone for the transfer window', t: 'text' }]],
+  ['Money', [
+    { k: 'currency_symbol', l: 'Currency symbol', t: 'text' }, { k: 'fin_default_value', l: 'Starting market value of a new driver', t: 'number' },
+    { k: 'fin_value_scale', l: 'Driver value change per finishing position (1st, 2nd, 3rd…)', t: 'text', help: 'E.g. 300000,250000,200000. Positions outside the list do not change.' },
+    { k: 'fin_value_dnf', l: 'Value change on DNF / disqualification', t: 'number' },
+    { k: 'fin_prize_scale', l: 'Prize money paid to the team per driver finishing position', t: 'text' }]]
+];
+async function queueJob(action, payload) {
+  if (!me.user) return toast('Sign in to continue.', true);
+  const { data, error } = await sb.from('bot_queue').insert({ action, payload: payload || {}, requested_by: me.user.id }).select().single();
+  if (error) return toast(/bot_queue/.test(error.message) ? 'Run schema_bot.sql in Supabase first. (' + error.message + ')' : error.message, true);
+  toast('Sent to the bot…');
+  for (let i = 0; i < 14; i++) {
+    await new Promise(r => setTimeout(r, 2500));
+    const r = await sb.from('bot_queue').select('status,result').eq('id', data.id).maybeSingle();
+    if (r.data && r.data.status !== 'pending') return toast(r.data.result || 'OK', r.data.status === 'error');
+  }
+  toast('The bot did not answer. Is it online? (check /rfa-status in Discord)', true);
+}
+function botPanel() {
+  const seasons = [...D.seasons];
+  const jb = (job, label, p) => `<button type="button" class="btn" data-act="botJob" data-job="${job}" data-p='${esc(JSON.stringify(p || {}))}'>${label}</button>`;
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Discord bot</h2></div>
+  <p class="muted" style="margin-bottom:14px">Pick channels and images here, save, then use the buttons so the bot sends/updates each panel. ${D.discord_channels.length ? '' : '<b>The channel list appears once the bot is online and synced (or press “Sync channels”).</b>'}</p>
+  <div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:10px">Actions</h3><div class="row" style="flex-wrap:wrap;gap:8px">
+    ${jb('sync_directory', 'Sync channels and roles')}${jb('deploy_panel', 'Send Application panel', { panel: 'application' })}${jb('deploy_panel', 'Send Contract panel', { panel: 'contract' })}${jb('finance_refresh', 'Refresh money monitor')}</div>
+    <h3 style="margin:18px 0 8px">Season line-up</h3><div class="row" style="flex-wrap:wrap;gap:8px"><select id="lnSeason" style="width:auto;min-width:220px">${seasons.map(s => `<option value="${s.id}" ${s.is_active ? 'selected' : ''}>${esc(s.name)}${s.is_active ? ' (active)' : ''}</option>`).join('')}</select>
+    <button type="button" class="btn red" data-act="lineupGo">Publish / update line-up</button></div>
+    <p class="hint">Reads drivers and teams from the Drivers tab of the chosen season (Team Principal, Driver 1, Driver 2 and Reserve Driver only when there is one).</p></div>
+  <form data-form="botcfg" class="card">${BOT_FIELDS.map(([g, fs]) => `<h3 style="margin:22px 0 4px;color:var(--red2)">${g}</h3>${fs.map(f => {
+    let v = f.t === 'bool' ? bcfg(f.k, '1') !== '0' : bcfg(f.k, ''); if (f.k === 'currency_symbol' && !v) v = D.settings.currency_symbol || '';
+    return fieldHTML({ ...f, prev: f.t === 'image' ? bcfg(f.k) : null }, v); }).join('')}`).join('')}
+    <div class="row" style="margin-top:24px"><button class="btn red">Save bot settings</button></div></form>`;
+}
+function financePanel() {
+  const teams = [...D.teams].sort((a, b) => (b.balance || 0) - (a.balance || 0));
+  const drivers = [...D.drivers].sort((a, b) => (b.value || 0) - (a.value || 0));
+  const fin = D.races.filter(r => r.status === 'finished').sort((a, b) => new Date(b.race_date) - new Date(a.race_date));
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><h2>Finance</h2><a class="btn" href="#/finance">Open live monitor</a></div>
+  <div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Apply a race result to the money</h3>
+    <p class="muted" style="font-size:13px;margin-bottom:8px">Changes driver values and pays team prizes using the scales from the “Discord bot” tab. Can only be applied once per race${isLocal ? ' (needs Supabase)' : ''}.</p>
+    <div class="row"><select id="stRace" style="width:auto;min-width:260px">${fin.map(r => `<option value="${r.id}">${esc(r.name)} — ${fmtDate(r.race_date)}${r.finance_settled ? ' ✔ applied' : ''}</option>`).join('') || '<option value="">No finished races</option>'}</select>
+    <button class="btn red" data-act="settleRace">Apply</button></div></div>
+  <div class="cols"><div><h3 style="margin-bottom:8px">Team balances</h3><div class="card scroll"><table class="tbl"><thead><tr><th>Team</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>
+  ${teams.map(t => `<tr><td>${teamLogo(t, 20)}${esc(t.name)}</td><td class="pts">${cash(t.balance)}</td><td style="text-align:right"><button class="btn sm" data-act="finAdj" data-kind="team" data-id="${t.id}">Adjust</button></td></tr>`).join('') || '<tr><td colspan="3" class="empty">No teams.</td></tr>'}</tbody></table></div></div>
+  <div><h3 style="margin-bottom:8px">Driver values</h3><div class="card scroll"><table class="tbl"><thead><tr><th>Driver</th><th style="text-align:right">Value</th><th></th></tr></thead><tbody>
+  ${drivers.map(d => `<tr><td>${esc(d.name)}</td><td class="pts">${cash(d.value)}</td><td style="text-align:right"><button class="btn sm" data-act="finAdj" data-kind="driver" data-id="${d.id}">Adjust</button></td></tr>`).join('') || '<tr><td colspan="3" class="empty">No drivers.</td></tr>'}</tbody></table></div></div></div>`;
+}
+function contractsPanel() {
+  const ST = { pending: 'Pending', signed: 'Signed', declined: 'Declined', expired: 'Expired', cancelled: 'Cancelled' }, KD = { sign: 'Signing', transfer: 'Transfer', release: 'Release' }, RL = { driver: 'Driver', reserve: 'Reserve' };
+  return `<h2 style="margin-bottom:12px">Contract history</h2><div class="card scroll">${D.contracts.length ? `<table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Driver</th><th>Team</th><th>Role</th><th>Fee</th><th>Status</th><th></th></tr></thead><tbody>
+  ${D.contracts.map(c => `<tr><td class="muted" style="white-space:nowrap">${fmtDate(c.created_at)} ${fmtTime(c.created_at)}</td><td>${KD[c.kind] || c.kind}</td><td><b>${esc(c.driver_name || '—')}</b></td><td>${esc(c.team_name || '—')}${c.from_team_id && teamOf(c.from_team_id) ? ` <span class="muted">← ${esc(teamOf(c.from_team_id).name)}</span>` : ''}</td><td>${RL[c.role] || ''}</td><td>${c.fee ? cash(c.fee) : '—'}</td><td><span class="tag">${ST[c.status] || c.status}</span></td>
+  <td style="text-align:right">${c.status === 'pending' && isAdmin() ? `<button class="btn sm danger" data-act="ctCancel" data-id="${c.id}">Cancel</button>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No contracts yet.</div>'}</div>`;
+}
+async function liveFin() {
+  try {
+    const [t, d, l] = await Promise.all([sb.from('teams').select('*'), sb.from('drivers').select('*'), sb.from('finance_log').select('*').order('id', { ascending: false }).limit(300)]);
+    if (t.data) D.teams = t.data; if (d.data) D.drivers = d.data; if (l.data) D.finance_log = l.data;
+    if (location.hash === '#/finance') { const y = window.scrollY; await route(); window.scrollTo(0, y); }
+  } catch {}
+}
+PAGES.finance = () => {
+  clearInterval(window.FINT); window.FINT = setInterval(() => { if (location.hash !== '#/finance') return clearInterval(window.FINT); liveFin(); }, 10000);
+  if (sb.channel && !window.FCH) { try { window.FCH = sb.channel('fin-live').on('postgres_changes', { event: '*', schema: 'public', table: 'finance_log' }, () => { if (location.hash === '#/finance') liveFin(); }).subscribe(); } catch {} }
+  const teams = [...D.teams].sort((a, b) => (b.balance || 0) - (a.balance || 0)), drivers = [...D.drivers].filter(d => d.active !== false).sort((a, b) => (b.value || 0) - (a.value || 0));
+  const hist = {}; D.finance_log.filter(x => x.kind === 'driver').forEach(x => { (hist[x.driver_id] ||= []).length < 5 && hist[x.driver_id].push(Number(x.amount)); });
+  const dl = v => `<span class="delta ${v > 0 ? 'up' : v < 0 ? 'down' : ''}">${v > 0 ? '▲' : v < 0 ? '▼' : '•'} ${scash(v)}</span>`;
+  return `${pageHead('Live finance', 'Team balances and driver market values, updated on every transaction.')}
+  <div class="cols"><div><h2 class="sec-h"><span>Team balances</span></h2><div class="card scroll"><table class="tbl"><tbody>
+  ${teams.map(t => `<tr class="click" data-go="#/team/${t.id}"><td style="white-space:nowrap">${teamLogo(t, 22)}<span class="bar" style="background:${safeColor(t.color)}"></span><b>${esc(t.name)}</b></td><td class="pts">${cash(t.balance)}</td></tr>`).join('') || '<tr><td class="empty">No teams.</td></tr>'}</tbody></table></div></div>
+  <div><h2 class="sec-h"><span>Driver values</span></h2><div class="card scroll"><table class="tbl"><thead><tr><th>Driver</th><th>Value</th><th>Last race</th></tr></thead><tbody>
+  ${drivers.map(d => { const h = hist[d.id] || []; return `<tr class="click" data-go="#/driver/${d.id}"><td style="white-space:nowrap"><b>${esc(d.name)}</b></td><td class="pts">${cash(d.value)}</td><td>${h.length ? dl(h[0]) : '<span class="muted">—</span>'}</td></tr>`; }).join('') || '<tr><td colspan="3" class="empty">No drivers.</td></tr>'}</tbody></table></div></div></div>
+  <section class="sec"><h2>Latest transactions</h2><div class="card scroll">${D.finance_log.length ? `<table class="tbl"><tbody>${D.finance_log.slice(0, 40).map(x => { const who = x.kind === 'team' ? (teamOf(x.team_id)?.name || 'Team') : (driverOf(x.driver_id)?.name || 'Driver'); return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(x.created_at)} ${fmtTime(x.created_at)}</td><td>${x.kind === 'team' ? '🏁' : '👤'} <b>${esc(who)}</b></td><td>${dl(Number(x.amount))}</td><td class="muted">${esc(x.reason || '')}</td><td class="pts">${cash(x.balance_after)}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">No transactions yet.</div>'}</div></section>`;
+};
+
 /* ---------- router ---------- */
 function renderNav() {
   const h = location.hash || '#/';
-  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/players', 'nav_players'], ['#/teams', 'nav_teams'], ['#/transfers', 'nav_transfers'], ['#/records', 'nav_records'], ['#/vods', 'nav_vods'], ['#/news', 'nav_news']];
+  const NAVL = [['#/', 'nav_home'], ['#/calendar', 'nav_calendar'], ['#/standings', 'nav_standings'], ['#/players', 'nav_players'], ['#/teams', 'nav_teams'], ['#/transfers', 'nav_transfers'], ['#/finance', 'nav_finance'], ['#/records', 'nav_records'], ['#/vods', 'nav_vods'], ['#/news', 'nav_news']];
   const l = NAVL.map(([href, k]) => `<a href="${href}" class="${h === href || (href !== '#/' && h.startsWith(href + '/')) ? 'on' : ''}">${esc(cfg(k))}</a>`);
   if (isStaff()) l.push(`<a href="#/admin" class="${h.startsWith('#/admin') ? 'on' : ''}">Admin</a>`);
   l.push('<div class="gsearch"><input id="gSearch" type="search" placeholder="Search drivers or teams…" autocomplete="off"></div>');
@@ -1665,6 +1813,61 @@ const goAdmin = tab => { S.adminTab = tab; if (location.hash === '#/admin') rout
 const download = (name, text, type) => { const u = URL.createObjectURL(new Blob([text], { type })); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); };
 const ACT = {
   closeDlg: () => $('#dlg').close(),
+  twMode: () => { S.twMode = !S.twMode; route(); },
+  twToggle: async a => {
+    try {
+      const day = a.dataset.v, on = D.transfer_days.some(x => x.day === day);
+      const r = on ? await sb.from('transfer_days').delete().eq('day', day) : await sb.from('transfer_days').upsert({ day }, { onConflict: 'day' });
+      if (r.error) throw r.error;
+      D.transfer_days = on ? D.transfer_days.filter(x => x.day !== day) : [...D.transfer_days, { day }]; route();
+    } catch (err) { toast(err.message || 'Could not save the window.', true); }
+  },
+  botJob: a => queueJob(a.dataset.job, JSON.parse(a.dataset.p || '{}')),
+  lineupGo: () => queueJob('lineup_update', { season_id: $('#lnSeason').value }),
+  discordPub: () => {
+    const race = D.races.find(r => r.id === S.resRace); if (!race) return;
+    const cs = curSess(race), isR = cs.startsWith('RACE'), ds = drvsOf(race.championship_id).filter(d => d.active !== false).sort((a, b) => a.name.localeCompare(b.name));
+    $('#dlg').innerHTML = `<form data-form="discordpub"><h3>Publish to Discord</h3><p class="muted" style="font-size:13px">${esc(race.name)} — session <b>${esc(cs)}</b>. Posts the saved results in order (press “Publish results” first).</p>
+    ${isR ? `<label>Driver of the Day (optional)</label><select name="dotd"><option value="">—</option>${ds.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select>` : '<p class="hint">The fastest-lap driver is the session winner.</p>'}
+    ${fieldHTML({ k: 'image_url', l: isR ? 'Driver of the Day image (optional)' : 'Fastest driver image (optional)', t: 'image' }, '')}
+    ${isR ? '<label class="chk"><input type="checkbox" name="settle" checked> Apply driver values and team prize money (once per race)</label>' : ''}
+    <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Publish to Discord</button></div></form>`;
+    $('#dlg').showModal();
+  },
+  raceReport: () => {
+    const race = D.races.find(r => r.id === S.resRace); if (!race) return;
+    $('#dlg').innerHTML = `<form data-form="racereport"><h3>Race report</h3><p class="muted" style="font-size:13px">${esc(race.name)} — the bot builds podium, pole, fastest lap, retirements and penalties from the saved results.</p>
+    <label>Race director notes (optional)</label><textarea name="notes" placeholder="Incidents, stewards' decisions, notices…"></textarea>
+    <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Send report</button></div></form>`;
+    $('#dlg').showModal();
+  },
+  askPresence: () => {
+    if (!S.resRace) return;
+    if (!me.profile?.discord_id) return toast('Save your Discord ID in your profile first (the bot checks that you hold the required role).', true);
+    if (confirm('Post the attendance message (with the Confirm / Absent / Doubt buttons and the race info) in the attendance channel? No DMs are sent.')) queueJob('presence_ask', { race_id: S.resRace });
+  },
+  finAdj: a => {
+    const kind = a.dataset.kind, id = a.dataset.id, nm = kind === 'team' ? teamOf(id)?.name : driverOf(id)?.name;
+    $('#dlg').innerHTML = `<form data-form="finadj" data-kind="${kind}" data-id="${id}"><h3>Adjust ${kind === 'team' ? 'balance' : 'value'} — ${esc(nm || '')}</h3>
+    <label>Amount (positive adds, negative subtracts)</label><input type="number" name="amount" step="1000" required placeholder="e.g. 500000 or -200000">
+    <label>Reason</label><input name="reason" required placeholder="e.g. Sponsorship, fine…">
+    <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Apply</button></div></form>`;
+    $('#dlg').showModal();
+  },
+  settleRace: async () => {
+    const id = $('#stRace')?.value; if (!id) return;
+    try {
+      if (!sb.rpc) throw new Error('Only available with Supabase connected.');
+      const r = await sb.rpc('settle_race', { p_race: id }); if (r.error) throw r.error;
+      toast(r.data ? `Applied: ${r.data} transaction(s).` : 'This race was already applied.'); await refresh();
+    } catch (err) { toast(err.message || 'Error.', true); }
+  },
+  ctCancel: async a => {
+    if (!confirm('Cancel this pending offer?')) return;
+    const r = await sb.from('contracts').update({ status: 'cancelled' }).eq('id', a.dataset.id);
+    if (r.error) return toast(r.error.message, true); toast('Offer cancelled.'); await refresh();
+  },
+
   csv: () => {
     const st = standings(S.champ), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
     const rows = [['Pos', 'Driver', 'Team', 'Points', 'Wins', 'Podiums']].concat(st.drivers.map((x, i) => [i + 1, x.d.name, teamOf(x.d.team_id)?.name || '', x.pts, x.wins, x.pod]));
@@ -1855,7 +2058,7 @@ document.addEventListener('submit', async e => {
         if (up.error) throw up.error;
         avatar_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
       }
-      const { error } = await sb.from('profiles').update({ username: fd.get('username'), avatar_url }).eq('id', me.user.id);
+      const { error } = await sb.from('profiles').update({ username: fd.get('username'), avatar_url, discord_id: (fd.get('discord_id') || '').trim() || null }).eq('id', me.user.id);
       if (error) throw error; await loadMe(); toast('Profile updated.'); await refresh();
     } else if (type === 'myteam') {
       const { error } = await sb.from('teams').update({ name: fd.get('name'), color: fd.get('color'), logo_url: await imgVal(fd, 'logo_url', 'teams') }).eq('id', f.dataset.id);
@@ -1912,11 +2115,11 @@ document.addEventListener('submit', async e => {
       }
       const cc = fd.get('country') || null;
       const row = { name, nationality: cc ? countryName(cc) : null, country_code: cc, photo_url: await imgVal(fd, 'photo_url', 'drivers'),
-        titles: Number(fd.get('titles') || 0), profile_id: fd.get('profile_id') || null, active: f.elements.active.checked };
+        discord_id: (fd.get('discord_id') || '').trim() || null, value: Number(fd.get('value') || 0), titles: Number(fd.get('titles') || 0), profile_id: fd.get('profile_id') || null, active: f.elements.active.checked };
       let did = id;
       if (id) { const r = await sb.from('drivers').update(row).eq('id', id); if (r.error) throw r.error; }
       else { const r = await sb.from('drivers').insert(row).select().single(); if (r.error) throw r.error; did = r.data.id; }
-      const er = await sb.from('entries').upsert({ championship_id: cat, driver_id: did, team_id: teamId, number: num }, { onConflict: 'championship_id,driver_id' });
+      const er = await sb.from('entries').upsert({ championship_id: cat, driver_id: did, team_id: teamId, number: num, role: fd.get('role') || 'driver' }, { onConflict: 'championship_id,driver_id' });
       if (er.error) throw er.error;
       if (teamId) { const tr = await sb.from('team_entries').upsert({ championship_id: cat, team_id: teamId }, { onConflict: 'championship_id,team_id' }); if (tr.error) throw tr.error; }
       $('#dlg').close(); toast(id ? 'Driver updated.' : 'Driver enrolled in the category.'); await refresh();
@@ -1954,6 +2157,32 @@ document.addEventListener('submit', async e => {
       if (up.length) { const r = await sb.from('settings').upsert(up, { onConflict: 'key' }); if (r.error) throw r.error; }
       if (del.length) { const r = await sb.from('settings').delete().in('key', del); if (r.error) throw r.error; }
       toast('Customization saved.'); await refresh();
+    } else if (type === 'discordpub') {
+      const race = D.races.find(r => r.id === S.resRace), url = await imgVal(fd, 'image_url', 'results');
+      $('#dlg').close();
+      await queueJob('publish_results', { race_id: S.resRace, session: curSess(race), image_url: url, dotd_driver_id: fd.get('dotd') || null, settle: !!(f.elements.settle && f.elements.settle.checked) });
+    } else if (type === 'racereport') {
+      $('#dlg').close();
+      await queueJob('race_report', { race_id: S.resRace, notes: (fd.get('notes') || '').trim() });
+    } else if (type === 'botcfg') {
+      const up = [], del = [];
+      for (const [, fs] of BOT_FIELDS) for (const fl of fs) {
+        let v;
+        if (fl.t === 'bool') v = f.elements[fl.k].checked ? '1' : '0';
+        else if (fl.t === 'image') v = await imgVal(fd, fl.k, 'bot') || '';
+        else v = (fd.get(fl.k) || '').trim();
+        if (v !== '') up.push({ key: fl.k, value: v }); else del.push(fl.k);
+      }
+      for (const k of ['fin_value_scale', 'fin_prize_scale']) { const x = up.find(u => u.key === k); if (x && !/^\s*-?\d+(\s*,\s*-?\d+)*\s*$/.test(x.value)) throw new Error('Invalid money scale: use numbers separated by commas.'); if (x) x.value = x.value.replace(/\s/g, ''); }
+      if (up.length) { const r = await sb.from('bot_config').upsert(up, { onConflict: 'key' }); if (r.error) throw r.error; }
+      if (del.length) { const r = await sb.from('bot_config').delete().in('key', del); if (r.error) throw r.error; }
+      const cur = up.find(u => u.key === 'currency_symbol');   // o site público também usa o símbolo
+      if (cur) await sb.from('settings').upsert({ key: 'currency_symbol', value: cur.value }, { onConflict: 'key' });
+      toast('Bot settings saved.'); await refresh();
+    } else if (type === 'finadj') {
+      if (!sb.rpc) throw new Error('Only available with Supabase connected.');
+      const kind = f.dataset.kind, id = f.dataset.id, r = await sb.rpc('apply_finance', { p_kind: kind, p_team: kind === 'team' ? id : null, p_driver: kind === 'driver' ? id : null, p_amount: Number(fd.get('amount')), p_reason: (fd.get('reason') || '').trim() || 'Manual adjustment', p_allow_negative: true });
+      if (r.error) throw r.error; $('#dlg').close(); toast('Adjustment applied.'); await refresh();
     } else if (type === 'results') {
       const rows = [], del = [];
       f.querySelectorAll('tbody tr[data-d]').forEach(tr => {
