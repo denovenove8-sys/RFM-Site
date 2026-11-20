@@ -670,7 +670,7 @@ const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) :
 const isLocal = !configured;
 
 /* ---------- estado ---------- */
-let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [], transfer_days: [], finance_log: [], contracts: [], bot_config: [], discord_channels: [], discord_roles: [], botcfg: {} };
+let D = { teams: [], drivers: [], seasons: [], championships: [], races: [], results: [], news: [], profiles: [], settings: {}, entries: [], team_entries: [], transfer_days: [], finance_log: [], contracts: [], transfer_register: [], bot_config: [], discord_channels: [], discord_roles: [], botcfg: {} };
 let me = { user: null, profile: null };
 let STC = {}, L = null;
 const standings = cid => (STC[cid] ||= standingsCalc(cid));
@@ -712,6 +712,7 @@ async function loadExtra() {
   const safe = async fn => { try { const r = await fn(); return r.error ? [] : (r.data || []); } catch { return []; } };
   const q = (t, f) => () => { let r = sb.from(t).select('*'); return f ? f(r) : r; };
   D.transfer_days = await safe(q('transfer_days'));
+  D.transfer_register = await safe(q('transfer_register', r => r.order('happened_at', { ascending: false }).limit(200)));   // view criada pelo schema_transferencias.sql
   D.finance_log = await safe(q('finance_log', r => r.order('id', { ascending: false }).limit(300)));
   D.contracts = D.bot_config = D.discord_channels = D.discord_roles = [];
   if (isStaff()) {
@@ -1081,17 +1082,37 @@ PAGES.driver = id => {
   <details class="card sec"><summary>How the rating and overall are calculated</summary><p class="muted" style="margin-top:10px;font-size:14px">The weekend rating (0 to 10) adds up: finishing position, starting position, positions gained/lost (overtakes), win, podium, pole, fastest lap, minus penalties. A retirement scores low; a disqualification almost nothing. On sprint weekends, the main race counts 70% and the sprint 30%. Overall starts from experience (1 season ≈ 62, 2 ≈ 79, 3 ≈ 87 …) and moves up or down with the average rating (recent form weighs more) and titles. Class and salary come from overall.</p></details>`;
 };
 
+async function liveTransfers() {
+  try {
+    const r = await sb.from('transfer_register').select('*').order('happened_at', { ascending: false }).limit(200);
+    if (r.error || !r.data || JSON.stringify(r.data) === JSON.stringify(D.transfer_register)) return;
+    D.transfer_register = r.data;
+    if (location.hash === '#/transfers') { const y = window.scrollY; await route(); window.scrollTo(0, y); }
+  } catch {}
+}
 PAGES.transfers = () => {
+  clearInterval(window.TRT); window.TRT = setInterval(() => { if (location.hash !== '#/transfers') return clearInterval(window.TRT); liveTransfers(); }, 8000); liveTransfers();
+  const regList = D.transfer_register || [];
+  const regHTML = regList.length ? `<section class="sec"><h2>Live register</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Date</th><th>Driver</th><th>Move</th><th>Fee</th><th></th></tr></thead><tbody>
+  ${regList.slice(0, 80).map(x => { const d = driverOf(x.driver_id), ann = x.status === 'annulled';
+    const mv = x.kind === 'release' ? `<span class="tag" style="animation:none">Release</span> ${tName(x.team_id)} → Free agent`
+      : x.kind === 'sign' ? `<span class="tag upcoming">Signing</span> → ${tName(x.team_id)}`
+      : `<span class="tag live" style="animation:none">Transfer</span> ${tName(x.from_team_id)} → ${tName(x.team_id)}`;
+    return `<tr${ann ? ' style="opacity:.6"' : ''}><td class="muted" style="white-space:nowrap">${fmtDate(x.happened_at)} ${fmtTime(x.happened_at)}</td>
+    <td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : x.driver_name || '?')}</b></td>
+    <td style="white-space:nowrap${ann ? ';text-decoration:line-through' : ''}">${mv}</td><td>${x.fee ? cash(x.fee) : '—'}</td>
+    <td>${ann ? `<span class="tag" title="${esc(x.annul_reason || '')}">Annulled</span>` : ''}</td></tr>`; }).join('')}</tbody></table></div></section>` : '';
   const Lg = getL(), f = S.trSeason ?? 'all', list = Lg.transfers.filter(t => f === 'all' || String(t.si) === String(f));
   const sis = [...new Set(list.map(t => t.si))].sort((a, b) => b - a);
   const moves = list.filter(t => t.type === 'move').length, debuts = list.length - moves;
   return `${pageHead('Transfer window', 'All driver moves between seasons: debuts and team changes.', `<select data-change="trSeason" style="width:auto;min-width:200px">${seasonOpts(Lg, f, 'All seasons')}</select>`)}
   <div class="stats" style="margin-bottom:8px"><div class="stat"><b>${moves}</b><small>Transfers</small></div><div class="stat"><b>${debuts}</b><small>Debuts</small></div></div>
+  ${regHTML}
   ${sis.map(si => `<section class="sec"><h2>Window · ${esc(Lg.seasons[si] ? Lg.seasons[si].name : '')}</h2><div class="card scroll"><table class="tbl"><thead><tr><th>Class</th><th>Driver</th><th>Move</th><th>Nº</th><th>Category</th></tr></thead><tbody>
   ${list.filter(t => t.si === si).sort((a, b) => (Lg.ovr(b.did, si) || 0) - (Lg.ovr(a.did, si) || 0)).map(t => { const d = driverOf(t.did); return `<tr class="click" data-go="#/driver/${t.did}"><td>${clsBadge(Lg.ovr(t.did, si))}</td>
   <td style="white-space:nowrap">${avatarHTML(d || {}, 'thumb')}${flag(d && d.country_code)} <b>${esc(d ? d.name : '?')}</b></td>
   <td style="white-space:nowrap">${t.type === 'debut' ? `<span class="tag upcoming">Debut</span> → ${tName(t.to)}` : `<span class="tag live" style="animation:none">Transfer</span> ${tName(t.from)} → ${tName(t.to)}`}</td>
-  <td>${t.number ?? '—'}</td><td class="muted">${esc(champOf(t.cid) ? champOf(t.cid).name : '')}</td></tr>`; }).join('')}</tbody></table></div></section>`).join('') || '<div class="card empty" style="margin-top:16px">No transfers recorded yet.</div>'}`;
+  <td>${t.number ?? '—'}</td><td class="muted">${esc(champOf(t.cid) ? champOf(t.cid).name : '')}</td></tr>`; }).join('')}</tbody></table></div></section>`).join('') || (regHTML ? '' : '<div class="card empty" style="margin-top:16px">No transfers recorded yet.</div>')}`;
 };
 
 PAGES.teams = () => {
@@ -1709,13 +1730,14 @@ const BOT_FIELDS = [
     { k: 'league_name', l: 'Full league name (printed on the contract)', t: 'text' }, { k: 'league_short', l: 'League short name (e.g. RFA)', t: 'text' },
     { k: 'roles_notify', l: 'Role IDs allowed to open attendance / notify (comma separated)', t: 'text' },
     { k: 'role_hireable', l: 'Role ID required to sign drivers (team officials; the team role is also required)', t: 'text' },
+    { k: 'roles_on_sign', l: 'Extra role IDs given to every signed driver and removed on release (comma separated, optional; the team role is automatic)', t: 'text' },
     { k: 'role_finance_ping', l: 'Role ID pinged on every finance movement', t: 'text' },
     { k: 'pilot_age_min', l: 'Minimum driver age', t: 'number' }, { k: 'pilot_age_max', l: 'Maximum driver age', t: 'number' },
     { k: 'transfer_enforce', l: 'Only allow signing/transfers on the transfer-window days marked in the calendar', t: 'bool' },
     { k: 'max_main_drivers', l: 'Max main drivers per team (0 = unlimited)', t: 'number' }, { k: 'max_reserve_drivers', l: 'Max reserve drivers per team (0 = unlimited)', t: 'number' },
     { k: 'contract_expire_hours', l: 'Hours until a contract offer expires', t: 'number' },
     { k: 'contract_lang', l: 'Contract sheet language', t: 'select', o: () => [['en', 'English'], ['pt', 'Português']], noblank: 1 },
-    { k: 'nick_format', l: 'Driver nickname after registering', t: 'text', help: 'Use {nome}, {nacionalidade}, {flag} and {numero}. Default: {nome} | {nacionalidade} |' },
+    { k: 'nick_format', l: 'Driver nickname after registering', t: 'text', help: 'Use {nome}, {nacionalidade}, {flag} and {numero}. Default: {nome} | {flag} |' },
     { k: 'timezone', l: 'Time zone for the transfer window', t: 'text' }]],
   ['Money', [
     { k: 'currency_symbol', l: 'Currency symbol', t: 'text' }, { k: 'fin_default_value', l: 'Starting market value of a new driver', t: 'number' },
@@ -1760,15 +1782,15 @@ function financePanel() {
     <div class="row"><select id="stRace" style="width:auto;min-width:260px">${fin.map(r => `<option value="${r.id}">${esc(r.name)} — ${fmtDate(r.race_date)}${r.finance_settled ? ' ✔ applied' : ''}</option>`).join('') || '<option value="">No finished races</option>'}</select>
     <button class="btn red" data-act="settleRace">Apply</button></div></div>
   <div class="cols"><div><h3 style="margin-bottom:8px">Team balances</h3><div class="card scroll"><table class="tbl"><thead><tr><th>Team</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>
-  ${teams.map(t => `<tr><td>${teamLogo(t, 20)}${esc(t.name)}</td><td class="pts">${cash(t.balance)}</td><td style="text-align:right"><button class="btn sm" data-act="finAdj" data-kind="team" data-id="${t.id}">Adjust</button></td></tr>`).join('') || '<tr><td colspan="3" class="empty">No teams.</td></tr>'}</tbody></table></div></div>
+  ${teams.map(t => `<tr><td>${teamLogo(t, 20)}${esc(t.name)}</td><td class="pts">${cash(t.balance)}</td><td style="text-align:right;white-space:nowrap"><button class="btn sm danger" data-act="finAdj" data-mode="withdraw" data-kind="team" data-id="${t.id}">Withdraw</button> <button class="btn sm" data-act="finAdj" data-kind="team" data-id="${t.id}">Adjust</button></td></tr>`).join('') || '<tr><td colspan="3" class="empty">No teams.</td></tr>'}</tbody></table></div></div>
   <div><h3 style="margin-bottom:8px">Driver values</h3><div class="card scroll"><table class="tbl"><thead><tr><th>Driver</th><th style="text-align:right">Value</th><th></th></tr></thead><tbody>
   ${drivers.map(d => `<tr><td>${esc(d.name)}</td><td class="pts">${cash(d.value)}</td><td style="text-align:right"><button class="btn sm" data-act="finAdj" data-kind="driver" data-id="${d.id}">Adjust</button></td></tr>`).join('') || '<tr><td colspan="3" class="empty">No drivers.</td></tr>'}</tbody></table></div></div></div>`;
 }
 function contractsPanel() {
-  const ST = { pending: 'Pending', signed: 'Signed', declined: 'Declined', expired: 'Expired', cancelled: 'Cancelled' }, KD = { sign: 'Signing', transfer: 'Transfer', release: 'Release' }, RL = { driver: 'Driver', reserve: 'Reserve' };
+  const ST = { pending: 'Pending', signed: 'Signed', declined: 'Declined', expired: 'Expired', cancelled: 'Cancelled', annulled: 'Annulled' }, KD = { sign: 'Signing', transfer: 'Transfer', release: 'Release' }, RL = { driver: 'Driver', reserve: 'Reserve' };
   return `<h2 style="margin-bottom:12px">Contract history</h2><div class="card scroll">${D.contracts.length ? `<table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Driver</th><th>Team</th><th>Role</th><th>Fee</th><th>Status</th><th></th></tr></thead><tbody>
   ${D.contracts.map(c => `<tr><td class="muted" style="white-space:nowrap">${fmtDate(c.created_at)} ${fmtTime(c.created_at)}</td><td>${KD[c.kind] || c.kind}</td><td><b>${esc(c.driver_name || '—')}</b></td><td>${esc(c.team_name || '—')}${c.from_team_id && teamOf(c.from_team_id) ? ` <span class="muted">← ${esc(teamOf(c.from_team_id).name)}</span>` : ''}</td><td>${RL[c.role] || ''}</td><td>${c.fee ? cash(c.fee) : '—'}</td><td><span class="tag">${ST[c.status] || c.status}</span></td>
-  <td style="text-align:right">${c.status === 'pending' && isAdmin() ? `<button class="btn sm danger" data-act="ctCancel" data-id="${c.id}">Cancel</button>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No contracts yet.</div>'}</div>`;
+  <td style="text-align:right">${c.status === 'pending' && isAdmin() ? `<button class="btn sm danger" data-act="ctCancel" data-id="${c.id}">Cancel</button>` : c.status === 'signed' && c.kind !== 'release' && isAdmin() ? `<button class="btn sm danger" data-act="ctAnnul" data-id="${c.id}">Annul</button>` : c.status === 'annulled' && c.annul_reason ? `<span class="muted" style="font-size:12px">${esc(c.annul_reason)}</span>` : ''}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No contracts yet.</div>'}</div>`;
 }
 async function liveFin() {
   try {
@@ -1909,11 +1931,13 @@ const ACT = {
     if (confirm('Post the attendance message (race info + Confirm / Absent / Doubt buttons) in the Discord attendance channel?')) queueJob('presence_ask', { race_id: S.resRace });
   },
   finAdj: a => {
-    const kind = a.dataset.kind, id = a.dataset.id, nm = kind === 'team' ? teamOf(id)?.name : driverOf(id)?.name;
-    $('#dlg').innerHTML = `<form data-form="finadj" data-kind="${kind}" data-id="${id}"><h3>Adjust ${kind === 'team' ? 'balance' : 'value'} — ${esc(nm || '')}</h3>
-    <label>Amount (positive adds, negative subtracts)</label><input type="number" name="amount" step="1000" required placeholder="e.g. 500000 or -200000">
-    <label>Reason</label><input name="reason" required placeholder="e.g. Sponsorship, fine…">
-    <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Apply</button></div></form>`;
+    const kind = a.dataset.kind, id = a.dataset.id, wd = a.dataset.mode === 'withdraw', nm = kind === 'team' ? teamOf(id)?.name : driverOf(id)?.name;
+    $('#dlg').innerHTML = `<form data-form="finadj" data-kind="${kind}" data-id="${id}" data-mode="${wd ? 'withdraw' : 'adjust'}"><h3>${wd ? 'Withdraw money' : 'Adjust ' + (kind === 'team' ? 'balance' : 'value')} — ${esc(nm || '')}</h3>
+    ${wd ? `<p class="muted" style="font-size:13px;margin-bottom:8px">Current balance: <b>${cash(teamOf(id)?.balance)}</b></p>` : ''}
+    <label>${wd ? 'Amount to withdraw' : 'Amount (positive adds, negative subtracts)'}</label><input type="number" name="amount" step="1000" ${wd ? 'min="1"' : ''} required placeholder="${wd ? 'e.g. 200000' : 'e.g. 500000 or -200000'}">
+    <label>Reason</label><input name="reason" required placeholder="${wd ? 'e.g. Fine, penalty…' : 'e.g. Sponsorship, fine…'}">
+    ${wd ? '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" name="neg" style="width:auto"> Allow the balance to go negative</label>' : ''}
+    <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">${wd ? 'Withdraw' : 'Apply'}</button></div></form>`;
     $('#dlg').showModal();
   },
   settleRace: async () => {
@@ -1923,6 +1947,19 @@ const ACT = {
       const r = await sb.rpc('settle_race', { p_race: id }); if (r.error) throw r.error;
       toast(r.data ? `Applied: ${r.data} transaction(s).` : 'This race was already applied.'); await refresh();
     } catch (err) { toast(err.message || 'Error.', true); }
+  },
+  ctAnnul: async a => {
+    const c = D.contracts.find(x => x.id === a.dataset.id); if (!c) return;
+    const from = c.from_team_id ? teamOf(c.from_team_id)?.name : null;
+    if (!confirm(`Annul this ${c.kind === 'transfer' ? 'transfer' : 'signing'}?\n${c.driver_name} goes back to ${from || 'free agent'}.`)) return;
+    const reason = prompt('Reason (shown in Discord, optional):'); if (reason === null) return;
+    const refund = c.fee ? confirm(`Refund ${cash(c.fee)} to ${c.team_name}?\nOK = refund, Cancel = no refund.`) : false;
+    try {
+      if (!sb.rpc) throw new Error('Only available with Supabase connected.');
+      const r = await sb.rpc('annul_contract', { p_contract: c.id, p_refund: refund, p_reason: reason.trim() || null }); if (r.error) throw r.error;
+    } catch (err) { return toast(/annul_contract/.test(err.message || '') ? 'Run schema_transferencias.sql in Supabase first.' : (err.message || 'Error.'), true); }
+    await refresh();
+    queueJob('contract_annulled', { contract_id: c.id });   // o bot devolve os cargos e avisa no Discord
   },
   ctCancel: async a => {
     if (!confirm('Cancel this pending offer?')) return;
@@ -2245,8 +2282,14 @@ document.addEventListener('submit', async e => {
       toast('Bot settings saved.'); await refresh();
     } else if (type === 'finadj') {
       if (!sb.rpc) throw new Error('Only available with Supabase connected.');
-      const kind = f.dataset.kind, id = f.dataset.id, r = await sb.rpc('apply_finance', { p_kind: kind, p_team: kind === 'team' ? id : null, p_driver: kind === 'driver' ? id : null, p_amount: Number(fd.get('amount')), p_reason: (fd.get('reason') || '').trim() || 'Manual adjustment', p_allow_negative: true });
-      if (r.error) throw r.error; $('#dlg').close(); toast('Adjustment applied.'); await refresh();
+      const kind = f.dataset.kind, id = f.dataset.id, wd = f.dataset.mode === 'withdraw', neg = !!fd.get('neg');
+      let amt = Number(fd.get('amount'));
+      if (wd) {
+        amt = -Math.abs(amt); if (!amt) throw new Error('Enter an amount.');
+        if (!neg && Number(teamOf(id)?.balance || 0) + amt < 0) throw new Error('Insufficient balance. Tick “Allow the balance to go negative” to withdraw anyway.');
+      }
+      const r = await sb.rpc('apply_finance', { p_kind: kind, p_team: kind === 'team' ? id : null, p_driver: kind === 'driver' ? id : null, p_amount: amt, p_reason: (fd.get('reason') || '').trim() || (wd ? 'Withdrawal' : 'Manual adjustment'), p_allow_negative: wd ? neg : true });
+      if (r.error) throw r.error; $('#dlg').close(); toast(wd ? 'Money withdrawn.' : 'Adjustment applied.'); await refresh();
     } else if (type === 'results') {
       const rows = [], del = [];
       f.querySelectorAll('tbody tr[data-d]').forEach(tr => {
