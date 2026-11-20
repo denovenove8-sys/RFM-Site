@@ -327,6 +327,8 @@ label,.chip,details.card summary{font-family:'Inter',sans-serif}
 .vod-th:hover .vod-play{transform:scale(1.1)}
 .vod-fr{position:relative;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden}.vod-fr iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 dialog:has(.vodp){width:min(960px,96vw)}
+dialog:has(.rdgrid){width:min(1180px,96vw)}.rdgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}@media(max-width:860px){.rdgrid{grid-template-columns:1fr}}
+.rdl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;gap:8px;margin-bottom:8px}.rdprev{border-left:3px solid var(--red);padding:16px}.rdprev img.rdban{width:100%;border-radius:8px;margin-bottom:12px}.rdprev .rdbtns{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.rdprev .rdb{padding:8px 14px;border-radius:6px;font-weight:600;font-size:13px;color:#fff}.rdts{background:var(--panel2);padding:1px 6px;border-radius:4px}.rdbrd{background:var(--panel2);border-radius:6px;padding:8px 10px;font-family:monospace;font-size:12px;margin-top:6px}
 
 /* hub-big: smaller text */
 .hub-big{padding:26px 28px}
@@ -424,7 +426,7 @@ function dmd(src) {
   }
   
   const MD_TOOLS = [['B', '**', '**', 'Bold'], ['I', '*', '*', 'Italic'], ['U', '__', '__', 'Underline'], ['S', '~~', '~~', 'Strikethrough'],
-    ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading']];
+    ['</>', '`', '`', 'Code'], ['||', '||', '||', 'Spoiler'], ['❝', '> ', '', 'Quote'], ['H', '## ', '', 'Heading'], ['•', '- ', '', 'Bullet'], ['-#', '-# ', '', 'Small text']];
   const mdBar = () => `<div class="mdbar">${MD_TOOLS.map((t, i) => `<button type="button" data-md="${i}" title="${t[3]}">${t[0]}</button>`).join('')}</div>`;
   
   document.addEventListener('click', e => {
@@ -501,7 +503,7 @@ function makeLocal() {
     try { db = await idbGet(KEY); } catch {}
     if (!db) { try { db = JSON.parse(ls.get(KEY)); } catch {} }
     if (!db) { const d = buildDemo(); db = { ...d, profiles: [], settings: [], audit_log: [], users: [], storage: {} }; }
-    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods', 'dotd_votes', 'transfer_days', 'finance_log', 'contracts', 'bot_config', 'discord_channels', 'discord_roles', 'bot_queue'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
+    ['entries', 'team_entries', 'audit_log', 'users', 'profiles', 'settings', 'vods', 'dotd_votes', 'transfer_days', 'finance_log', 'contracts', 'bot_config', 'discord_channels', 'discord_roles', 'bot_queue', 'race_direction'].forEach(k => { if (!db[k]) db[k] = []; }); if (!db.storage) db.storage = {};
     try { await idbSet(KEY, db); ls.del(KEY); } catch {}
     try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
   };
@@ -1611,6 +1613,35 @@ function openEnt(key, id) {
   $('#dlg').showModal();
 }
 
+
+/* ---------- RACE DIRECTION (mensagem de presença) ---------- */
+function rdDefaults(race) {
+  const champ = champOf(race.championship_id), season = champ && D.seasons.find(x => x.id === champ.season_id);
+  const ts = Math.floor(new Date(race.race_date).getTime() / 1000), loc = [race.circuit, race.country].filter(Boolean).join(' - ');
+  const info = [{ l: 'Horário', v: `<t:${ts}:F>` }]; if (loc) info.push({ l: 'Local', v: loc });
+  return { title: String(race.name || '').toUpperCase(), subtitle: [race.round ? 'Rodada ' + race.round : '', season?.name || ''].filter(Boolean).join(' - '), body: race.description || '', info, image_url: race.image_url || '', show_board: true };
+}
+const rdLine = x => `<div class="rdl"><input data-rd="l" value="${esc(x.l || '')}" placeholder="Label"><input data-rd="v" value="${esc(x.v || '')}" placeholder="Value"><button type="button" class="btn sm" data-act="rdDel" title="Remove">×</button></div>`;
+const rdInfo = f => [...f.querySelectorAll('.rdl')].map(r => ({ l: r.querySelector('[data-rd=l]').value.trim(), v: r.querySelector('[data-rd=v]').value.trim() })).filter(x => x.l || x.v);
+const rdTs = h => h.replace(/&lt;t:(\d+)(?::[A-Za-z])?&gt;/g, (_, n) => `<span class="rdts">${new Date(n * 1000).toLocaleString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>`);
+function rdRefresh(f) {
+  const pv = f && f.querySelector('#rdPrev'); if (!pv) return;
+  const file = f.elements.image_url__file?.files?.[0], img = file ? URL.createObjectURL(file) : safeUrl(f.elements.image_url.value.trim());
+  const info = rdInfo(f).map(x => x.l ? `**${x.l}:** ${x.v}` : x.v).join('\n');
+  pv.innerHTML = `${img ? `<img class="rdban" src="${img}" alt="">` : ''}<h3>${esc(f.elements.title.value)}</h3>${f.elements.subtitle.value ? `<p style="font-weight:600;margin:6px 0">${esc(f.elements.subtitle.value)}</p>` : ''}
+  <div class="md">${rdTs(dmd(f.elements.body.value))}</div><div class="md" style="margin-top:8px">${rdTs(dmd(info))}</div>
+  ${f.elements.show_board.checked ? '<p style="font-weight:600;margin-top:12px">Comparecimento</p><div class="rdbrd">Confirmados (0) &nbsp; Ausentes (0) &nbsp; Dúvida (0)</div>' : ''}
+  <div class="rdbtns"><span class="rdb" style="background:#248046">Confirmar</span><span class="rdb" style="background:#da373c">Ausente</span><span class="rdb" style="background:#5865f2">Dúvida</span></div>`;
+}
+async function rdSave(f) {
+  const fd = new FormData(f), row = { race_id: f.dataset.race, title: fd.get('title').trim() || null, subtitle: fd.get('subtitle').trim() || null, body: fd.get('body') || null,
+    info: rdInfo(f), image_url: await imgVal(fd, 'image_url', 'race-direction'), show_board: f.elements.show_board.checked, updated_at: new Date().toISOString() };
+  const { error } = await sb.from('race_direction').upsert(row, { onConflict: 'race_id' });
+  if (error) throw new Error(/race_direction/.test(error.message) ? 'Run the race_direction schema in Supabase first. (' + error.message + ')' : error.message);
+  return row;
+}
+document.addEventListener('input', e => { const f = e.target.closest?.('form[data-form=racedir]'); if (f) rdRefresh(f); });
+document.addEventListener('change', e => { const f = e.target.closest?.('form[data-form=racedir]'); if (f) rdRefresh(f); });
 function resultsPanel() {
   const races = [...D.races].sort((a, b) => new Date(b.race_date) - new Date(a.race_date));
   if ((!S.resRace || !D.races.find(r => r.id === S.resRace)) && races.length) S.resRace = races[0].id;
@@ -1630,7 +1661,7 @@ function resultsPanel() {
   <td><input type="checkbox" name="pole" ${e.pole ? 'checked' : ''}></td><td><input type="checkbox" name="fl" ${e.fastest_lap ? 'checked' : ''}></td><td class="pts">${e.points ?? '—'}</td></tr>`; }).join('') || '<tr><td colspan="9" class="empty">No drivers in this category. Add drivers in the “Drivers” tab.</td></tr>'}</tbody></table></div>
   <label class="chk"><input type="checkbox" name="finish" checked> Mark race as finished</label>
   <div class="row" style="margin-top:14px"><button class="btn red">Publish results</button><button type="button" class="btn" data-act="discordPub">Publish to Discord</button></div></form>
-  <div class="row" style="margin-top:12px"><button type="button" class="btn sm" data-act="raceReport">Send race report</button><button type="button" class="btn sm" data-act="askPresence">Ask drivers for attendance</button></div>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
+  <div class="row" style="margin-top:12px"><button type="button" class="btn sm" data-act="raceReport">Send race report</button><button type="button" class="btn sm" data-act="raceDirection">Race direction</button></div>` : '<div class="empty">First create a race in the Calendar tab.</div>'}</div>`;
 }
 function usersPanel() {
   const ps = D.profiles, pend = ps.filter(p => p.status === 'pending');
@@ -1840,9 +1871,41 @@ const ACT = {
     <div class="row end" style="margin-top:20px"><button type="button" class="btn" data-act="closeDlg">Cancel</button><button class="btn red">Send report</button></div></form>`;
     $('#dlg').showModal();
   },
+  raceDirection: async () => {
+    const race = D.races.find(r => r.id === S.resRace); if (!race) return;
+    let rd = null;
+    try { const r = await sb.from('race_direction').select('*').eq('race_id', race.id).maybeSingle(); if (r.error) toast(/race_direction/.test(r.error.message) ? 'Run the race_direction schema in Supabase first. (' + r.error.message + ')' : r.error.message, true); else rd = r.data; } catch { }
+    const d = rdDefaults(race), v = rd || d;
+    const info = Array.isArray(v.info) && v.info.length ? v.info : d.info;
+    $('#dlg').innerHTML = `<form data-form="racedir" data-race="${race.id}" class="rdwrap"><h3>Race direction — ${esc(race.name)}</h3><div class="rdgrid"><div>
+    <label>Title</label><input name="title" value="${esc(v.title ?? d.title)}">
+    <label>Subtitle</label><input name="subtitle" value="${esc(v.subtitle ?? d.subtitle)}">
+    <label>Message</label><div class="mdwrap">${mdBar()}<textarea name="body" rows="7">${esc(v.body ?? d.body)}</textarea></div>
+    <div class="row" style="margin-top:8px"><button type="button" class="btn sm" data-act="rdTime">Insert race time</button></div>
+    <label>Race info lines</label><div class="rdinfo">${info.map(rdLine).join('')}</div>
+    <div class="row" style="gap:8px"><button type="button" class="btn sm" data-act="rdAdd">+ Add line</button><button type="button" class="btn sm" data-act="rdFill">Fill from race</button></div>
+    ${fieldHTML({ k: 'image_url', l: 'Image (banner)', t: 'image' }, v.image_url ?? d.image_url ?? '')}
+    <label class="chk"><input type="checkbox" name="show_board" ${v.show_board === false ? '' : 'checked'}> Show the Confirmados / Ausentes / Dúvida board</label>
+    <div class="row" style="margin-top:18px;gap:10px"><button class="btn">Save draft</button><button type="button" class="btn red" data-act="rdAsk">Ask drivers attendance</button><button type="button" class="btn" data-act="closeDlg">Close</button></div>
+    <p class="muted" style="font-size:12px;margin-top:8px">“Ask drivers attendance” saves the draft and posts the message in the attendance channel. If your Discord ID is saved in your profile, the bot also checks that you hold an allowed role.</p></div>
+    <div><div class="card rdprev" id="rdPrev"></div></div></div></form>`;
+    $('#dlg').showModal(); rdRefresh($('#dlg form'));
+  },
+  rdTime: a => {
+    const f = a.closest('form'), race = D.races.find(r => r.id === f.dataset.race), ta = f.elements.body, t = `<t:${Math.floor(new Date(race.race_date).getTime() / 1000)}:F>`;
+    ta.setRangeText(t, ta.selectionStart, ta.selectionEnd, 'end'); ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true })); rdRefresh(f);
+  },
+  rdAdd: a => { const f = a.closest('form'); f.querySelector('.rdinfo').insertAdjacentHTML('beforeend', rdLine({ l: '', v: '' })); rdRefresh(f); },
+  rdDel: a => { const f = a.closest('form'); a.closest('.rdl').remove(); rdRefresh(f); },
+  rdFill: a => { const f = a.closest('form'), race = D.races.find(r => r.id === f.dataset.race); f.querySelector('.rdinfo').innerHTML = rdDefaults(race).info.map(rdLine).join(''); rdRefresh(f); },
+  rdAsk: async a => {
+    const f = a.closest('form'); a.disabled = true;
+    try { await rdSave(f); } catch (err) { a.disabled = false; return toast(err.message || 'Error saving the draft.', true); }
+    a.disabled = false; $('#dlg').close();
+    if (confirm('Post the attendance message (race info + Confirm / Absent / Doubt buttons) in the Discord attendance channel?')) queueJob('presence_ask', { race_id: f.dataset.race });
+  },
   askPresence: () => {
     if (!S.resRace) return;
-    if (!me.profile?.discord_id) return toast('Save your Discord ID in your profile first (the bot checks that you hold the required role).', true);
     if (confirm('Post the attendance message (race info + Confirm / Absent / Doubt buttons) in the Discord attendance channel?')) queueJob('presence_ask', { race_id: S.resRace });
   },
   finAdj: a => {
@@ -2044,6 +2107,8 @@ document.addEventListener('submit', async e => {
       if (error) throw new Error(/already|registered/i.test(error.message) ? 'That username is already in use.' : error.message);
       if (!data.session) { toast('Account created.', true); location.hash = '#/login'; }
       else { await loadMe(); toast('Account created!'); location.hash = '#/profile'; await refresh(); }
+    } else if (type === 'racedir') {
+      await rdSave(f); toast('Draft saved.');
     } else if (type === 'changepw') {
       const { error } = await sb.auth.updateUser({ password: fd.get('password') });
       if (error) throw error; f.reset(); toast('Password changed.');
