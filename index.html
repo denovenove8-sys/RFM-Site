@@ -1842,6 +1842,7 @@ const ACT = {
   },
   askPresence: () => {
     if (!S.resRace) return;
+    if (!me.profile?.discord_id) return toast('Save your Discord ID in your profile first (the bot checks that you hold the required role).', true);
     if (confirm('Post the attendance message (race info + Confirm / Absent / Doubt buttons) in the Discord attendance channel?')) queueJob('presence_ask', { race_id: S.resRace });
   },
   finAdj: a => {
